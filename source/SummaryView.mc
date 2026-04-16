@@ -1,5 +1,7 @@
 using Toybox.WatchUi;
 using Toybox.Graphics;
+using Toybox.Application;
+using Toybox.Time;
 
 class SummaryView extends WatchUi.View {
 
@@ -8,10 +10,82 @@ class SummaryView extends WatchUi.View {
     }
 
     function onUpdate(dc as Graphics.Dc) as Void {
+        var app = Application.getApp() as HalfLifeCaffeineApp;
+        var now = Time.now().value();
+        var width = dc.getWidth();
+        var height = dc.getHeight();
+
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
+
+        var level = 0.0;
+        var dailyIntake = 0;
+        var minutesToSafe = 0;
+        var alertStatus = "ok";
+        var dailyLimit = 400;
+
+        if (app.caffeineModel != null) {
+            level = app.caffeineModel.getCurrentLevel(now);
+            dailyIntake = app.caffeineModel.getDailyIntake(now);
+            minutesToSafe = app.caffeineModel.getMinutesToSafe(now, 50);
+        }
+
+        var appObj = Application.getApp();
+        var limitProp = appObj.getProperty("dailyLimit");
+        if (limitProp != null) { dailyLimit = limitProp; }
+
+        if (app.alertManager != null) {
+            alertStatus = app.alertManager.checkAlerts(dailyIntake, level, now);
+        }
+
+        var centerX = width / 2;
+
+        // Current caffeine level (large, centered)
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(dc.getWidth() / 2, dc.getHeight() / 2, Graphics.FONT_MEDIUM,
-            "0 mg", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(centerX, height * 0.18, Graphics.FONT_NUMBER_HOT,
+            Util.formatMg(level), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+
+        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(centerX, height * 0.33, Graphics.FONT_TINY,
+            "mg caffeine", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+
+        // Progress bar
+        var barY = (height * 0.42).toNumber();
+        var barWidth = (width * 0.6).toNumber();
+        var barHeight = 8;
+        var barX = (centerX - barWidth / 2).toNumber();
+        dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+        dc.fillRectangle(barX, barY, barWidth, barHeight);
+        var fillRatio = level.toFloat() / dailyLimit.toFloat();
+        if (fillRatio > 1.0) { fillRatio = 1.0; }
+        var fillWidth = (barWidth * fillRatio).toNumber();
+        var barColor = Graphics.COLOR_GREEN;
+        if (alertStatus.equals("warning")) { barColor = Graphics.COLOR_YELLOW; }
+        if (alertStatus.equals("over")) { barColor = Graphics.COLOR_RED; }
+        dc.setColor(barColor, Graphics.COLOR_TRANSPARENT);
+        dc.fillRectangle(barX, barY, fillWidth, barHeight);
+
+        // Time until sleep-safe
+        var sleepText = "Clear";
+        if (level >= 1.0 && minutesToSafe > 0) {
+            sleepText = "Sleep safe in " + Util.formatDuration(minutesToSafe);
+        }
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(centerX, height * 0.55, Graphics.FONT_SMALL,
+            sleepText, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+
+        // Daily intake vs limit
+        var intakeText = dailyIntake.toString() + " / " + dailyLimit.toString() + " mg today";
+        var intakeColor = Graphics.COLOR_LT_GRAY;
+        if (alertStatus.equals("warning")) { intakeColor = Graphics.COLOR_YELLOW; }
+        if (alertStatus.equals("over")) { intakeColor = Graphics.COLOR_RED; }
+        dc.setColor(intakeColor, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(centerX, height * 0.70, Graphics.FONT_TINY,
+            intakeText, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+
+        // Hint
+        dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(centerX, height * 0.88, Graphics.FONT_XTINY,
+            "Press to add drink", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 }

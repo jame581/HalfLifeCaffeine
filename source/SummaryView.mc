@@ -10,6 +10,7 @@ class SummaryView extends WatchUi.View {
     }
 
     function onUpdate(dc) {
+        try {
         var app = Application.getApp();
         var now = Time.now().value();
         var width = dc.getWidth();
@@ -87,5 +88,12 @@ class SummaryView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
         dc.drawText(centerX, (height * 88 / 100), Graphics.FONT_XTINY,
             "Press to add drink", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        } catch (e) {
+            dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+            dc.clear();
+            dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(dc.getWidth() / 2, dc.getHeight() / 2, Graphics.FONT_SMALL,
+                e.getErrorMessage(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        }
     }
 }

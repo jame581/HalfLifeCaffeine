@@ -23,6 +23,5 @@ class DrinkMenuDelegate extends WatchUi.Menu2InputDelegate {
 
     function onBack() {
         WatchUi.popView(WatchUi.SLIDE_DOWN);
-        return true;
     }
 }

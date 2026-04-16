@@ -1,8 +1,10 @@
 using Toybox.WatchUi;
 using Toybox.Graphics;
 using Toybox.Application;
+using Toybox.Lang;
 using Toybox.Time;
 
+(:glance)
 class GlanceView extends WatchUi.GlanceView {
 
     function initialize() {

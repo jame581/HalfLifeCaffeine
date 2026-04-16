@@ -1,6 +1,7 @@
 using Toybox.WatchUi;
 using Toybox.Graphics;
 using Toybox.Application;
+using Toybox.Lang;
 using Toybox.Time;
 
 class TimelineView extends WatchUi.View {

@@ -1,5 +1,6 @@
 using Toybox.WatchUi;
 using Toybox.Application;
+using Toybox.Lang;
 
 class SummaryDelegate extends WatchUi.BehaviorDelegate {
 

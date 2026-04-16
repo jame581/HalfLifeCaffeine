@@ -1,3 +1,4 @@
+using Toybox.Lang;
 using Toybox.WatchUi;
 
 class TimelineDelegate extends WatchUi.BehaviorDelegate {

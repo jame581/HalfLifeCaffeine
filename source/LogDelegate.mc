@@ -1,3 +1,4 @@
+using Toybox.Lang;
 using Toybox.WatchUi;
 
 class LogDelegate extends WatchUi.BehaviorDelegate {

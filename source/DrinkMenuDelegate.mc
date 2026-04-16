@@ -1,6 +1,7 @@
 using Toybox.WatchUi;
 using Toybox.Application;
 using Toybox.Attention;
+using Toybox.Lang;
 
 class DrinkMenuDelegate extends WatchUi.Menu2InputDelegate {
 

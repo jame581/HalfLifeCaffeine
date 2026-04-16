@@ -1,5 +1,6 @@
 using Toybox.Application;
 using Toybox.Attention;
+using Toybox.Lang;
 using Toybox.Time;
 using Toybox.Time.Gregorian;
 
@@ -92,7 +93,7 @@ class AlertManager {
     private function getUniqueDay(epochSeconds as Number) as Number {
         var moment = new Time.Moment(epochSeconds);
         var info = Gregorian.info(moment, Time.FORMAT_SHORT);
-        return info.year * 400 + info.day_of_year;
+        return info.year * 10000 + info.month * 100 + info.day;
     }
 
     private function vibrateGentle() as Void {

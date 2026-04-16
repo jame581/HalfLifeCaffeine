@@ -3,7 +3,8 @@
     "allow": [
       "Bash(bash *)",
       "WebSearch",
-      "Bash(python *)"
+      "Bash(python *)",
+      "Bash(ls -d \"c:/Users/jame_/AppData/Roaming/Garmin/ConnectIQ/Devices/\"*)"
     ]
   }
 }

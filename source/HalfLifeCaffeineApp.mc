@@ -1,21 +1,20 @@
 using Toybox.Application;
-using Toybox.Lang;
 using Toybox.WatchUi;
 using Toybox.Time;
 
 class HalfLifeCaffeineApp extends Application.AppBase {
 
-    var caffeineModel as CaffeineModel?;
-    var drinkPresets as DrinkPresets?;
-    var storageManager as StorageManager?;
-    var alertManager as AlertManager?;
-    var syncManager as SyncManager?;
+    var caffeineModel;
+    var drinkPresets;
+    var storageManager;
+    var alertManager;
+    var syncManager;
 
     function initialize() {
         AppBase.initialize();
     }
 
-    function onStart(state as Dictionary?) as Void {
+    function onStart(state) {
         storageManager = new StorageManager();
         caffeineModel = new CaffeineModel();
         drinkPresets = new DrinkPresets();
@@ -30,27 +29,27 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         caffeineModel.setDoses(savedDoses);
     }
 
-    function onStop(state as Dictionary?) as Void {
+    function onStop(state) {
         // Persist current doses
         if (caffeineModel != null && storageManager != null) {
             storageManager.saveDoses(caffeineModel.getDoses());
         }
     }
 
-    function getGlanceView() as Array? {
+    function getGlanceView() {
         return [new GlanceView()];
     }
 
-    function getView() as Array {
+    function getView() {
         return [new SummaryView(), new SummaryDelegate()];
     }
 
-    function onSettingsChanged() as Void {
+    function onSettingsChanged() {
         WatchUi.requestUpdate();
     }
 
     // Helper to add a drink and trigger save + alerts
-    function logDrink(presetIndex as Number) as Void {
+    function logDrink(presetIndex) {
         var preset = drinkPresets.getPresetAt(presetIndex);
         var now = Time.now().value();
         caffeineModel.addDose(preset[:mg], now, preset[:name]);

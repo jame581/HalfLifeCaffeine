@@ -1,28 +1,27 @@
 using Toybox.Application;
-using Toybox.Lang;
 
 class DrinkPresets {
 
     // Each preset: {:name => String, :mg => Number}
-    private var _presets as Array;
+    private var _presets;
 
     function initialize() {
         _presets = getDefaults();
     }
 
-    function getPresets() as Array {
+    function getPresets() {
         return _presets;
     }
 
-    function getPresetCount() as Number {
+    function getPresetCount() {
         return _presets.size();
     }
 
-    function getPresetAt(index as Number) as Dictionary {
+    function getPresetAt(index) {
         return _presets[index];
     }
 
-    function getDefaults() as Array {
+    function getDefaults() {
         return [
             {:name => "Espresso", :mg => 63},
             {:name => "Drip Coffee (S)", :mg => 95},

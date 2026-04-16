@@ -1,4 +1,3 @@
-using Toybox.Lang;
 using Toybox.Math;
 using Toybox.Time;
 using Toybox.Time.Gregorian;
@@ -15,19 +14,19 @@ class CaffeineModel {
     private const MIN_DOSE_MG = 1.0;
 
     // Array of active doses: each is {:mg => Float, :time => Number (epoch seconds)}
-    private var _doses as Array;
+    private var _doses;
 
     function initialize() {
         _doses = [];
     }
 
     // Add a new caffeine dose
-    function addDose(mg as Number, timeEpoch as Number, name as String) as Void {
+    function addDose(mg, timeEpoch, name) {
         _doses.add({:mg => mg.toFloat(), :time => timeEpoch, :name => name});
     }
 
     // Get current total caffeine level in mg
-    function getCurrentLevel(nowEpoch as Number) as Float {
+    function getCurrentLevel(nowEpoch) {
         var total = 0.0;
         pruneExpired(nowEpoch);
         for (var i = 0; i < _doses.size(); i++) {
@@ -38,7 +37,7 @@ class CaffeineModel {
     }
 
     // Get total caffeine consumed today (sum of original doses, not decayed)
-    function getDailyIntake(nowEpoch as Number) as Number {
+    function getDailyIntake(nowEpoch) {
         var todayStart = getMidnightEpoch(nowEpoch);
         var total = 0;
         for (var i = 0; i < _doses.size(); i++) {
@@ -52,7 +51,7 @@ class CaffeineModel {
 
     // Get minutes until total caffeine drops below safeLevel mg
     // Returns 0 if already below
-    function getMinutesToSafe(nowEpoch as Number, safeLevel as Number) as Number {
+    function getMinutesToSafe(nowEpoch, safeLevel) {
         var currentLevel = getCurrentLevel(nowEpoch);
         if (currentLevel <= safeLevel) {
             return 0;
@@ -75,7 +74,7 @@ class CaffeineModel {
 
     // Get array of projected levels for the next `hours` hours, sampled every 30 min
     // Returns array of {:minutesFromNow => Number, :mg => Float}
-    function getProjection(nowEpoch as Number, hours as Number) as Array {
+    function getProjection(nowEpoch, hours) {
         var points = [];
         var intervalMinutes = 30;
         var totalMinutes = hours * 60;
@@ -87,17 +86,17 @@ class CaffeineModel {
     }
 
     // Get all doses (for storage serialization)
-    function getDoses() as Array {
+    function getDoses() {
         return _doses;
     }
 
     // Load doses from storage (deserialization)
-    function setDoses(doses as Array) as Void {
+    function setDoses(doses) {
         _doses = doses;
     }
 
     // Get today's drink log: array of {:mg, :time} for doses logged today
-    function getTodayLog(nowEpoch as Number) as Array {
+    function getTodayLog(nowEpoch) {
         var todayStart = getMidnightEpoch(nowEpoch);
         var log = [];
         for (var i = 0; i < _doses.size(); i++) {
@@ -110,7 +109,7 @@ class CaffeineModel {
     }
 
     // Calculate decayed amount for a single dose
-    private function decayedAmount(originalMg as Float, doseTimeEpoch as Number, nowEpoch as Number) as Float {
+    private function decayedAmount(originalMg, doseTimeEpoch, nowEpoch) {
         var elapsedSeconds = nowEpoch - doseTimeEpoch;
         if (elapsedSeconds <= 0) {
             return originalMg;
@@ -122,7 +121,7 @@ class CaffeineModel {
     }
 
     // Remove doses that have decayed below MIN_DOSE_MG
-    private function pruneExpired(nowEpoch as Number) as Void {
+    private function pruneExpired(nowEpoch) {
         var kept = [];
         for (var i = 0; i < _doses.size(); i++) {
             var dose = _doses[i];
@@ -134,7 +133,7 @@ class CaffeineModel {
     }
 
     // Get epoch seconds for midnight today (local time)
-    private function getMidnightEpoch(nowEpoch as Number) as Number {
+    private function getMidnightEpoch(nowEpoch) {
         var moment = new Time.Moment(nowEpoch);
         var info = Gregorian.info(moment, Time.FORMAT_SHORT);
         var midnight = Gregorian.moment({

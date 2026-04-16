@@ -1,7 +1,6 @@
 using Toybox.WatchUi;
 using Toybox.Graphics;
 using Toybox.Application;
-using Toybox.Lang;
 using Toybox.Time;
 
 class TimelineView extends WatchUi.View {
@@ -10,8 +9,8 @@ class TimelineView extends WatchUi.View {
         View.initialize();
     }
 
-    function onUpdate(dc as Graphics.Dc) as Void {
-        var app = Application.getApp() as HalfLifeCaffeineApp;
+    function onUpdate(dc) {
+        var app = Application.getApp();
         var now = Time.now().value();
         var width = dc.getWidth();
         var height = dc.getHeight();
@@ -40,7 +39,7 @@ class TimelineView extends WatchUi.View {
         // Find max value for Y-axis scaling
         var maxMg = 50.0;
         for (var i = 0; i < projection.size(); i++) {
-            var mg = projection[i][:mg] as Float;
+            var mg = projection[i][:mg];
             if (mg > maxMg) { maxMg = mg; }
         }
         maxMg = maxMg * 1.1;
@@ -98,7 +97,7 @@ class TimelineView extends WatchUi.View {
 
         // Current level label
         if (projection.size() > 0) {
-            var currentMg = projection[0][:mg] as Float;
+            var currentMg = projection[0][:mg];
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
             dc.drawText(graphLeft + 4, graphTop + 4, Graphics.FONT_XTINY,
                 Util.formatMg(currentMg) + "mg", Graphics.TEXT_JUSTIFY_LEFT);

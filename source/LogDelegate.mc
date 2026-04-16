@@ -1,4 +1,3 @@
-using Toybox.Lang;
 using Toybox.WatchUi;
 
 class LogDelegate extends WatchUi.BehaviorDelegate {
@@ -8,7 +7,7 @@ class LogDelegate extends WatchUi.BehaviorDelegate {
     }
 
     // Swipe up → back to timeline
-    function onPreviousPage() as Boolean {
+    function onPreviousPage() {
         WatchUi.switchToView(new TimelineView(), new TimelineDelegate(), WatchUi.SLIDE_DOWN);
         return true;
     }

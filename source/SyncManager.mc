@@ -1,17 +1,16 @@
 using Toybox.Communications;
 using Toybox.Application;
-using Toybox.Lang;
 using Toybox.Time;
 
 class SyncManager {
 
-    private var _storageManager as StorageManager;
+    private var _storageManager;
 
-    function initialize(storageManager as StorageManager) {
+    function initialize(storageManager) {
         _storageManager = storageManager;
     }
 
-    function syncToPhone(allDoses as Array) as Void {
+    function syncToPhone(allDoses) {
         var lastSync = _storageManager.getLastSyncTime();
         var newDoses = _storageManager.getDosesSince(allDoses, lastSync);
 
@@ -38,11 +37,11 @@ class SyncManager {
         Communications.transmit(message, null, new SyncCallback(_storageManager));
     }
 
-    function registerPhoneListener() as Void {
+    function registerPhoneListener() {
         Communications.registerForPhoneAppMessages(method(:onPhoneMessage));
     }
 
-    function onPhoneMessage(message as Communications.PhoneAppMessage) as Void {
+    function onPhoneMessage(message) {
         var data = message.data;
         if (data == null) { return; }
 
@@ -65,17 +64,17 @@ class SyncManager {
 
 class SyncCallback extends Communications.ConnectionListener {
 
-    private var _storageManager as StorageManager;
+    private var _storageManager;
 
-    function initialize(storageManager as StorageManager) {
+    function initialize(storageManager) {
         ConnectionListener.initialize();
         _storageManager = storageManager;
     }
 
-    function onComplete() as Void {
+    function onComplete() {
         _storageManager.saveLastSyncTime(Time.now().value());
     }
 
-    function onError() as Void {
+    function onError() {
     }
 }

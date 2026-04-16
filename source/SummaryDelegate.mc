@@ -1,6 +1,5 @@
 using Toybox.WatchUi;
 using Toybox.Application;
-using Toybox.Lang;
 
 class SummaryDelegate extends WatchUi.BehaviorDelegate {
 
@@ -9,8 +8,8 @@ class SummaryDelegate extends WatchUi.BehaviorDelegate {
     }
 
     // SELECT button → open drink menu
-    function onSelect() as Boolean {
-        var app = Application.getApp() as HalfLifeCaffeineApp;
+    function onSelect() {
+        var app = Application.getApp();
         var menu = new WatchUi.Menu2({:title => "Add Drink"});
         for (var i = 0; i < app.drinkPresets.getPresetCount(); i++) {
             var preset = app.drinkPresets.getPresetAt(i);
@@ -26,7 +25,7 @@ class SummaryDelegate extends WatchUi.BehaviorDelegate {
     }
 
     // Swipe down → timeline view
-    function onNextPage() as Boolean {
+    function onNextPage() {
         WatchUi.switchToView(new TimelineView(), new TimelineDelegate(), WatchUi.SLIDE_UP);
         return true;
     }

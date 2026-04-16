@@ -1,7 +1,6 @@
 using Toybox.WatchUi;
 using Toybox.Application;
 using Toybox.Attention;
-using Toybox.Lang;
 
 class DrinkMenuDelegate extends WatchUi.Menu2InputDelegate {
 
@@ -9,9 +8,9 @@ class DrinkMenuDelegate extends WatchUi.Menu2InputDelegate {
         Menu2InputDelegate.initialize();
     }
 
-    function onSelect(item as WatchUi.MenuItem) as Void {
-        var presetIndex = item.getId() as Number;
-        var app = Application.getApp() as HalfLifeCaffeineApp;
+    function onSelect(item) {
+        var presetIndex = item.getId();
+        var app = Application.getApp();
         app.logDrink(presetIndex);
 
         // Confirmation vibration
@@ -22,7 +21,7 @@ class DrinkMenuDelegate extends WatchUi.Menu2InputDelegate {
         WatchUi.popView(WatchUi.SLIDE_DOWN);
     }
 
-    function onBack() as Void {
+    function onBack() {
         WatchUi.popView(WatchUi.SLIDE_DOWN);
     }
 }

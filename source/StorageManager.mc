@@ -1,5 +1,4 @@
 using Toybox.Application;
-using Toybox.Lang;
 using Toybox.Time;
 using Toybox.Time.Gregorian;
 
@@ -12,7 +11,7 @@ class StorageManager {
 
     // Save all active doses to storage
     // doses: Array of {:mg => Float, :time => Number}
-    function saveDoses(doses as Array) as Void {
+    function saveDoses(doses) {
         var storable = [];
         for (var i = 0; i < doses.size(); i++) {
             var dose = doses[i];
@@ -24,7 +23,7 @@ class StorageManager {
 
     // Load doses from storage
     // Returns Array of {:mg => Float, :time => Number}
-    function loadDoses() as Array {
+    function loadDoses() {
         var storable = Application.Storage.getValue(DOSES_KEY);
         var doses = [];
         if (storable != null && storable instanceof Array) {
@@ -40,7 +39,7 @@ class StorageManager {
     }
 
     // Remove doses older than 14 days
-    function pruneOldDoses(doses as Array, nowEpoch as Number) as Array {
+    function pruneOldDoses(doses, nowEpoch) {
         var cutoff = nowEpoch - RETENTION_SECONDS;
         var kept = [];
         for (var i = 0; i < doses.size(); i++) {
@@ -52,12 +51,12 @@ class StorageManager {
     }
 
     // Save the epoch of the last successful sync to phone
-    function saveLastSyncTime(epochSeconds as Number) as Void {
+    function saveLastSyncTime(epochSeconds) {
         Application.Storage.setValue(LAST_SYNC_KEY, epochSeconds);
     }
 
     // Get the epoch of the last successful sync
-    function getLastSyncTime() as Number {
+    function getLastSyncTime() {
         var value = Application.Storage.getValue(LAST_SYNC_KEY);
         if (value != null && value instanceof Number) {
             return value;
@@ -66,7 +65,7 @@ class StorageManager {
     }
 
     // Get doses added since a given epoch (for incremental sync)
-    function getDosesSince(doses as Array, sinceEpoch as Number) as Array {
+    function getDosesSince(doses, sinceEpoch) {
         var result = [];
         for (var i = 0; i < doses.size(); i++) {
             if (doses[i][:time] > sinceEpoch) {

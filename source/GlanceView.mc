@@ -1,7 +1,6 @@
 using Toybox.WatchUi;
 using Toybox.Graphics;
 using Toybox.Application;
-using Toybox.Lang;
 using Toybox.Time;
 
 (:glance)
@@ -11,8 +10,8 @@ class GlanceView extends WatchUi.GlanceView {
         GlanceView.initialize();
     }
 
-    function onUpdate(dc as Graphics.Dc) as Void {
-        var app = Application.getApp() as HalfLifeCaffeineApp;
+    function onUpdate(dc) {
+        var app = Application.getApp();
         var now = Time.now().value();
 
         var level = 0.0;

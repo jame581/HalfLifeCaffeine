@@ -1,7 +1,6 @@
 using Toybox.WatchUi;
 using Toybox.Graphics;
 using Toybox.Application;
-using Toybox.Lang;
 using Toybox.Time;
 
 class SummaryView extends WatchUi.View {
@@ -10,8 +9,8 @@ class SummaryView extends WatchUi.View {
         View.initialize();
     }
 
-    function onUpdate(dc as Graphics.Dc) as Void {
-        var app = Application.getApp() as HalfLifeCaffeineApp;
+    function onUpdate(dc) {
+        var app = Application.getApp();
         var now = Time.now().value();
         var width = dc.getWidth();
         var height = dc.getHeight();

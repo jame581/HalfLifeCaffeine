@@ -1,6 +1,5 @@
 using Toybox.Application;
 using Toybox.Attention;
-using Toybox.Lang;
 using Toybox.Time;
 using Toybox.Time.Gregorian;
 
@@ -11,9 +10,9 @@ class AlertManager {
     private const SLEEP_WINDOW_SECONDS = 7200; // 2 hours before bedtime
 
     // Tracks which alerts have fired today (reset at midnight)
-    private var _warningFiredDate as Number;
-    private var _limitFiredDate as Number;
-    private var _sleepFiredDate as Number;
+    private var _warningFiredDate;
+    private var _limitFiredDate;
+    private var _sleepFiredDate;
 
     function initialize() {
         _warningFiredDate = -1;
@@ -23,7 +22,7 @@ class AlertManager {
 
     // Check and fire alerts based on current state
     // Returns a status string for the UI: "ok", "warning", or "over"
-    function checkAlerts(dailyIntake as Number, currentLevel as Float, nowEpoch as Number) as String {
+    function checkAlerts(dailyIntake, currentLevel, nowEpoch) {
         var app = Application.getApp();
         var dailyLimit = app.getProperty("dailyLimit");
         if (dailyLimit == null) { dailyLimit = 400; }
@@ -59,7 +58,7 @@ class AlertManager {
     }
 
     // Pure read-only status check for UI display (no side effects)
-    function getStatus(dailyIntake as Number, dailyLimit as Number) as String {
+    function getStatus(dailyIntake, dailyLimit) {
         if (dailyIntake >= dailyLimit) {
             return "over";
         } else if (dailyIntake >= (dailyLimit * WARNING_THRESHOLD).toNumber()) {
@@ -68,7 +67,7 @@ class AlertManager {
         return "ok";
     }
 
-    private function checkSleepAlert(currentLevel as Float, nowEpoch as Number, today as Number) as Void {
+    private function checkSleepAlert(currentLevel, nowEpoch, today) {
         var app = Application.getApp();
         var alertSafeToSleep = app.getProperty("alertSafeToSleep");
         if (alertSafeToSleep == null) { alertSafeToSleep = true; }
@@ -90,19 +89,19 @@ class AlertManager {
         }
     }
 
-    private function getUniqueDay(epochSeconds as Number) as Number {
+    private function getUniqueDay(epochSeconds) {
         var moment = new Time.Moment(epochSeconds);
         var info = Gregorian.info(moment, Time.FORMAT_SHORT);
         return info.year * 10000 + info.month * 100 + info.day;
     }
 
-    private function vibrateGentle() as Void {
+    private function vibrateGentle() {
         if (Attention has :vibrate) {
             Attention.vibrate([new Attention.VibeProfile(50, 500)]);
         }
     }
 
-    private function vibrateStrong() as Void {
+    private function vibrateStrong() {
         if (Attention has :vibrate) {
             Attention.vibrate([
                 new Attention.VibeProfile(100, 300),

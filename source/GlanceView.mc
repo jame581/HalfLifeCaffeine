@@ -31,12 +31,13 @@ class GlanceView extends WatchUi.GlanceView {
 
         var mgText = Util.formatMg(level) + " mg";
 
+        var h = dc.getHeight();
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(0, dc.getHeight() * 0.3, Graphics.FONT_GLANCE,
+        dc.drawText(0, h * 30 / 100, Graphics.FONT_GLANCE,
             mgText, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(0, dc.getHeight() * 0.7, Graphics.FONT_GLANCE_NUMBER,
+        dc.drawText(0, h * 70 / 100, Graphics.FONT_GLANCE_NUMBER,
             statusText, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 }

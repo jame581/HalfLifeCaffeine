@@ -20,7 +20,7 @@ class LogView extends WatchUi.View {
 
         // Title
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(width / 2, height * 0.08, Graphics.FONT_XTINY,
+        dc.drawText(width / 2, height * 8 / 100, Graphics.FONT_XTINY,
             "Today's Drinks", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         if (app.caffeineModel == null) { return; }
@@ -34,9 +34,9 @@ class LogView extends WatchUi.View {
             return;
         }
 
-        var lineHeight = (height * 0.12).toNumber();
-        var startY = (height * 0.18).toNumber();
-        var maxVisible = ((height * 0.75) / lineHeight).toNumber();
+        var lineHeight = height * 12 / 100;
+        var startY = height * 18 / 100;
+        var maxVisible = height * 75 / 100 / lineHeight;
 
         for (var i = log.size() - 1; i >= 0; i--) {
             var entryIndex = log.size() - 1 - i;
@@ -50,15 +50,15 @@ class LogView extends WatchUi.View {
             var y = startY + (entryIndex * lineHeight);
 
             dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(width * 0.15, y, Graphics.FONT_XTINY,
+            dc.drawText(width * 15 / 100, y, Graphics.FONT_XTINY,
                 timeStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(width * 0.50, y, Graphics.FONT_XTINY,
+            dc.drawText(width * 50 / 100, y, Graphics.FONT_XTINY,
                 name, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
             dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(width * 0.85, y, Graphics.FONT_XTINY,
+            dc.drawText(width * 85 / 100, y, Graphics.FONT_XTINY,
                 mgStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }
     }

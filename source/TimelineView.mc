@@ -20,16 +20,16 @@ class TimelineView extends WatchUi.View {
 
         // Title
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(width / 2, height * 0.08, Graphics.FONT_XTINY,
+        dc.drawText(width / 2, height * 8 / 100, Graphics.FONT_XTINY,
             "Caffeine Timeline", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         if (app.caffeineModel == null) { return; }
 
         // Graph area
-        var graphLeft = (width * 0.15).toNumber();
-        var graphRight = (width * 0.85).toNumber();
-        var graphTop = (height * 0.18).toNumber();
-        var graphBottom = (height * 0.82).toNumber();
+        var graphLeft = width * 15 / 100;
+        var graphRight = width * 85 / 100;
+        var graphTop = height * 18 / 100;
+        var graphBottom = height * 82 / 100;
         var graphWidth = graphRight - graphLeft;
         var graphHeight = graphBottom - graphTop;
 

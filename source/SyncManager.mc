@@ -1,6 +1,7 @@
 using Toybox.Communications;
 using Toybox.Application;
 using Toybox.Time;
+using Toybox.WatchUi;
 
 class SyncManager {
 

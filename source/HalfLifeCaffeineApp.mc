@@ -28,6 +28,7 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         var now = Time.now().value();
         savedDoses = storageManager.pruneOldDoses(savedDoses, now);
         caffeineModel.setDoses(savedDoses);
+        caffeineModel.pruneExpiredDoses(now);
     }
 
     function onStop(state) {
@@ -54,6 +55,7 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         var preset = drinkPresets.getPresetAt(presetIndex);
         var now = Time.now().value();
         caffeineModel.addDose(preset[:mg], now, preset[:name]);
+        caffeineModel.pruneExpiredDoses(now);
         storageManager.saveDoses(caffeineModel.getDoses());
         syncManager.syncToPhone(caffeineModel.getDoses());
 

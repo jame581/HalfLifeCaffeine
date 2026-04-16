@@ -28,12 +28,16 @@ class CaffeineModel {
     // Get current total caffeine level in mg
     function getCurrentLevel(nowEpoch) {
         var total = 0.0;
-        pruneExpired(nowEpoch);
         for (var i = 0; i < _doses.size(); i++) {
             var dose = _doses[i];
             total += decayedAmount(dose[:mg], dose[:time], nowEpoch);
         }
         return total;
+    }
+
+    // Call periodically to clean up expired doses (only with real current time)
+    function pruneExpiredDoses(nowEpoch) {
+        pruneExpired(nowEpoch);
     }
 
     // Get total caffeine consumed today (sum of original doses, not decayed)
@@ -60,7 +64,7 @@ class CaffeineModel {
         var low = 0;
         var high = 1440; // 24 hours in minutes
         while (low < high) {
-            var mid = (low + high) / 2;
+            var mid = ((low + high) / 2).toNumber();
             var futureEpoch = nowEpoch + (mid * 60);
             var futureLevel = getCurrentLevel(futureEpoch);
             if (futureLevel <= safeLevel) {

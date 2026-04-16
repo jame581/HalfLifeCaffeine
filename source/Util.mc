@@ -9,8 +9,8 @@ module Util {
         if (totalMinutes <= 0) {
             return "0m";
         }
-        var hours = totalMinutes / 60;
-        var mins = totalMinutes % 60;
+        var hours = (totalMinutes / 60).toNumber();
+        var mins = (totalMinutes % 60).toNumber();
         if (hours > 0 && mins > 0) {
             return hours + "h " + mins + "m";
         } else if (hours > 0) {
@@ -31,7 +31,7 @@ module Util {
 
     // Format a caffeine level to a display string (e.g. 142.7 → "143")
     function formatMg(mg) {
-        return mg.toNumber().toString();
+        return (mg + 0.5).toNumber().toString();
     }
 
     // Get bedtime as epoch seconds for today
@@ -52,6 +52,11 @@ module Util {
             :minute => minute,
             :second => 0
         });
-        return bedtime.value();
+        var bedtimeEpoch = bedtime.value();
+        // If bedtime is already past (e.g. after-midnight bedtime called in evening), roll to next day
+        if (bedtimeEpoch <= nowEpoch) {
+            bedtimeEpoch += 86400; // Add 24 hours
+        }
+        return bedtimeEpoch;
     }
 }

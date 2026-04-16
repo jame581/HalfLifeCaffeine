@@ -20,11 +20,6 @@
                    max="59"/>
   </setting>
 
-  <setting propertyKey="@Properties.useGarminSleep"
-           title="Use Garmin Sleep Schedule">
-    <settingConfig type="boolean"/>
-  </setting>
-
   <setting propertyKey="@Properties.alertLimitWarning"
            title="Warn at 80% of limit">
     <settingConfig type="boolean"/>

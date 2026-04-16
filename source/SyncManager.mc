@@ -41,20 +41,20 @@ class SyncManager {
         Communications.registerForPhoneAppMessages(method(:onPhoneMessage));
     }
 
-    function onPhoneMessage(message) {
-        var data = message.data;
+    //! Callback for phone messages — must match expected signature
+    function onPhoneMessage(msg) as Void {
+        var data = msg.data;
         if (data == null) { return; }
 
         if (data.hasKey("type") && data["type"].equals("settings")) {
-            var app = Application.getApp();
             if (data.hasKey("dailyLimit")) {
-                app.setProperty("dailyLimit", data["dailyLimit"]);
+                Application.Properties.setValue("dailyLimit", data["dailyLimit"]);
             }
             if (data.hasKey("bedtimeHour")) {
-                app.setProperty("bedtimeHour", data["bedtimeHour"]);
+                Application.Properties.setValue("bedtimeHour", data["bedtimeHour"]);
             }
             if (data.hasKey("bedtimeMinute")) {
-                app.setProperty("bedtimeMinute", data["bedtimeMinute"]);
+                Application.Properties.setValue("bedtimeMinute", data["bedtimeMinute"]);
             }
         }
 

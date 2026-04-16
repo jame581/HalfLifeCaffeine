@@ -8,6 +8,7 @@ class HalfLifeCaffeineApp extends Application.AppBase {
     var drinkPresets as DrinkPresets?;
     var storageManager as StorageManager?;
     var alertManager as AlertManager?;
+    var syncManager as SyncManager?;
 
     function initialize() {
         AppBase.initialize();
@@ -18,6 +19,8 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         caffeineModel = new CaffeineModel();
         drinkPresets = new DrinkPresets();
         alertManager = new AlertManager();
+        syncManager = new SyncManager(storageManager);
+        syncManager.registerPhoneListener();
 
         // Load persisted doses
         var savedDoses = storageManager.loadDoses();
@@ -51,6 +54,7 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         var now = Time.now().value();
         caffeineModel.addDose(preset[:mg], now, preset[:name]);
         storageManager.saveDoses(caffeineModel.getDoses());
+        syncManager.syncToPhone(caffeineModel.getDoses());
 
         var dailyIntake = caffeineModel.getDailyIntake(now);
         var currentLevel = caffeineModel.getCurrentLevel(now);

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HalfLife Caffeine Settings</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            padding: 16px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        h1 { font-size: 1.4em; color: #4ecca3; margin-bottom: 16px; text-align: center; }
+        h2 { font-size: 1.1em; color: #4ecca3; margin: 20px 0 10px; border-bottom: 1px solid #333; padding-bottom: 6px; }
+        .tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+        .tab {
+            flex: 1; padding: 10px; text-align: center; background: #16213e;
+            border: 1px solid #333; border-radius: 8px; cursor: pointer;
+            font-size: 0.9em; color: #aaa; transition: all 0.2s;
+        }
+        .tab.active { background: #4ecca3; color: #1a1a2e; font-weight: bold; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .setting-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px; background: #16213e; border-radius: 8px; margin-bottom: 8px;
+        }
+        .setting-label { font-size: 0.9em; }
+        .setting-value input[type="number"] {
+            width: 70px; padding: 6px; background: #0f3460; color: #fff;
+            border: 1px solid #4ecca3; border-radius: 4px; text-align: center;
+        }
+        .toggle {
+            width: 48px; height: 26px; background: #333; border-radius: 13px;
+            position: relative; cursor: pointer; transition: background 0.2s;
+        }
+        .toggle.on { background: #4ecca3; }
+        .toggle::after {
+            content: ''; position: absolute; width: 22px; height: 22px;
+            background: white; border-radius: 50%; top: 2px; left: 2px; transition: left 0.2s;
+        }
+        .toggle.on::after { left: 24px; }
+        .preset-list { margin-bottom: 12px; }
+        .preset-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 12px; background: #16213e; border-radius: 8px; margin-bottom: 6px;
+        }
+        .preset-name { flex: 1; }
+        .preset-mg { color: #4ecca3; font-weight: bold; margin-right: 12px; }
+        .preset-delete { color: #e74c3c; cursor: pointer; font-size: 1.2em; }
+        .add-preset { display: flex; gap: 8px; margin-bottom: 12px; }
+        .add-preset input {
+            flex: 1; padding: 8px; background: #0f3460; color: #fff;
+            border: 1px solid #333; border-radius: 4px;
+        }
+        .add-preset input[type="number"] { width: 80px; flex: none; }
+        .btn {
+            padding: 8px 16px; background: #4ecca3; color: #1a1a2e;
+            border: none; border-radius: 4px; cursor: pointer; font-weight: bold;
+        }
+        .btn:hover { background: #3ba88a; }
+        .btn-save { width: 100%; padding: 12px; font-size: 1em; margin-top: 16px; }
+        .history-day { margin-bottom: 12px; }
+        .history-date { font-size: 0.85em; color: #4ecca3; margin-bottom: 4px; font-weight: bold; }
+        .history-entry {
+            display: flex; justify-content: space-between;
+            padding: 6px 12px; background: #16213e; border-radius: 4px; margin-bottom: 3px;
+            font-size: 0.85em;
+        }
+        .history-bar { height: 8px; background: #333; border-radius: 4px; margin-top: 4px; }
+        .history-bar-fill { height: 100%; border-radius: 4px; }
+        .bar-green { background: #4ecca3; }
+        .bar-yellow { background: #f39c12; }
+        .bar-red { background: #e74c3c; }
+        .trend-stat {
+            display: flex; justify-content: space-between;
+            padding: 12px; background: #16213e; border-radius: 8px; margin-bottom: 8px;
+        }
+        .trend-value { color: #4ecca3; font-weight: bold; font-size: 1.2em; }
+        canvas { width: 100%; background: #16213e; border-radius: 8px; margin-top: 8px; }
+        .empty-state { text-align: center; color: #666; padding: 40px 16px; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+
+<h1>&#9749; HalfLife Caffeine</h1>
+
+<div class="tabs">
+    <div class="tab active" onclick="switchTab('settings')">Settings</div>
+    <div class="tab" onclick="switchTab('history')">History</div>
+    <div class="tab" onclick="switchTab('trends')">Trends</div>
+</div>
+
+<div id="tab-settings" class="tab-content active">
+    <h2>Limits</h2>
+    <div class="setting-row">
+        <span class="setting-label">Daily Limit (mg)</span>
+        <div class="setting-value">
+            <input type="number" id="dailyLimit" value="400" min="100" max="1000">
+        </div>
+    </div>
+
+    <h2>Bedtime</h2>
+    <div class="setting-row">
+        <span class="setting-label">Bedtime Hour</span>
+        <div class="setting-value">
+            <input type="number" id="bedtimeHour" value="22" min="0" max="23">
+        </div>
+    </div>
+    <div class="setting-row">
+        <span class="setting-label">Bedtime Minute</span>
+        <div class="setting-value">
+            <input type="number" id="bedtimeMinute" value="30" min="0" max="59">
+        </div>
+    </div>
+    <div class="setting-row">
+        <span class="setting-label">Use Garmin Sleep</span>
+        <div class="toggle on" id="useGarminSleep" onclick="toggleSetting(this)"></div>
+    </div>
+
+    <h2>Notifications</h2>
+    <div class="setting-row">
+        <span class="setting-label">Warn at 80%</span>
+        <div class="toggle on" id="alertLimitWarning" onclick="toggleSetting(this)"></div>
+    </div>
+    <div class="setting-row">
+        <span class="setting-label">Alert at 100%</span>
+        <div class="toggle on" id="alertLimitReached" onclick="toggleSetting(this)"></div>
+    </div>
+    <div class="setting-row">
+        <span class="setting-label">Safe to sleep</span>
+        <div class="toggle on" id="alertSafeToSleep" onclick="toggleSetting(this)"></div>
+    </div>
+
+    <h2>Drink Presets</h2>
+    <div class="add-preset">
+        <input type="text" id="newPresetName" placeholder="Drink name">
+        <input type="number" id="newPresetMg" placeholder="mg" min="1" max="500">
+        <button class="btn" onclick="addPreset()">Add</button>
+    </div>
+    <div id="presetList" class="preset-list"></div>
+
+    <button class="btn btn-save" onclick="saveSettings()">Save Settings</button>
+</div>
+
+<div id="tab-history" class="tab-content">
+    <h2>Drink History</h2>
+    <div id="historyContent"></div>
+</div>
+
+<div id="tab-trends" class="tab-content">
+    <h2>Overview</h2>
+    <div class="trend-stat">
+        <span>7-Day Average</span>
+        <span class="trend-value" id="avg7day">-- mg</span>
+    </div>
+    <div class="trend-stat">
+        <span>30-Day Average</span>
+        <span class="trend-value" id="avg30day">-- mg</span>
+    </div>
+    <div class="trend-stat">
+        <span>Days Over Limit</span>
+        <span class="trend-value" id="daysOver">--</span>
+    </div>
+
+    <h2>Daily Intake</h2>
+    <canvas id="trendChart" height="200"></canvas>
+
+    <h2>Peak Hours</h2>
+    <canvas id="peakChart" height="150"></canvas>
+</div>
+
+<script>
+var drinkHistory = JSON.parse(localStorage.getItem('drinkHistory') || '[]');
+var presets = JSON.parse(localStorage.getItem('presets') || 'null');
+if (!presets) {
+    presets = [
+        {name: "Espresso", mg: 63},
+        {name: "Drip Coffee (S)", mg: 95},
+        {name: "Drip Coffee (L)", mg: 190},
+        {name: "Latte", mg: 63},
+        {name: "Green Tea", mg: 30},
+        {name: "Black Tea", mg: 47},
+        {name: "Red Bull", mg: 80},
+        {name: "Monster", mg: 160},
+        {name: "Cola", mg: 34},
+        {name: "Dark Chocolate", mg: 25},
+        {name: "Pre-Workout", mg: 200}
+    ];
+}
+
+function switchTab(name) {
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+    event.target.classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+    if (name === 'history') { renderHistory(); }
+    if (name === 'trends') { renderTrends(); }
+}
+
+function toggleSetting(el) {
+    el.classList.toggle('on');
+}
+
+function renderPresets() {
+    var html = '';
+    for (var i = 0; i < presets.length; i++) {
+        html += '<div class="preset-item">' +
+            '<span class="preset-name">' + presets[i].name + '</span>' +
+            '<span class="preset-mg">' + presets[i].mg + ' mg</span>' +
+            '<span class="preset-delete" onclick="removePreset(' + i + ')">&#x2715;</span>' +
+            '</div>';
+    }
+    document.getElementById('presetList').innerHTML = html;
+}
+
+function addPreset() {
+    var name = document.getElementById('newPresetName').value.trim();
+    var mg = parseInt(document.getElementById('newPresetMg').value);
+    if (!name || !mg || mg <= 0) { return; }
+    presets.push({name: name, mg: mg});
+    document.getElementById('newPresetName').value = '';
+    document.getElementById('newPresetMg').value = '';
+    renderPresets();
+}
+
+function removePreset(index) {
+    presets.splice(index, 1);
+    renderPresets();
+}
+
+function saveSettings() {
+    localStorage.setItem('presets', JSON.stringify(presets));
+    var settings = {
+        dailyLimit: parseInt(document.getElementById('dailyLimit').value),
+        bedtimeHour: parseInt(document.getElementById('bedtimeHour').value),
+        bedtimeMinute: parseInt(document.getElementById('bedtimeMinute').value),
+        useGarminSleep: document.getElementById('useGarminSleep').classList.contains('on'),
+        alertLimitWarning: document.getElementById('alertLimitWarning').classList.contains('on'),
+        alertLimitReached: document.getElementById('alertLimitReached').classList.contains('on'),
+        alertSafeToSleep: document.getElementById('alertSafeToSleep').classList.contains('on'),
+        presets: presets
+    };
+    try {
+        var encoded = encodeURIComponent(JSON.stringify(settings));
+        window.location.href = "ciq://settings?" + encoded;
+    } catch(e) {
+        alert("Settings saved locally.");
+    }
+}
+
+function renderHistory() {
+    var container = document.getElementById('historyContent');
+    if (drinkHistory.length === 0) {
+        container.innerHTML = '<div class="empty-state">No drink history yet.<br>Log drinks on your watch to see them here.</div>';
+        return;
+    }
+    var dailyLimit = parseInt(document.getElementById('dailyLimit').value) || 400;
+    var days = {};
+    for (var i = 0; i < drinkHistory.length; i++) {
+        var d = drinkHistory[i];
+        var date = new Date(d.time * 1000).toLocaleDateString();
+        if (!days[date]) { days[date] = []; }
+        days[date].push(d);
+    }
+    var html = '';
+    var sortedDates = Object.keys(days).sort().reverse();
+    for (var j = 0; j < sortedDates.length && j < 14; j++) {
+        var dateStr = sortedDates[j];
+        var entries = days[dateStr];
+        var total = entries.reduce(function(sum, e) { return sum + e.mg; }, 0);
+        var ratio = Math.min(total / dailyLimit, 1);
+        var barClass = ratio < 0.8 ? 'bar-green' : (ratio < 1 ? 'bar-yellow' : 'bar-red');
+        html += '<div class="history-day">';
+        html += '<div class="history-date">' + dateStr + ' - ' + total + ' mg</div>';
+        html += '<div class="history-bar"><div class="history-bar-fill ' + barClass + '" style="width:' + (ratio * 100) + '%"></div></div>';
+        for (var k = entries.length - 1; k >= 0; k--) {
+            var e = entries[k];
+            var time = new Date(e.time * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            html += '<div class="history-entry"><span>' + time + ' - ' + (e.name || 'Unknown') + '</span><span>' + e.mg + ' mg</span></div>';
+        }
+        html += '</div>';
+    }
+    container.innerHTML = html;
+}
+
+function renderTrends() {
+    if (drinkHistory.length === 0) { return; }
+    var dailyLimit = parseInt(document.getElementById('dailyLimit').value) || 400;
+    var dailyTotals = {};
+    for (var i = 0; i < drinkHistory.length; i++) {
+        var d = drinkHistory[i];
+        var date = new Date(d.time * 1000).toISOString().split('T')[0];
+        dailyTotals[date] = (dailyTotals[date] || 0) + d.mg;
+    }
+    var dates = Object.keys(dailyTotals).sort();
+    var last7 = dates.slice(-7);
+    var last30 = dates.slice(-30);
+    var sum7 = last7.reduce(function(s, d) { return s + dailyTotals[d]; }, 0);
+    var sum30 = last30.reduce(function(s, d) { return s + dailyTotals[d]; }, 0);
+    document.getElementById('avg7day').textContent = last7.length > 0 ? Math.round(sum7 / last7.length) + ' mg' : '-- mg';
+    document.getElementById('avg30day').textContent = last30.length > 0 ? Math.round(sum30 / last30.length) + ' mg' : '-- mg';
+    var over = dates.filter(function(d) { return dailyTotals[d] > dailyLimit; }).length;
+    document.getElementById('daysOver').textContent = over + ' / ' + dates.length;
+
+    var canvas = document.getElementById('trendChart');
+    var ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth * 2;
+    canvas.height = 400;
+    ctx.scale(2, 2);
+    var cw = canvas.offsetWidth;
+    var ch = 200;
+    ctx.clearRect(0, 0, cw, ch);
+    var displayDates = dates.slice(-14);
+    var maxVal = Math.max(dailyLimit, Math.max.apply(null, displayDates.map(function(d) { return dailyTotals[d]; }))) * 1.1;
+    var barW = (cw - 40) / displayDates.length;
+    var limitY = ch - 20 - ((dailyLimit / maxVal) * (ch - 40));
+    ctx.strokeStyle = '#e74c3c';
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(20, limitY);
+    ctx.lineTo(cw - 20, limitY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    for (var b = 0; b < displayDates.length; b++) {
+        var val = dailyTotals[displayDates[b]];
+        var barH = (val / maxVal) * (ch - 40);
+        var bx = 20 + b * barW + barW * 0.15;
+        var by = ch - 20 - barH;
+        ctx.fillStyle = val > dailyLimit ? '#e74c3c' : (val > dailyLimit * 0.8 ? '#f39c12' : '#4ecca3');
+        ctx.fillRect(bx, by, barW * 0.7, barH);
+    }
+
+    var peakCanvas = document.getElementById('peakChart');
+    var pctx = peakCanvas.getContext('2d');
+    peakCanvas.width = peakCanvas.offsetWidth * 2;
+    peakCanvas.height = 300;
+    pctx.scale(2, 2);
+    var pw = peakCanvas.offsetWidth;
+    var ph = 150;
+    pctx.clearRect(0, 0, pw, ph);
+    var hourBuckets = new Array(24).fill(0);
+    for (var h = 0; h < drinkHistory.length; h++) {
+        var hour = new Date(drinkHistory[h].time * 1000).getHours();
+        hourBuckets[hour] += drinkHistory[h].mg;
+    }
+    var maxHour = Math.max.apply(null, hourBuckets) || 1;
+    var hBarW = (pw - 40) / 24;
+    for (var hr = 0; hr < 24; hr++) {
+        var hBarH = (hourBuckets[hr] / maxHour) * (ph - 40);
+        var hx = 20 + hr * hBarW + hBarW * 0.1;
+        var hy = ph - 20 - hBarH;
+        pctx.fillStyle = '#4ecca3';
+        pctx.fillRect(hx, hy, hBarW * 0.8, hBarH);
+        if (hr % 4 === 0) {
+            pctx.fillStyle = '#666';
+            pctx.font = '9px sans-serif';
+            pctx.fillText(hr + ':00', hx, ph - 4);
+        }
+    }
+}
+
+function onWatchData(data) {
+    if (data && data.type === 'drinks' && data.data) {
+        for (var i = 0; i < data.data.length; i++) {
+            drinkHistory.push(data.data[i]);
+        }
+        localStorage.setItem('drinkHistory', JSON.stringify(drinkHistory));
+    }
+}
+
+renderPresets();
+</script>
+
+</body>
+</html>

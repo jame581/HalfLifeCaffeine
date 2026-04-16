@@ -35,7 +35,7 @@ class SummaryView extends WatchUi.View {
         if (limitProp != null) { dailyLimit = limitProp; }
 
         if (app.alertManager != null) {
-            alertStatus = app.alertManager.checkAlerts(dailyIntake, level, now);
+            alertStatus = app.alertManager.getStatus(dailyIntake, dailyLimit);
         }
 
         var centerX = width / 2;
@@ -56,7 +56,7 @@ class SummaryView extends WatchUi.View {
         var barX = (centerX - barWidth / 2).toNumber();
         dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
         dc.fillRectangle(barX, barY, barWidth, barHeight);
-        var fillRatio = level.toFloat() / dailyLimit.toFloat();
+        var fillRatio = dailyIntake.toFloat() / dailyLimit.toFloat();
         if (fillRatio > 1.0) { fillRatio = 1.0; }
         var fillWidth = (barWidth * fillRatio).toNumber();
         var barColor = Graphics.COLOR_GREEN;

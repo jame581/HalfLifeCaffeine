@@ -61,7 +61,7 @@ class TimelineView extends WatchUi.View {
         }
 
         // Draw bedtime marker
-        var bedtimeEpoch = getBedtimeEpoch(now);
+        var bedtimeEpoch = Util.getBedtimeEpoch(now);
         var minutesUntilBed = (bedtimeEpoch - now) / 60;
         if (minutesUntilBed > 0 && minutesUntilBed < 480) {
             var bedX = graphLeft + ((minutesUntilBed.toFloat() / 480.0) * graphWidth).toNumber();
@@ -104,23 +104,4 @@ class TimelineView extends WatchUi.View {
         }
     }
 
-    private function getBedtimeEpoch(nowEpoch as Number) as Number {
-        var app = Application.getApp();
-        var hour = app.getProperty("bedtimeHour");
-        var minute = app.getProperty("bedtimeMinute");
-        if (hour == null) { hour = 22; }
-        if (minute == null) { minute = 30; }
-
-        var moment = new Time.Moment(nowEpoch);
-        var info = Time.Gregorian.info(moment, Time.FORMAT_SHORT);
-        var bedtime = Time.Gregorian.moment({
-            :year => info.year,
-            :month => info.month,
-            :day => info.day,
-            :hour => hour,
-            :minute => minute,
-            :second => 0
-        });
-        return bedtime.value();
-    }
 }

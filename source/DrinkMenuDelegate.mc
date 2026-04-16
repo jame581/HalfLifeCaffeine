@@ -1,5 +1,6 @@
 using Toybox.WatchUi;
 using Toybox.Application;
+using Toybox.Attention;
 
 class DrinkMenuDelegate extends WatchUi.Menu2InputDelegate {
 
@@ -12,7 +13,11 @@ class DrinkMenuDelegate extends WatchUi.Menu2InputDelegate {
         var app = Application.getApp() as HalfLifeCaffeineApp;
         app.logDrink(presetIndex);
 
-        // Pop back to summary
+        // Confirmation vibration
+        if (Attention has :vibrate) {
+            Attention.vibrate([new Attention.VibeProfile(50, 200)]);
+        }
+
         WatchUi.popView(WatchUi.SLIDE_DOWN);
     }
 

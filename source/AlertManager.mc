@@ -27,13 +27,15 @@ class AlertManager {
         var dailyLimit = app.getProperty("dailyLimit");
         if (dailyLimit == null) { dailyLimit = 400; }
 
-        var today = getDayOfYear(nowEpoch);
+        var today = getUniqueDay(nowEpoch);
         var status = "ok";
 
         // Check 100% limit first (higher priority)
         if (dailyIntake >= dailyLimit) {
             status = "over";
-            if (_limitFiredDate != today && app.getProperty("alertLimitReached")) {
+            var alertLimitReached = app.getProperty("alertLimitReached");
+            if (alertLimitReached == null) { alertLimitReached = true; }
+            if (_limitFiredDate != today && alertLimitReached) {
                 _limitFiredDate = today;
                 vibrateStrong();
             }
@@ -41,7 +43,9 @@ class AlertManager {
         // Check 80% warning
         else if (dailyIntake >= (dailyLimit * WARNING_THRESHOLD).toNumber()) {
             status = "warning";
-            if (_warningFiredDate != today && app.getProperty("alertLimitWarning")) {
+            var alertLimitWarning = app.getProperty("alertLimitWarning");
+            if (alertLimitWarning == null) { alertLimitWarning = true; }
+            if (_warningFiredDate != today && alertLimitWarning) {
                 _warningFiredDate = today;
                 vibrateGentle();
             }
@@ -53,9 +57,21 @@ class AlertManager {
         return status;
     }
 
+    // Pure read-only status check for UI display (no side effects)
+    function getStatus(dailyIntake as Number, dailyLimit as Number) as String {
+        if (dailyIntake >= dailyLimit) {
+            return "over";
+        } else if (dailyIntake >= (dailyLimit * WARNING_THRESHOLD).toNumber()) {
+            return "warning";
+        }
+        return "ok";
+    }
+
     private function checkSleepAlert(currentLevel as Float, nowEpoch as Number, today as Number) as Void {
         var app = Application.getApp();
-        if (!app.getProperty("alertSafeToSleep")) {
+        var alertSafeToSleep = app.getProperty("alertSafeToSleep");
+        if (alertSafeToSleep == null) { alertSafeToSleep = true; }
+        if (!alertSafeToSleep) {
             return;
         }
         if (_sleepFiredDate == today) {
@@ -65,7 +81,7 @@ class AlertManager {
             return;
         }
         // Check if within 2 hours of bedtime
-        var bedtimeEpoch = getBedtimeEpoch(nowEpoch);
+        var bedtimeEpoch = Util.getBedtimeEpoch(nowEpoch);
         var timeUntilBed = bedtimeEpoch - nowEpoch;
         if (timeUntilBed > 0 && timeUntilBed <= SLEEP_WINDOW_SECONDS) {
             _sleepFiredDate = today;
@@ -73,30 +89,10 @@ class AlertManager {
         }
     }
 
-    private function getBedtimeEpoch(nowEpoch as Number) as Number {
-        var app = Application.getApp();
-        var hour = app.getProperty("bedtimeHour");
-        var minute = app.getProperty("bedtimeMinute");
-        if (hour == null) { hour = 22; }
-        if (minute == null) { minute = 30; }
-
-        var moment = new Time.Moment(nowEpoch);
-        var info = Gregorian.info(moment, Time.FORMAT_SHORT);
-        var bedtime = Gregorian.moment({
-            :year => info.year,
-            :month => info.month,
-            :day => info.day,
-            :hour => hour,
-            :minute => minute,
-            :second => 0
-        });
-        return bedtime.value();
-    }
-
-    private function getDayOfYear(epochSeconds as Number) as Number {
+    private function getUniqueDay(epochSeconds as Number) as Number {
         var moment = new Time.Moment(epochSeconds);
         var info = Gregorian.info(moment, Time.FORMAT_SHORT);
-        return info.day_of_year;
+        return info.year * 400 + info.day_of_year;
     }
 
     private function vibrateGentle() as Void {

@@ -20,6 +20,10 @@
       <iq:product id="fenix7s"/>
       <iq:product id="fenix7x"/>
       <iq:product id="epix2"/>
+      <iq:product id="vivoactive4"/>
+      <iq:product id="fenix6"/>
+      <iq:product id="fenix6s"/>
+      <iq:product id="fenix6x"/>
     </iq:products>
     <iq:permissions>
       <iq:uses-permission id="Communications"/>

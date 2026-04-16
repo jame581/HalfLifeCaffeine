@@ -12,11 +12,11 @@ class StorageManager {
     // Save all active doses to storage
     // doses: Array of {:mg => Float, :time => Number}
     function saveDoses(doses as Array) as Void {
-        // Convert to storable format (arrays of arrays, since storage doesn't persist symbols)
         var storable = [];
         for (var i = 0; i < doses.size(); i++) {
             var dose = doses[i];
-            storable.add([dose[:mg], dose[:time]]);
+            var name = dose.hasKey(:name) ? dose[:name] : "";
+            storable.add([dose[:mg], dose[:time], name]);
         }
         Application.Storage.setValue(DOSES_KEY, storable);
     }
@@ -29,8 +29,9 @@ class StorageManager {
         if (storable != null && storable instanceof Array) {
             for (var i = 0; i < storable.size(); i++) {
                 var entry = storable[i];
-                if (entry instanceof Array && entry.size() == 2) {
-                    doses.add({:mg => entry[0].toFloat(), :time => entry[1].toNumber()});
+                if (entry instanceof Array && entry.size() >= 2) {
+                    var name = (entry.size() >= 3) ? entry[2].toString() : "";
+                    doses.add({:mg => entry[0].toFloat(), :time => entry[1].toNumber(), :name => name});
                 }
             }
         }

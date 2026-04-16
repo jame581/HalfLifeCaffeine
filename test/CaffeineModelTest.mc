@@ -6,7 +6,7 @@ using Toybox.Math;
 function testSingleDoseDecayAtZeroTime(logger as Logger) as Boolean {
     var model = new CaffeineModel();
     var now = Time.now().value();
-    model.addDose(100, now);
+    model.addDose(100, now, "Test");
     var level = model.getCurrentLevel(now);
     return (level >= 99 && level <= 101);
 }
@@ -15,7 +15,7 @@ function testSingleDoseDecayAtZeroTime(logger as Logger) as Boolean {
 function testSingleDoseDecayAtOneHalfLife(logger as Logger) as Boolean {
     var model = new CaffeineModel();
     var now = Time.now().value();
-    model.addDose(100, now - 20520);
+    model.addDose(100, now - 20520, "Test");
     var level = model.getCurrentLevel(now);
     return (level >= 48 && level <= 52);
 }
@@ -24,7 +24,7 @@ function testSingleDoseDecayAtOneHalfLife(logger as Logger) as Boolean {
 function testSingleDoseDecayAtTwoHalfLives(logger as Logger) as Boolean {
     var model = new CaffeineModel();
     var now = Time.now().value();
-    model.addDose(100, now - 41040);
+    model.addDose(100, now - 41040, "Test");
     var level = model.getCurrentLevel(now);
     return (level >= 23 && level <= 27);
 }
@@ -33,8 +33,8 @@ function testSingleDoseDecayAtTwoHalfLives(logger as Logger) as Boolean {
 function testMultipleDosesStack(logger as Logger) as Boolean {
     var model = new CaffeineModel();
     var now = Time.now().value();
-    model.addDose(100, now);
-    model.addDose(63, now);
+    model.addDose(100, now, "Test");
+    model.addDose(63, now, "Test");
     var level = model.getCurrentLevel(now);
     return (level >= 161 && level <= 165);
 }
@@ -43,7 +43,7 @@ function testMultipleDosesStack(logger as Logger) as Boolean {
 function testExpiredDosesArePruned(logger as Logger) as Boolean {
     var model = new CaffeineModel();
     var now = Time.now().value();
-    model.addDose(100, now - 172800);
+    model.addDose(100, now - 172800, "Test");
     var level = model.getCurrentLevel(now);
     return (level < 1);
 }
@@ -52,8 +52,8 @@ function testExpiredDosesArePruned(logger as Logger) as Boolean {
 function testDailyIntakeSumsAllDosesToday(logger as Logger) as Boolean {
     var model = new CaffeineModel();
     var now = Time.now().value();
-    model.addDose(95, now - 3600);
-    model.addDose(63, now - 1800);
+    model.addDose(95, now - 3600, "Test");
+    model.addDose(63, now - 1800, "Test");
     var daily = model.getDailyIntake(now);
     return (daily == 158);
 }
@@ -70,7 +70,7 @@ function testTimeToSafeWithNoDoses(logger as Logger) as Boolean {
 function testTimeToSafeWithActiveDose(logger as Logger) as Boolean {
     var model = new CaffeineModel();
     var now = Time.now().value();
-    model.addDose(200, now);
+    model.addDose(200, now, "Test");
     var minutes = model.getMinutesToSafe(now, 50);
     return (minutes >= 680 && minutes <= 690);
 }

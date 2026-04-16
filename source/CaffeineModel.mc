@@ -21,8 +21,8 @@ class CaffeineModel {
     }
 
     // Add a new caffeine dose
-    function addDose(mg as Number, timeEpoch as Number) as Void {
-        _doses.add({:mg => mg.toFloat(), :time => timeEpoch});
+    function addDose(mg as Number, timeEpoch as Number, name as String) as Void {
+        _doses.add({:mg => mg.toFloat(), :time => timeEpoch, :name => name});
     }
 
     // Get current total caffeine level in mg

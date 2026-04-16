@@ -49,10 +49,9 @@ class HalfLifeCaffeineApp extends Application.AppBase {
     function logDrink(presetIndex as Number) as Void {
         var preset = drinkPresets.getPresetAt(presetIndex);
         var now = Time.now().value();
-        caffeineModel.addDose(preset[:mg], now);
+        caffeineModel.addDose(preset[:mg], now, preset[:name]);
         storageManager.saveDoses(caffeineModel.getDoses());
 
-        // Check alerts
         var dailyIntake = caffeineModel.getDailyIntake(now);
         var currentLevel = caffeineModel.getCurrentLevel(now);
         alertManager.checkAlerts(dailyIntake, currentLevel, now);

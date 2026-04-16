@@ -1,4 +1,5 @@
 using Toybox.Application;
+using Toybox.Communications;
 using Toybox.WatchUi;
 using Toybox.Time;
 
@@ -20,7 +21,7 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         drinkPresets = new DrinkPresets();
         alertManager = new AlertManager();
         syncManager = new SyncManager(storageManager);
-        syncManager.registerPhoneListener();
+        Communications.registerForPhoneAppMessages(method(:onPhoneMessage));
 
         // Load persisted doses
         var savedDoses = storageManager.loadDoses();
@@ -61,5 +62,11 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         alertManager.checkAlerts(dailyIntake, currentLevel, now);
 
         WatchUi.requestUpdate();
+    }
+
+    function onPhoneMessage(msg as Communications.PhoneAppMessage) as Void {
+        if (syncManager != null) {
+            syncManager.handlePhoneMessage(msg.data);
+        }
     }
 }

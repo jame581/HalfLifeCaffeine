@@ -37,13 +37,7 @@ class SyncManager {
         Communications.transmit(message, null, new SyncCallback(_storageManager));
     }
 
-    function registerPhoneListener() {
-        Communications.registerForPhoneAppMessages(method(:onPhoneMessage));
-    }
-
-    //! Callback for phone messages — must match expected signature
-    function onPhoneMessage(msg) as Void {
-        var data = msg.data;
+    function handlePhoneMessage(data) {
         if (data == null) { return; }
 
         if (data.hasKey("type") && data["type"].equals("settings")) {

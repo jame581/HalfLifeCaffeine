@@ -1,1 +1,4 @@
 .superpowers/
+private_key.pem
+private_key.der
+bin/

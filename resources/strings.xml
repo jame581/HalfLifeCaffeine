@@ -1,0 +1,10 @@
+<strings>
+  <string id="AppName">HalfLife Caffeine</string>
+  <string id="Clear">Clear</string>
+  <string id="SafeToSleepIn">Safe to sleep in</string>
+  <string id="AddDrink">Add Drink</string>
+  <string id="NoDrinksToday">No drinks today</string>
+  <string id="OverLimit">Over limit!</string>
+  <string id="Bedtime">Bedtime</string>
+  <string id="SafeThreshold">Safe</string>
+</strings>

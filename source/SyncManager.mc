@@ -1,5 +1,6 @@
 import Toybox.Communications;
 import Toybox.Application;
+import Toybox.System;
 import Toybox.Time;
 import Toybox.WatchUi;
 
@@ -35,7 +36,11 @@ class SyncManager {
             "data" => payload
         };
 
-        Communications.transmit(message, null, new SyncCallback(_storageManager));
+        try {
+            Communications.transmit(message, null, new SyncCallback(_storageManager));
+        } catch (e) {
+            System.println("SyncManager: phone sync failed - " + e.getErrorMessage());
+        }
     }
 
     function handlePhoneMessage(data) {
@@ -68,8 +73,10 @@ class SyncCallback extends Communications.ConnectionListener {
 
     function onComplete() {
         _storageManager.saveLastSyncTime(Time.now().value());
+        System.println("SyncManager: phone sync completed");
     }
 
     function onError() {
+        System.println("SyncManager: phone sync error");
     }
 }

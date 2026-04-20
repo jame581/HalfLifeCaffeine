@@ -17,6 +17,27 @@ class HalfLifeCaffeineApp extends Application.AppBase {
     }
 
     function onStart(state as Dictionary?) as Void {
+        // Keep minimal — this runs in both glance and full-view processes.
+        // Heavy init happens lazily in getInitialView().
+    }
+
+    function onStop(state as Dictionary?) as Void {
+        if (caffeineModel != null && storageManager != null) {
+            storageManager.saveDoses(caffeineModel.getDoses());
+        }
+    }
+
+    function getGlanceView() {
+        return [new GlanceView()];
+    }
+
+    function getInitialView() as [WatchUi.Views] or [WatchUi.Views, WatchUi.InputDelegates] {
+        initializeManagers();
+        return [new SummaryView(), new SummaryDelegate()];
+    }
+
+    function initializeManagers() {
+        if (caffeineModel != null) { return; }
         storageManager = new StorageManager();
         caffeineModel = new CaffeineModel();
         drinkPresets = new DrinkPresets();
@@ -29,20 +50,6 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         savedDoses = storageManager.pruneOldDoses(savedDoses, now);
         caffeineModel.setDoses(savedDoses);
         caffeineModel.pruneExpiredDoses(now);
-    }
-
-    function onStop(state as Dictionary?) as Void {
-        if (caffeineModel != null && storageManager != null) {
-            storageManager.saveDoses(caffeineModel.getDoses());
-        }
-    }
-
-    function getGlanceView() as [WatchUi.GlanceView] or Null {
-        return [new GlanceView()];
-    }
-
-    function getInitialView() as [WatchUi.Views] or [WatchUi.Views, WatchUi.InputDelegates] {
-        return [new SummaryView(), new SummaryDelegate()];
     }
 
     function onSettingsChanged() as Void {

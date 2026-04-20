@@ -1,7 +1,7 @@
-using Toybox.WatchUi;
-using Toybox.Graphics;
-using Toybox.Application;
-using Toybox.Time;
+import Toybox.WatchUi;
+import Toybox.Graphics;
+import Toybox.Application;
+import Toybox.Time;
 
 class SummaryView extends WatchUi.View {
 

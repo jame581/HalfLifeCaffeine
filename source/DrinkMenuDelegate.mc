@@ -1,6 +1,6 @@
-using Toybox.WatchUi;
-using Toybox.Application;
-using Toybox.Attention;
+import Toybox.WatchUi;
+import Toybox.Application;
+import Toybox.Attention;
 
 class DrinkMenuDelegate extends WatchUi.Menu2InputDelegate {
 

@@ -15,7 +15,7 @@
             "type": "monkeyc",
             "request": "launch",
             "name": "Run App with Debug",
-            "stopAtLaunch": true,7
+            "stopAtLaunch": true,
             "device": "${command:GetTargetDevice}",
             "debugServer": 4711
         },

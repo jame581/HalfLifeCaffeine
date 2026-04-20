@@ -3,7 +3,7 @@
   <iq:application entry="HalfLifeCaffeineApp"
                   id="a3421feed1304ab79dc26b1d15b14586"
                   launcherIcon="@Drawables.LauncherIcon"
-                  minSdkVersion="3.2.0"
+                  minApiLevel="3.2.0"
                   name="@Strings.AppName"
                   type="widget">
     <iq:products>

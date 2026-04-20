@@ -1,7 +1,7 @@
-using Toybox.Communications;
-using Toybox.Application;
-using Toybox.Time;
-using Toybox.WatchUi;
+import Toybox.Communications;
+import Toybox.Application;
+import Toybox.Time;
+import Toybox.WatchUi;
 
 class SyncManager {
 

@@ -1,6 +1,6 @@
-using Toybox.Test;
-using Toybox.Time;
-using Toybox.Math;
+import Toybox.Test;
+import Toybox.Time;
+import Toybox.Math;
 
 (:test)
 function testSingleDoseDecayAtZeroTime(logger) {

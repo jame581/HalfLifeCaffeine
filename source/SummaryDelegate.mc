@@ -1,5 +1,5 @@
-using Toybox.WatchUi;
-using Toybox.Application;
+import Toybox.WatchUi;
+import Toybox.Application;
 
 class SummaryDelegate extends WatchUi.BehaviorDelegate {
 

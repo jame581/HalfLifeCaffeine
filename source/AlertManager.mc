@@ -1,7 +1,7 @@
-using Toybox.Application;
-using Toybox.Attention;
-using Toybox.Time;
-using Toybox.Time.Gregorian;
+import Toybox.Application;
+import Toybox.Attention;
+import Toybox.Time;
+import Toybox.Time.Gregorian;
 
 class AlertManager {
 

@@ -1,4 +1,4 @@
-using Toybox.Application;
+import Toybox.Application;
 
 class DrinkPresets {
 

@@ -1,6 +1,6 @@
-using Toybox.Application;
-using Toybox.Time;
-using Toybox.Time.Gregorian;
+import Toybox.Application;
+import Toybox.Time;
+import Toybox.Time.Gregorian;
 
 module Util {
 

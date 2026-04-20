@@ -1,6 +1,6 @@
-using Toybox.Math;
-using Toybox.Time;
-using Toybox.Time.Gregorian;
+import Toybox.Math;
+import Toybox.Time;
+import Toybox.Time.Gregorian;
 
 class CaffeineModel {
 

@@ -1,7 +1,8 @@
-using Toybox.Application;
-using Toybox.Communications;
-using Toybox.WatchUi;
-using Toybox.Time;
+import Toybox.Application;
+import Toybox.Communications;
+import Toybox.Lang;
+import Toybox.Time;
+import Toybox.WatchUi;
 
 class HalfLifeCaffeineApp extends Application.AppBase {
 
@@ -15,7 +16,7 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         AppBase.initialize();
     }
 
-    function onStart(state) {
+    function onStart(state as Dictionary?) as Void {
         storageManager = new StorageManager();
         caffeineModel = new CaffeineModel();
         drinkPresets = new DrinkPresets();
@@ -23,7 +24,6 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         syncManager = new SyncManager(storageManager);
         Communications.registerForPhoneAppMessages(method(:onPhoneMessage));
 
-        // Load persisted doses
         var savedDoses = storageManager.loadDoses();
         var now = Time.now().value();
         savedDoses = storageManager.pruneOldDoses(savedDoses, now);
@@ -31,26 +31,24 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         caffeineModel.pruneExpiredDoses(now);
     }
 
-    function onStop(state) {
-        // Persist current doses
+    function onStop(state as Dictionary?) as Void {
         if (caffeineModel != null && storageManager != null) {
             storageManager.saveDoses(caffeineModel.getDoses());
         }
     }
 
-    function getGlanceView() {
+    function getGlanceView() as [WatchUi.GlanceView] or Null {
         return [new GlanceView()];
     }
 
-    function getView() {
+    function getInitialView() as [WatchUi.Views] or [WatchUi.Views, WatchUi.InputDelegates] {
         return [new SummaryView(), new SummaryDelegate()];
     }
 
-    function onSettingsChanged() {
+    function onSettingsChanged() as Void {
         WatchUi.requestUpdate();
     }
 
-    // Helper to add a drink and trigger save + alerts
     function logDrink(presetIndex) {
         var preset = drinkPresets.getPresetAt(presetIndex);
         var now = Time.now().value();
@@ -71,4 +69,8 @@ class HalfLifeCaffeineApp extends Application.AppBase {
             syncManager.handlePhoneMessage(msg.data);
         }
     }
+}
+
+function getApp() as HalfLifeCaffeineApp {
+    return Application.getApp() as HalfLifeCaffeineApp;
 }

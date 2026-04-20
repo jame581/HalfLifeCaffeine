@@ -23,8 +23,7 @@ class AlertManager {
     // Check and fire alerts based on current state
     // Returns a status string for the UI: "ok", "warning", or "over"
     function checkAlerts(dailyIntake, currentLevel, nowEpoch) {
-        var app = Application.getApp();
-        var dailyLimit = app.getProperty("dailyLimit");
+        var dailyLimit = Application.Properties.getValue("dailyLimit");
         if (dailyLimit == null) { dailyLimit = 400; }
 
         var today = getUniqueDay(nowEpoch);
@@ -33,7 +32,7 @@ class AlertManager {
         // Check 100% limit first (higher priority)
         if (dailyIntake >= dailyLimit) {
             status = "over";
-            var alertLimitReached = app.getProperty("alertLimitReached");
+            var alertLimitReached = Application.Properties.getValue("alertLimitReached");
             if (alertLimitReached == null) { alertLimitReached = true; }
             if (_limitFiredDate != today && alertLimitReached) {
                 _limitFiredDate = today;
@@ -43,7 +42,7 @@ class AlertManager {
         // Check 80% warning
         else if (dailyIntake >= (dailyLimit * WARNING_THRESHOLD).toNumber()) {
             status = "warning";
-            var alertLimitWarning = app.getProperty("alertLimitWarning");
+            var alertLimitWarning = Application.Properties.getValue("alertLimitWarning");
             if (alertLimitWarning == null) { alertLimitWarning = true; }
             if (_warningFiredDate != today && alertLimitWarning) {
                 _warningFiredDate = today;
@@ -68,8 +67,7 @@ class AlertManager {
     }
 
     private function checkSleepAlert(currentLevel, nowEpoch, today) {
-        var app = Application.getApp();
-        var alertSafeToSleep = app.getProperty("alertSafeToSleep");
+        var alertSafeToSleep = Application.Properties.getValue("alertSafeToSleep");
         if (alertSafeToSleep == null) { alertSafeToSleep = true; }
         if (!alertSafeToSleep) {
             return;

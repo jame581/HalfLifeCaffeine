@@ -2,11 +2,11 @@ import Toybox.Application;
 import Toybox.Time;
 import Toybox.Time.Gregorian;
 
+(:glance)
 class StorageManager {
 
     private const DOSES_KEY = "doses";
     private const LAST_SYNC_KEY = "lastSync";
-    private const RETENTION_DAYS = 14;
     private const RETENTION_SECONDS = 1209600; // 14 * 24 * 60 * 60
 
     // Save all active doses to storage

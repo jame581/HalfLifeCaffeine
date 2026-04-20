@@ -2,6 +2,7 @@ import Toybox.Application;
 import Toybox.Time;
 import Toybox.Time.Gregorian;
 
+(:glance)
 module Util {
 
     // Format minutes as "Xh Ym" (e.g. 200 → "3h 20m")
@@ -36,9 +37,8 @@ module Util {
 
     // Get bedtime as epoch seconds for today
     function getBedtimeEpoch(nowEpoch) {
-        var app = Application.getApp();
-        var hour = app.getProperty("bedtimeHour");
-        var minute = app.getProperty("bedtimeMinute");
+        var hour = Application.Properties.getValue("bedtimeHour");
+        var minute = Application.Properties.getValue("bedtimeMinute");
         if (hour == null) { hour = 22; }
         if (minute == null) { minute = 30; }
 

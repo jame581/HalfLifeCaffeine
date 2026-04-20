@@ -2,14 +2,11 @@ import Toybox.Math;
 import Toybox.Time;
 import Toybox.Time.Gregorian;
 
+(:glance)
 class CaffeineModel {
 
     // Half-life of caffeine in seconds (5.7 hours)
     private const HALF_LIFE_SECONDS = 20520;
-    // ln(0.5) precomputed for decay formula
-    private const LN_HALF = -0.6931471805599453d;
-    // Decay constant: ln(0.5) / half_life
-    private const DECAY_CONSTANT = -0.00003377d; // LN_HALF / 20520
     // Minimum mg before a dose is considered cleared
     private const MIN_DOSE_MG = 1.0;
 

@@ -31,8 +31,7 @@ class SummaryView extends WatchUi.View {
             minutesToSafe = app.caffeineModel.getMinutesToSafe(now, 50);
         }
 
-        var appObj = Application.getApp();
-        var limitProp = appObj.getProperty("dailyLimit");
+        var limitProp = Application.Properties.getValue("dailyLimit");
         if (limitProp != null) { dailyLimit = limitProp; }
 
         if (app.alertManager != null) {

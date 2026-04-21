@@ -1,0 +1,73 @@
+name: Bug report
+description: Report a bug or unexpected behavior in HalfLife Caffeine
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please fill out the details below so we can reproduce and fix it.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened? What did you expect to happen?
+      placeholder: "When I tap the widget glance, the app crashes with a red error icon..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps to reproduce the issue
+      placeholder: |
+        1. Open the widget
+        2. Press SELECT
+        3. Choose 'Espresso'
+        4. App crashes
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Garmin device
+      description: Which watch are you using?
+      placeholder: "Vivoactive 5"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: HalfLife Caffeine version
+      description: Check the Connect IQ store page or about screen
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: firmware
+    attributes:
+      label: Watch firmware version
+      description: Settings → System → About on most Garmin watches
+      placeholder: "9.45"
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Where did it happen?
+      options:
+        - On the physical watch
+        - In the Connect IQ Simulator
+        - Both
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / error messages
+      description: Any console output, error text shown on screen, or simulator logs
+      render: text

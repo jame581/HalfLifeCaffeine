@@ -2,6 +2,16 @@
 
 A free Garmin Connect IQ widget that tracks caffeine intake and models its decay using the established 5.7-hour pharmacokinetic half-life, so you always know how much caffeine is still active — and when you'll be safe to sleep.
 
+<p align="center">
+  <img src="screenshots/widget.png" alt="Glance view" width="230">
+  <img src="screenshots/detail-1.png" alt="Summary screen" width="230">
+  <img src="screenshots/detail-2.png" alt="Timeline graph" width="230">
+</p>
+<p align="center">
+  <img src="screenshots/detail-3.png" alt="Today's drinks log" width="230">
+  <img src="screenshots/add-coffee.png" alt="Drink menu" width="230">
+</p>
+
 ## Features
 
 - **Glance view** — current caffeine level and time-to-sleep-safe at a glance in the widget loop

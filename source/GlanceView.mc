@@ -12,8 +12,8 @@ class GlanceView extends WatchUi.GlanceView {
     function onUpdate(dc) {
         var now = Time.now().value();
 
-        // Load doses directly from storage — the glance process doesn't
-        // have access to the app's initialized managers
+        // Glance process doesn't share state with the full-view app,
+        // so instantiate model+storage locally and read doses fresh.
         var storage = new StorageManager();
         var model = new CaffeineModel();
         model.setDoses(storage.loadDoses());
@@ -30,12 +30,15 @@ class GlanceView extends WatchUi.GlanceView {
         }
 
         var h = dc.getHeight();
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(0, h * 30 / 100, Graphics.FONT_GLANCE,
+
+        // Big caffeine number
+        dc.setColor(Colors.ACCENT, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(0, h * 32 / 100, Graphics.FONT_GLANCE_NUMBER,
             mgText, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(0, h * 70 / 100, Graphics.FONT_GLANCE,
+        // Status line
+        dc.setColor(Colors.TEXT_SECONDARY, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(0, h * 72 / 100, Graphics.FONT_GLANCE,
             statusText, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 }

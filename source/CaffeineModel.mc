@@ -22,12 +22,14 @@ class CaffeineModel {
         _doses.add({:mg => mg.toFloat(), :time => timeEpoch, :name => name});
     }
 
-    // Get current total caffeine level in mg
-    function getCurrentLevel(nowEpoch) {
+    // Get total caffeine level at any point in time.
+    // For historical queries, doses taken after the given time don't count.
+    function getCurrentLevel(epoch) {
         var total = 0.0;
         for (var i = 0; i < _doses.size(); i++) {
             var dose = _doses[i];
-            total += decayedAmount(dose[:mg], dose[:time], nowEpoch);
+            if (dose[:time] > epoch) { continue; }
+            total += decayedAmount(dose[:mg], dose[:time], epoch);
         }
         return total;
     }

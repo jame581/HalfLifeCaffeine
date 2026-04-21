@@ -15,11 +15,10 @@ class LogView extends WatchUi.View {
         var width = dc.getWidth();
         var height = dc.getHeight();
 
-        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+        dc.setColor(Colors.BG, Colors.BG);
         dc.clear();
 
-        // Title — pushed down for round screen safe area
-        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(Colors.TEXT_SECONDARY, Graphics.COLOR_TRANSPARENT);
         dc.drawText(width / 2, height * 18 / 100, Graphics.FONT_XTINY,
             "Today's Drinks", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
@@ -28,13 +27,12 @@ class LogView extends WatchUi.View {
         var log = app.caffeineModel.getTodayLog(now);
 
         if (log.size() == 0) {
-            dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+            dc.setColor(Colors.TEXT_DIM, Graphics.COLOR_TRANSPARENT);
             dc.drawText(width / 2, height / 2, Graphics.FONT_SMALL,
                 "No drinks today", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
             return;
         }
 
-        // Entries drawn in round-screen safe area
         var listTop = height * 28 / 100;
         var listBottom = height * 82 / 100;
         var listHeight = listBottom - listTop;
@@ -52,9 +50,8 @@ class LogView extends WatchUi.View {
 
             var y = listTop + (entryIndex * lineHeight);
 
-            // Single-line format centered: "HH:MM Name Xmg"
             var line = timeStr + "  " + name + "  " + mgStr;
-            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.setColor(Colors.TEXT_PRIMARY, Graphics.COLOR_TRANSPARENT);
             dc.drawText(width / 2, y, Graphics.FONT_XTINY,
                 line, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }

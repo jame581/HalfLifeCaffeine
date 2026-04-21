@@ -117,10 +117,6 @@
             <input type="number" id="bedtimeMinute" value="30" min="0" max="59">
         </div>
     </div>
-    <div class="setting-row">
-        <span class="setting-label">Use Garmin Sleep</span>
-        <div class="toggle on" id="useGarminSleep" onclick="toggleSetting(this)"></div>
-    </div>
 
     <h2>Notifications</h2>
     <div class="setting-row">
@@ -254,10 +250,10 @@ function removePreset(index) {
 function saveSettings() {
     localStorage.setItem('presets', JSON.stringify(presets));
     var settings = {
+        type: "settings",
         dailyLimit: parseInt(document.getElementById('dailyLimit').value),
         bedtimeHour: parseInt(document.getElementById('bedtimeHour').value),
         bedtimeMinute: parseInt(document.getElementById('bedtimeMinute').value),
-        useGarminSleep: document.getElementById('useGarminSleep').classList.contains('on'),
         alertLimitWarning: document.getElementById('alertLimitWarning').classList.contains('on'),
         alertLimitReached: document.getElementById('alertLimitReached').classList.contains('on'),
         alertSafeToSleep: document.getElementById('alertSafeToSleep').classList.contains('on'),

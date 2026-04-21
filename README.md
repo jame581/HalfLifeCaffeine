@@ -1,16 +1,14 @@
+<p align="center">
+  <img src="resources/assets/hero-1440x720.png" alt="HalfLife Caffeine — Know when your coffee actually wears off">
+</p>
+
 # HalfLife Caffeine
 
-A free Garmin Connect IQ widget that tracks caffeine intake and models its decay using the established 5.7-hour pharmacokinetic half-life, so you always know how much caffeine is still active — and when you'll be safe to sleep.
+[![License: MIT](https://img.shields.io/badge/License-MIT-3DDBA8.svg)](LICENSE)
+[![Platform: Garmin Connect IQ](https://img.shields.io/badge/platform-Connect%20IQ%203.2%2B-1A2332.svg)](https://developer.garmin.com/connect-iq/)
+[![Release](https://img.shields.io/github/v/tag/jame581/HalfLifeCaffeine?label=release&color=3DDBA8)](https://github.com/jame581/HalfLifeCaffeine/releases)
 
-<p align="center">
-  <img src="screenshots/widget.png" alt="Glance view" width="230">
-  <img src="screenshots/detail-1.png" alt="Summary screen" width="230">
-  <img src="screenshots/detail-2.png" alt="Timeline graph" width="230">
-</p>
-<p align="center">
-  <img src="screenshots/detail-3.png" alt="Today's drinks log" width="230">
-  <img src="screenshots/add-coffee.png" alt="Drink menu" width="230">
-</p>
+A free Garmin Connect IQ widget that tracks caffeine intake and models its decay using the established 5.7-hour pharmacokinetic half-life, so you always know how much caffeine is still active — and when you'll be safe to sleep.
 
 ## Features
 
@@ -24,6 +22,18 @@ A free Garmin Connect IQ widget that tracks caffeine intake and models its decay
 - **Phone companion** — manage presets, adjust limits and bedtime, view history and trends inside the Garmin Connect app
 - **Two-way sync** — drinks stream to the phone; settings and preset edits stream back to the watch
 - **100% free, no ads, no tracking, no accounts** — all data stays on your watch and phone
+
+## Screens
+
+<p align="center">
+  <img src="screenshots/widget.png" alt="Glance view" width="230">
+  <img src="screenshots/detail-1.png" alt="Summary screen" width="230">
+  <img src="screenshots/detail-2.png" alt="Timeline graph" width="230">
+</p>
+<p align="center">
+  <img src="screenshots/detail-3.png" alt="Today's drinks log" width="230">
+  <img src="screenshots/add-coffee.png" alt="Drink menu" width="230">
+</p>
 
 ## Install
 
@@ -115,8 +125,8 @@ Issues and PRs welcome. If you're adding a feature, keep in mind:
 
 ## License
 
-MIT
+[MIT](LICENSE)
 
 ## Credits
 
-Built with the [Connect IQ SDK](https://developer.garmin.com/connect-iq/).
+Built with the [Connect IQ SDK](https://developer.garmin.com/connect-iq/). Caffeine half-life figure of 5.7 hours drawn from published pharmacokinetic studies of healthy adults.

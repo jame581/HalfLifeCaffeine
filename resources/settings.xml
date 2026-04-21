@@ -1,0 +1,37 @@
+<settings>
+  <setting propertyKey="@Properties.dailyLimit"
+           title="Daily Caffeine Limit (mg)">
+    <settingConfig type="numeric"
+                   min="100"
+                   max="1000"/>
+  </setting>
+
+  <setting propertyKey="@Properties.bedtimeHour"
+           title="Bedtime Hour (0-23)">
+    <settingConfig type="numeric"
+                   min="0"
+                   max="23"/>
+  </setting>
+
+  <setting propertyKey="@Properties.bedtimeMinute"
+           title="Bedtime Minute (0-59)">
+    <settingConfig type="numeric"
+                   min="0"
+                   max="59"/>
+  </setting>
+
+  <setting propertyKey="@Properties.alertLimitWarning"
+           title="Warn at 80% of limit">
+    <settingConfig type="boolean"/>
+  </setting>
+
+  <setting propertyKey="@Properties.alertLimitReached"
+           title="Alert when limit reached">
+    <settingConfig type="boolean"/>
+  </setting>
+
+  <setting propertyKey="@Properties.alertSafeToSleep"
+           title="Safe to sleep notification">
+    <settingConfig type="boolean"/>
+  </setting>
+</settings>

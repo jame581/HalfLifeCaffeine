@@ -73,7 +73,7 @@ class HalfLifeCaffeineApp extends Application.AppBase {
 
     function onPhoneMessage(msg as Communications.PhoneAppMessage) as Void {
         if (syncManager != null) {
-            syncManager.handlePhoneMessage(msg.data);
+            syncManager.handlePhoneMessage(msg.data, drinkPresets);
         }
     }
 }

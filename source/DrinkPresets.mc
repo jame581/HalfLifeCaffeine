@@ -2,11 +2,13 @@ import Toybox.Application;
 
 class DrinkPresets {
 
+    private const PRESETS_KEY = "presets";
+
     // Each preset: {:name => String, :mg => Number}
     private var _presets;
 
     function initialize() {
-        _presets = getDefaults();
+        _presets = loadFromStorage();
     }
 
     function getPresets() {
@@ -19,6 +21,37 @@ class DrinkPresets {
 
     function getPresetAt(index) {
         return _presets[index];
+    }
+
+    // Replace presets (e.g. from phone sync) and persist
+    function setPresets(newPresets) {
+        _presets = newPresets;
+        saveToStorage();
+    }
+
+    private function loadFromStorage() {
+        var stored = Application.Storage.getValue(PRESETS_KEY);
+        if (stored == null || !(stored instanceof Array) || stored.size() == 0) {
+            return getDefaults();
+        }
+        // Stored format: array of [name, mg] pairs (dictionaries don't serialize reliably)
+        var result = [];
+        for (var i = 0; i < stored.size(); i++) {
+            var entry = stored[i];
+            if (entry instanceof Array && entry.size() == 2) {
+                result.add({:name => entry[0].toString(), :mg => entry[1].toNumber()});
+            }
+        }
+        return result.size() > 0 ? result : getDefaults();
+    }
+
+    private function saveToStorage() {
+        var storable = [];
+        for (var i = 0; i < _presets.size(); i++) {
+            var p = _presets[i];
+            storable.add([p[:name], p[:mg]]);
+        }
+        Application.Storage.setValue(PRESETS_KEY, storable);
     }
 
     function getDefaults() {

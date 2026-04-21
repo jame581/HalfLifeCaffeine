@@ -2,7 +2,6 @@
   <property id="dailyLimit" type="number">400</property>
   <property id="bedtimeHour" type="number">22</property>
   <property id="bedtimeMinute" type="number">30</property>
-  <property id="useGarminSleep" type="boolean">true</property>
   <property id="alertLimitWarning" type="boolean">true</property>
   <property id="alertLimitReached" type="boolean">true</property>
   <property id="alertSafeToSleep" type="boolean">true</property>

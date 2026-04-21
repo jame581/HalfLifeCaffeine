@@ -90,9 +90,9 @@
 <h1>&#9749; HalfLife Caffeine</h1>
 
 <div class="tabs">
-    <div class="tab active" onclick="switchTab('settings')">Settings</div>
-    <div class="tab" onclick="switchTab('history')">History</div>
-    <div class="tab" onclick="switchTab('trends')">Trends</div>
+    <div class="tab active" onclick="switchTab('settings', this)">Settings</div>
+    <div class="tab" onclick="switchTab('history', this)">History</div>
+    <div class="tab" onclick="switchTab('trends', this)">Trends</div>
 </div>
 
 <div id="tab-settings" class="tab-content active">
@@ -194,10 +194,10 @@ if (!presets) {
     ];
 }
 
-function switchTab(name) {
+function switchTab(name, tabEl) {
     document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
     document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
-    event.target.classList.add('active');
+    tabEl.classList.add('active');
     document.getElementById('tab-' + name).classList.add('active');
     if (name === 'history') { renderHistory(); }
     if (name === 'trends') { renderTrends(); }
@@ -208,15 +208,32 @@ function toggleSetting(el) {
 }
 
 function renderPresets() {
-    var html = '';
+    var list = document.getElementById('presetList');
+    list.textContent = '';
     for (var i = 0; i < presets.length; i++) {
-        html += '<div class="preset-item">' +
-            '<span class="preset-name">' + presets[i].name + '</span>' +
-            '<span class="preset-mg">' + presets[i].mg + ' mg</span>' +
-            '<span class="preset-delete" onclick="removePreset(' + i + ')">&#x2715;</span>' +
-            '</div>';
+        var item = document.createElement('div');
+        item.className = 'preset-item';
+
+        var name = document.createElement('span');
+        name.className = 'preset-name';
+        name.textContent = presets[i].name;
+
+        var mg = document.createElement('span');
+        mg.className = 'preset-mg';
+        mg.textContent = presets[i].mg + ' mg';
+
+        var del = document.createElement('span');
+        del.className = 'preset-delete';
+        del.textContent = '✕';
+        del.addEventListener('click', (function(index) {
+            return function() { removePreset(index); };
+        })(i));
+
+        item.appendChild(name);
+        item.appendChild(mg);
+        item.appendChild(del);
+        list.appendChild(item);
     }
-    document.getElementById('presetList').innerHTML = html;
 }
 
 function addPreset() {
@@ -256,8 +273,14 @@ function saveSettings() {
 
 function renderHistory() {
     var container = document.getElementById('historyContent');
+    container.textContent = '';
     if (drinkHistory.length === 0) {
-        container.innerHTML = '<div class="empty-state">No drink history yet.<br>Log drinks on your watch to see them here.</div>';
+        var empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.appendChild(document.createTextNode('No drink history yet.'));
+        empty.appendChild(document.createElement('br'));
+        empty.appendChild(document.createTextNode('Log drinks on your watch to see them here.'));
+        container.appendChild(empty);
         return;
     }
     var dailyLimit = parseInt(document.getElementById('dailyLimit').value) || 400;
@@ -268,7 +291,6 @@ function renderHistory() {
         if (!days[date]) { days[date] = []; }
         days[date].push(d);
     }
-    var html = '';
     var sortedDates = Object.keys(days).sort().reverse();
     for (var j = 0; j < sortedDates.length && j < 14; j++) {
         var dateStr = sortedDates[j];
@@ -276,17 +298,38 @@ function renderHistory() {
         var total = entries.reduce(function(sum, e) { return sum + e.mg; }, 0);
         var ratio = Math.min(total / dailyLimit, 1);
         var barClass = ratio < 0.8 ? 'bar-green' : (ratio < 1 ? 'bar-yellow' : 'bar-red');
-        html += '<div class="history-day">';
-        html += '<div class="history-date">' + dateStr + ' - ' + total + ' mg</div>';
-        html += '<div class="history-bar"><div class="history-bar-fill ' + barClass + '" style="width:' + (ratio * 100) + '%"></div></div>';
+
+        var day = document.createElement('div');
+        day.className = 'history-day';
+
+        var dateEl = document.createElement('div');
+        dateEl.className = 'history-date';
+        dateEl.textContent = dateStr + ' - ' + total + ' mg';
+        day.appendChild(dateEl);
+
+        var bar = document.createElement('div');
+        bar.className = 'history-bar';
+        var fill = document.createElement('div');
+        fill.className = 'history-bar-fill ' + barClass;
+        fill.style.width = (ratio * 100) + '%';
+        bar.appendChild(fill);
+        day.appendChild(bar);
+
         for (var k = entries.length - 1; k >= 0; k--) {
             var e = entries[k];
             var time = new Date(e.time * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            html += '<div class="history-entry"><span>' + time + ' - ' + (e.name || 'Unknown') + '</span><span>' + e.mg + ' mg</span></div>';
+            var entry = document.createElement('div');
+            entry.className = 'history-entry';
+            var left = document.createElement('span');
+            left.textContent = time + ' - ' + (e.name || 'Unknown');
+            var right = document.createElement('span');
+            right.textContent = e.mg + ' mg';
+            entry.appendChild(left);
+            entry.appendChild(right);
+            day.appendChild(entry);
         }
-        html += '</div>';
+        container.appendChild(day);
     }
-    container.innerHTML = html;
 }
 
 function renderTrends() {

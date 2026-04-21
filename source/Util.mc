@@ -39,8 +39,6 @@ module Util {
     function getBedtimeEpoch(nowEpoch) {
         var hour = Application.Properties.getValue("bedtimeHour");
         var minute = Application.Properties.getValue("bedtimeMinute");
-        if (hour == null) { hour = 22; }
-        if (minute == null) { minute = 30; }
 
         var moment = new Time.Moment(nowEpoch);
         var info = Gregorian.info(moment, Time.FORMAT_SHORT);

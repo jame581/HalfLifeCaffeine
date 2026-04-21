@@ -10,7 +10,7 @@ class CaffeineModel {
     // Minimum mg before a dose is considered cleared
     private const MIN_DOSE_MG = 1.0;
 
-    // Array of active doses: each is {:mg => Float, :time => Number (epoch seconds)}
+    // Array of active doses: each is {:mg => Float, :time => Number, :name => String}
     private var _doses;
 
     function initialize() {

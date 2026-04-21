@@ -24,6 +24,7 @@ class DrinkPresets {
     function getDefaults() {
         return [
             {:name => "Espresso", :mg => 63},
+            {:name => "Americano", :mg => 77},
             {:name => "Drip Coffee (S)", :mg => 95},
             {:name => "Drip Coffee (L)", :mg => 190},
             {:name => "Latte", :mg => 63},

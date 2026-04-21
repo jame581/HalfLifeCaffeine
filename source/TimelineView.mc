@@ -18,18 +18,18 @@ class TimelineView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
 
-        // Title
+        // Title — pushed down from top to avoid round-screen clip
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(width / 2, height * 8 / 100, Graphics.FONT_XTINY,
+        dc.drawText(width / 2, height * 18 / 100, Graphics.FONT_XTINY,
             "Caffeine Timeline", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         if (app.caffeineModel == null) { return; }
 
-        // Graph area
-        var graphLeft = width * 15 / 100;
-        var graphRight = width * 85 / 100;
-        var graphTop = height * 18 / 100;
-        var graphBottom = height * 82 / 100;
+        // Graph area — inset heavily for round screen
+        var graphLeft = width * 22 / 100;
+        var graphRight = width * 78 / 100;
+        var graphTop = height * 30 / 100;
+        var graphBottom = height * 72 / 100;
         var graphWidth = graphRight - graphLeft;
         var graphHeight = graphBottom - graphTop;
 
@@ -56,8 +56,6 @@ class TimelineView extends WatchUi.View {
             for (var x = graphLeft; x < graphRight; x += 6) {
                 dc.drawLine(x, safeY, x + 3, safeY);
             }
-            dc.drawText(graphRight + 2, safeY, Graphics.FONT_XTINY,
-                "50", Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
         }
 
         // Draw bedtime marker
@@ -67,8 +65,6 @@ class TimelineView extends WatchUi.View {
             var bedX = graphLeft + ((minutesUntilBed.toFloat() / 480.0) * graphWidth).toNumber();
             dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
             dc.drawLine(bedX, graphTop, bedX, graphBottom);
-            dc.drawText(bedX, graphTop - 2, Graphics.FONT_XTINY,
-                "BED", Graphics.TEXT_JUSTIFY_CENTER);
         }
 
         // Draw the decay curve
@@ -87,20 +83,21 @@ class TimelineView extends WatchUi.View {
         }
         dc.setAntiAlias(false);
 
-        // Time labels along bottom
+        // Time labels along bottom (fewer, centered)
         dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
-        for (var h = 0; h <= 8; h += 2) {
+        var labelY = graphBottom + 10;
+        for (var h = 0; h <= 8; h += 4) {
             var lx = graphLeft + ((h.toFloat() / 8.0) * graphWidth).toNumber();
-            dc.drawText(lx, graphBottom + 4, Graphics.FONT_XTINY,
+            dc.drawText(lx, labelY, Graphics.FONT_XTINY,
                 "+" + h + "h", Graphics.TEXT_JUSTIFY_CENTER);
         }
 
-        // Current level label
+        // Current level label (center bottom)
         if (projection.size() > 0) {
             var currentMg = projection[0][:mg];
             dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(graphLeft + 4, graphTop + 4, Graphics.FONT_XTINY,
-                Util.formatMg(currentMg) + "mg", Graphics.TEXT_JUSTIFY_LEFT);
+            dc.drawText(width / 2, height * 83 / 100, Graphics.FONT_XTINY,
+                "Now: " + Util.formatMg(currentMg) + " mg", Graphics.TEXT_JUSTIFY_CENTER);
         }
     }
 

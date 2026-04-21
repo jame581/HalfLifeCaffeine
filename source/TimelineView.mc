@@ -15,11 +15,11 @@ class TimelineView extends WatchUi.View {
         var width = dc.getWidth();
         var height = dc.getHeight();
 
-        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+        dc.setColor(Colors.BG, Colors.BG);
         dc.clear();
 
         // Title — pushed down from top to avoid round-screen clip
-        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(Colors.TEXT_SECONDARY, Graphics.COLOR_TRANSPARENT);
         dc.drawText(width / 2, height * 18 / 100, Graphics.FONT_XTINY,
             "Caffeine Timeline", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
@@ -33,10 +33,8 @@ class TimelineView extends WatchUi.View {
         var graphWidth = graphRight - graphLeft;
         var graphHeight = graphBottom - graphTop;
 
-        // Get projection data (8 hours, every 30 min = 17 points)
         var projection = app.caffeineModel.getProjection(now, 8);
 
-        // Find max value for Y-axis scaling
         var maxMg = 50.0;
         for (var i = 0; i < projection.size(); i++) {
             var mg = projection[i][:mg];
@@ -44,31 +42,31 @@ class TimelineView extends WatchUi.View {
         }
         maxMg = maxMg * 1.1;
 
-        // Draw axes
-        dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+        // Axes
+        dc.setColor(Colors.AXIS, Graphics.COLOR_TRANSPARENT);
         dc.drawLine(graphLeft, graphTop, graphLeft, graphBottom);
         dc.drawLine(graphLeft, graphBottom, graphRight, graphBottom);
 
-        // Draw 50mg threshold line (dashed)
+        // 50mg threshold line (dashed)
         var safeY = graphBottom - ((50.0 / maxMg) * graphHeight).toNumber();
         if (safeY >= graphTop && safeY <= graphBottom) {
-            dc.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_TRANSPARENT);
+            dc.setColor(Colors.WARNING, Graphics.COLOR_TRANSPARENT);
             for (var x = graphLeft; x < graphRight; x += 6) {
                 dc.drawLine(x, safeY, x + 3, safeY);
             }
         }
 
-        // Draw bedtime marker
+        // Bedtime marker
         var bedtimeEpoch = Util.getBedtimeEpoch(now);
         var minutesUntilBed = (bedtimeEpoch - now) / 60;
         if (minutesUntilBed > 0 && minutesUntilBed < 480) {
             var bedX = graphLeft + ((minutesUntilBed.toFloat() / 480.0) * graphWidth).toNumber();
-            dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_TRANSPARENT);
+            dc.setColor(Colors.BEDTIME, Graphics.COLOR_TRANSPARENT);
             dc.drawLine(bedX, graphTop, bedX, graphBottom);
         }
 
-        // Draw the decay curve
-        dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
+        // Decay curve
+        dc.setColor(Colors.ACCENT, Graphics.COLOR_TRANSPARENT);
         dc.setAntiAlias(true);
         for (var i = 1; i < projection.size(); i++) {
             var prev = projection[i - 1];
@@ -84,7 +82,7 @@ class TimelineView extends WatchUi.View {
         dc.setAntiAlias(false);
 
         // Time labels along bottom (fewer, centered)
-        dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(Colors.TEXT_DIM, Graphics.COLOR_TRANSPARENT);
         var labelY = graphBottom + 10;
         for (var h = 0; h <= 8; h += 4) {
             var lx = graphLeft + ((h.toFloat() / 8.0) * graphWidth).toNumber();
@@ -95,7 +93,7 @@ class TimelineView extends WatchUi.View {
         // Current level label (center bottom)
         if (projection.size() > 0) {
             var currentMg = projection[0][:mg];
-            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+            dc.setColor(Colors.TEXT_PRIMARY, Graphics.COLOR_TRANSPARENT);
             dc.drawText(width / 2, height * 83 / 100, Graphics.FONT_XTINY,
                 "Now: " + Util.formatMg(currentMg) + " mg", Graphics.TEXT_JUSTIFY_CENTER);
         }

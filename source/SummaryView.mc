@@ -10,13 +10,12 @@ class SummaryView extends WatchUi.View {
     }
 
     function onUpdate(dc) {
-        try {
         var app = Application.getApp();
         var now = Time.now().value();
         var width = dc.getWidth();
         var height = dc.getHeight();
 
-        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+        dc.setColor(Colors.BG, Colors.BG);
         dc.clear();
 
         var level = 0.0;
@@ -41,11 +40,11 @@ class SummaryView extends WatchUi.View {
         var centerX = width / 2;
 
         // Current caffeine level (large, centered)
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(Colors.TEXT_PRIMARY, Graphics.COLOR_TRANSPARENT);
         dc.drawText(centerX, (height * 18 / 100), Graphics.FONT_NUMBER_HOT,
             Util.formatMg(level), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(Colors.TEXT_SECONDARY, Graphics.COLOR_TRANSPARENT);
         dc.drawText(centerX, (height * 33 / 100), Graphics.FONT_TINY,
             "mg caffeine", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
@@ -54,14 +53,14 @@ class SummaryView extends WatchUi.View {
         var barWidth = width * 60 / 100;
         var barHeight = 8;
         var barX = centerX - barWidth / 2;
-        dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(Colors.TRACK, Graphics.COLOR_TRANSPARENT);
         dc.fillRectangle(barX, barY, barWidth, barHeight);
         var fillRatio = dailyIntake.toFloat() / dailyLimit.toFloat();
         if (fillRatio > 1.0) { fillRatio = 1.0; }
         var fillWidth = (barWidth * fillRatio).toNumber();
-        var barColor = Graphics.COLOR_GREEN;
-        if (alertStatus.equals("warning")) { barColor = Graphics.COLOR_YELLOW; }
-        if (alertStatus.equals("over")) { barColor = Graphics.COLOR_RED; }
+        var barColor = Colors.ACCENT;
+        if (alertStatus.equals("warning")) { barColor = Colors.WARNING; }
+        if (alertStatus.equals("over")) { barColor = Colors.DANGER; }
         dc.setColor(barColor, Graphics.COLOR_TRANSPARENT);
         dc.fillRectangle(barX, barY, fillWidth, barHeight);
 
@@ -70,29 +69,22 @@ class SummaryView extends WatchUi.View {
         if (level >= 1.0 && minutesToSafe > 0) {
             sleepText = "Sleep safe in " + Util.formatDuration(minutesToSafe);
         }
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(Colors.TEXT_PRIMARY, Graphics.COLOR_TRANSPARENT);
         dc.drawText(centerX, (height * 55 / 100), Graphics.FONT_SMALL,
             sleepText, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Daily intake vs limit
         var intakeText = dailyIntake.toString() + " / " + dailyLimit.toString() + " mg today";
-        var intakeColor = Graphics.COLOR_LT_GRAY;
-        if (alertStatus.equals("warning")) { intakeColor = Graphics.COLOR_YELLOW; }
-        if (alertStatus.equals("over")) { intakeColor = Graphics.COLOR_RED; }
+        var intakeColor = Colors.TEXT_SECONDARY;
+        if (alertStatus.equals("warning")) { intakeColor = Colors.WARNING; }
+        if (alertStatus.equals("over")) { intakeColor = Colors.DANGER; }
         dc.setColor(intakeColor, Graphics.COLOR_TRANSPARENT);
         dc.drawText(centerX, (height * 70 / 100), Graphics.FONT_TINY,
             intakeText, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Hint
-        dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(Colors.TEXT_DIM, Graphics.COLOR_TRANSPARENT);
         dc.drawText(centerX, (height * 88 / 100), Graphics.FONT_XTINY,
             "Press to add drink", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        } catch (e) {
-            dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
-            dc.clear();
-            dc.setColor(Graphics.COLOR_RED, Graphics.COLOR_TRANSPARENT);
-            dc.drawText(dc.getWidth() / 2, dc.getHeight() / 2, Graphics.FONT_SMALL,
-                e.getErrorMessage(), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        }
     }
 }

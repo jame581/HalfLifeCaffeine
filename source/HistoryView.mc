@@ -77,32 +77,33 @@ class HistoryView extends WatchUi.View {
 
         if (rows.size() == 0) { return; }
 
-        // Take up to 14 rows, newest on the RIGHT.
+        // Always reserve 14 slots so bar width stays consistent regardless of
+        // history length. Slots are filled right-to-left (newest on the right);
+        // unfilled slots render as empty space.
         var maxBars = 14;
-        var barCount = rows.size() < maxBars ? rows.size() : maxBars;
-        var bars = [];
-        for (var i = barCount - 1; i >= 0; i--) {
-            bars.add(rows[i]);
-        }
+        var filledCount = rows.size() < maxBars ? rows.size() : maxBars;
 
-        // Compute scale: max of (dailyLimit * 1.1, max bar * 1.1).
+        // Compute scale from the filled rows only.
         var maxVal = dailyLimit * 110 / 100;
-        for (var i = 0; i < bars.size(); i++) {
-            var v = bars[i][1] * 110 / 100;
+        for (var i = 0; i < filledCount; i++) {
+            var v = rows[i][1] * 110 / 100;
             if (v > maxVal) { maxVal = v; }
         }
         if (maxVal <= 0) { maxVal = 1; }
 
-        var barSlotWidth = chartWidth / barCount;
+        var barSlotWidth = chartWidth / maxBars;
         var barInnerWidth = barSlotWidth * 70 / 100;
         var barGap = (barSlotWidth - barInnerWidth) / 2;
 
-        // Draw bars
-        for (var i = 0; i < bars.size(); i++) {
-            var total = bars[i][1];
+        // Draw filled bars anchored to the right.
+        // Slot index runs 0..maxBars-1 left to right. Newest day fills the rightmost slot.
+        for (var i = 0; i < filledCount; i++) {
+            var row = rows[i]; // rows[0] = today (newest)
+            var total = row[1];
             var barPixelHeight = (total * chartHeight) / maxVal;
             if (barPixelHeight < 1 && total > 0) { barPixelHeight = 1; }
-            var bx = chartLeftInset + (i * barSlotWidth) + barGap;
+            var slotIdx = maxBars - 1 - i; // newest goes rightmost
+            var bx = chartLeftInset + (slotIdx * barSlotWidth) + barGap;
             var by = chartBottom - barPixelHeight;
 
             var color = Colors.ACCENT;

@@ -74,4 +74,71 @@ class StorageManager {
         }
         return result;
     }
+
+    // Pure function: given doses, existing daily totals, lastRolled ymd, and today's ymd,
+    // return new daily totals array with any newly-completed days appended.
+    // Does NOT mutate inputs; does NOT touch Storage.
+    function computeRollup(doses, existingTotals, lastRolledYmd, todayYmd) {
+        var result = [];
+        for (var i = 0; i < existingTotals.size(); i++) {
+            result.add(existingTotals[i]);
+        }
+        if (lastRolledYmd >= todayYmd - 1) {
+            // Nothing to roll (we only roll completed days = yesterday and before)
+            if (lastRolledYmd == todayYmd) { return result; }
+            // lastRolledYmd == todayYmd - 1 means yesterday already rolled
+            if (lastRolledYmd == todayYmd - 1) { return result; }
+        }
+        // Roll every day from lastRolledYmd+1 through todayYmd-1 (inclusive)
+        // Note: ymd arithmetic (+1) is NOT calendar-safe; we iterate by epoch-day.
+        var startEpoch = epochForYmd(lastRolledYmd == 0 ? todayYmd - 1 : lastRolledYmd);
+        var endEpoch = epochForYmd(todayYmd);
+        var dayEpoch = startEpoch + 86400; // day AFTER lastRolledYmd (or yesterday if lastRolled==0)
+        while (dayEpoch < endEpoch) {
+            var dayYmd = Util.ymdFromEpoch(dayEpoch);
+            var dayStart = Util.midnightEpochFor(dayEpoch);
+            var dayEnd = dayStart + 86400;
+            var totalMg = 0;
+            var count = 0;
+            for (var i = 0; i < doses.size(); i++) {
+                var dose = doses[i];
+                if (dose[:time] >= dayStart && dose[:time] < dayEnd) {
+                    totalMg += dose[:mg].toNumber();
+                    count += 1;
+                }
+            }
+            if (totalMg > 0) {
+                result.add([dayYmd, totalMg, count]);
+            }
+            dayEpoch += 86400;
+        }
+        return result;
+    }
+
+    // Trim daily totals to at most maxDays entries (drops oldest from front).
+    function pruneDailyTotals(totals, maxDays) {
+        if (totals.size() <= maxDays) { return totals; }
+        var start = totals.size() - maxDays;
+        var result = [];
+        for (var i = start; i < totals.size(); i++) {
+            result.add(totals[i]);
+        }
+        return result;
+    }
+
+    // Convert a ymd (YYYYMMDD int) to the local-midnight epoch at the START of that day.
+    private function epochForYmd(ymd) {
+        var year = (ymd / 10000).toNumber();
+        var month = ((ymd / 100) % 100).toNumber();
+        var day = (ymd % 100).toNumber();
+        var moment = Gregorian.moment({
+            :year => year,
+            :month => month,
+            :day => day,
+            :hour => 0,
+            :minute => 0,
+            :second => 0
+        });
+        return moment.value();
+    }
 }

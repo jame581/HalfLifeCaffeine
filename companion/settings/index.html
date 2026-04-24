@@ -172,22 +172,81 @@
 
 <script>
 var drinkHistory = JSON.parse(localStorage.getItem('drinkHistory') || '[]');
-var presets = JSON.parse(localStorage.getItem('presets') || 'null');
-if (!presets) {
-    presets = [
-        {name: "Espresso", mg: 63},
-        {name: "Americano", mg: 77},
-        {name: "Drip Coffee (S)", mg: 95},
-        {name: "Drip Coffee (L)", mg: 190},
-        {name: "Latte", mg: 63},
-        {name: "Green Tea", mg: 30},
-        {name: "Black Tea", mg: 47},
-        {name: "Red Bull", mg: 80},
-        {name: "Monster", mg: 160},
-        {name: "Cola", mg: 34},
-        {name: "Dark Chocolate", mg: 25},
-        {name: "Pre-Workout", mg: 200}
-    ];
+
+function parseSettingsFromUrl() {
+    try {
+        var raw = '';
+        if (window.location.search && window.location.search.length > 1) {
+            var qs = window.location.search.substring(1);
+            var pairs = qs.split('&');
+            for (var i = 0; i < pairs.length; i++) {
+                var kv = pairs[i].split('=');
+                if (kv[0] === 'settings' && kv.length > 1) {
+                    raw = decodeURIComponent(kv[1]);
+                    break;
+                }
+            }
+        }
+        if (!raw && window.location.hash && window.location.hash.length > 1) {
+            var h = window.location.hash.substring(1);
+            if (h.indexOf('settings=') === 0) {
+                raw = decodeURIComponent(h.substring('settings='.length));
+            }
+        }
+        if (!raw) { return null; }
+        return JSON.parse(raw);
+    } catch (e) {
+        return null;
+    }
+}
+
+function applyIncomingSettings(s) {
+    if (!s) { return; }
+    function setNum(id, v) {
+        if (typeof v === 'number' && !isNaN(v)) {
+            var el = document.getElementById(id);
+            if (el) { el.value = v; }
+        }
+    }
+    function setToggle(id, v) {
+        if (typeof v === 'boolean') {
+            var el = document.getElementById(id);
+            if (!el) { return; }
+            if (v) { el.classList.add('on'); }
+            else { el.classList.remove('on'); }
+        }
+    }
+    setNum('dailyLimit', s.dailyLimit);
+    setNum('bedtimeHour', s.bedtimeHour);
+    setNum('bedtimeMinute', s.bedtimeMinute);
+    setToggle('alertLimitWarning', s.alertLimitWarning);
+    setToggle('alertLimitReached', s.alertLimitReached);
+    setToggle('alertSafeToSleep', s.alertSafeToSleep);
+}
+
+var _incoming = parseSettingsFromUrl();
+
+var presets;
+if (_incoming && _incoming.presets && _incoming.presets.length > 0) {
+    presets = _incoming.presets;
+} else {
+    presets = JSON.parse(localStorage.getItem('presets') || 'null');
+    if (!presets) {
+        presets = [
+            {name: "Espresso", mg: 63},
+            {name: "Americano", mg: 77},
+            {name: "Drip Coffee (S)", mg: 95},
+            {name: "Drip Coffee (L)", mg: 190},
+            {name: "Latte", mg: 63},
+            {name: "Green Tea", mg: 30},
+            {name: "Black Tea", mg: 47},
+            {name: "Red Bull", mg: 80},
+            {name: "Monster", mg: 160},
+            {name: "Cola", mg: 34},
+            {name: "Dark Chocolate", mg: 25},
+            {name: "Pre-Workout", mg: 200}
+        ];
+    }
 }
 
 function switchTab(name, tabEl) {
@@ -251,6 +310,7 @@ function saveSettings() {
     localStorage.setItem('presets', JSON.stringify(presets));
     var settings = {
         type: "settings",
+        version: 1,
         dailyLimit: parseInt(document.getElementById('dailyLimit').value),
         bedtimeHour: parseInt(document.getElementById('bedtimeHour').value),
         bedtimeMinute: parseInt(document.getElementById('bedtimeMinute').value),
@@ -413,6 +473,7 @@ function onWatchData(data) {
     }
 }
 
+applyIncomingSettings(_incoming);
 renderPresets();
 </script>
 

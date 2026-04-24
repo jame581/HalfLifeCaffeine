@@ -23,7 +23,10 @@ class HalfLifeCaffeineApp extends Application.AppBase {
 
     function onStop(state as Dictionary?) as Void {
         if (caffeineModel != null && storageManager != null) {
-            storageManager.saveDoses(caffeineModel.getDoses());
+            var now = Time.now().value();
+            var doses = caffeineModel.getDoses();
+            storageManager.rollUpYesterday(doses, now);
+            storageManager.saveDoses(doses);
         }
     }
 
@@ -47,6 +50,7 @@ class HalfLifeCaffeineApp extends Application.AppBase {
 
         var savedDoses = storageManager.loadDoses();
         var now = Time.now().value();
+        storageManager.rollUpYesterday(savedDoses, now);
         savedDoses = storageManager.pruneOldDoses(savedDoses, now);
         caffeineModel.setDoses(savedDoses);
         caffeineModel.pruneExpiredDoses(now);

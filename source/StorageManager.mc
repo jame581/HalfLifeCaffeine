@@ -8,6 +8,9 @@ class StorageManager {
     private const DOSES_KEY = "doses";
     private const LAST_SYNC_KEY = "lastSync";
     private const RETENTION_SECONDS = 1209600; // 14 * 24 * 60 * 60
+    private const DAILY_TOTALS_KEY = "dailyTotals";
+    private const LAST_ROLLED_YMD_KEY = "lastRolledYmd";
+    private const DAILY_TOTALS_RETENTION_DAYS = 90;
 
     // Save all active doses to storage
     // doses: Array of {:mg => Float, :time => Number}
@@ -73,6 +76,75 @@ class StorageManager {
             }
         }
         return result;
+    }
+
+    // Load daily totals from storage. Returns array of [ymd, totalMg, doseCount].
+    function loadDailyTotals() {
+        var raw = Application.Storage.getValue(DAILY_TOTALS_KEY);
+        var result = [];
+        if (raw != null && raw instanceof Array) {
+            for (var i = 0; i < raw.size(); i++) {
+                var row = raw[i];
+                if (row instanceof Array && row.size() >= 3) {
+                    result.add([row[0].toNumber(), row[1].toNumber(), row[2].toNumber()]);
+                }
+            }
+        }
+        return result;
+    }
+
+    function saveDailyTotals(totals) {
+        Application.Storage.setValue(DAILY_TOTALS_KEY, totals);
+    }
+
+    function getLastRolledYmd() {
+        var v = Application.Storage.getValue(LAST_ROLLED_YMD_KEY);
+        if (v != null && v instanceof Number) {
+            return v;
+        }
+        return 0;
+    }
+
+    function saveLastRolledYmd(ymd) {
+        Application.Storage.setValue(LAST_ROLLED_YMD_KEY, ymd);
+    }
+
+    // Compute and persist roll-up of doses into daily totals for any completed
+    // days since lastRolledYmd. Idempotent — safe to call on every widget open.
+    function rollUpYesterday(doses, nowEpoch) {
+        var todayYmd = Util.ymdFromEpoch(nowEpoch);
+        var lastRolledYmd = getLastRolledYmd();
+        var yesterdayYmd = Util.ymdFromEpoch(nowEpoch - 86400);
+        if (lastRolledYmd >= yesterdayYmd) {
+            return; // Nothing to do
+        }
+        var existing = loadDailyTotals();
+        var updated = computeRollup(doses, existing, lastRolledYmd, todayYmd);
+        updated = pruneDailyTotals(updated, DAILY_TOTALS_RETENTION_DAYS);
+        saveDailyTotals(updated);
+        saveLastRolledYmd(yesterdayYmd);
+    }
+
+    // Filter doses to those falling within a specific local-day ymd.
+    // Returns array of dose dicts (unmodified, so :mg/:time/:name are preserved).
+    function getDosesForDay(doses, ymd) {
+        var startEpoch = epochForYmdPublic(ymd);
+        var endEpoch = startEpoch + 86400;
+        var result = [];
+        for (var i = 0; i < doses.size(); i++) {
+            var dose = doses[i];
+            if (dose[:time] >= startEpoch && dose[:time] < endEpoch) {
+                result.add(dose);
+            }
+        }
+        return result;
+    }
+
+    // Public mirror of private epochForYmd — needed by getDosesForDay which is public.
+    // Kept separate so the private version stays callable from computeRollup without
+    // going through a public method.
+    function epochForYmdPublic(ymd) {
+        return epochForYmd(ymd);
     }
 
     // Pure function: given doses, existing daily totals, lastRolled ymd, and today's ymd,

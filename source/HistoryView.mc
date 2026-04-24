@@ -129,9 +129,90 @@ class HistoryView extends WatchUi.View {
         }
     }
 
-    // Bottom ~45% of screen height: scrollable list of days.
-    // Implemented in Task C6; this stub keeps onUpdate callable now.
+    // Bottom region of screen: scrollable list of days, selected row highlighted.
     private function drawDayList(dc, width, height, rows, dailyLimit) {
-        // Placeholder — fleshed out in Task C6.
+        var listTop = height * 54 / 100;
+        var listBottom = height * 94 / 100;
+        var listHeight = listBottom - listTop;
+        var rowHeight = height * 10 / 100;
+        var visibleCount = listHeight / rowHeight;
+        if (visibleCount < 1) { visibleCount = 1; }
+
+        if (rows.size() == 0) {
+            dc.setColor(Colors.TEXT_DIM, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(width / 2, (listTop + listBottom) / 2, Graphics.FONT_XTINY,
+                "No history yet", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            return;
+        }
+
+        // Compute scroll window so selectedIndex is visible.
+        var scrollStart = 0;
+        if (selectedIndex >= visibleCount) {
+            scrollStart = selectedIndex - visibleCount + 1;
+        }
+
+        var listLeftInset = width * 10 / 100;
+        var listRightInset = width * 10 / 100;
+        var listWidth = width - listLeftInset - listRightInset;
+
+        for (var i = 0; i < visibleCount && (scrollStart + i) < rows.size(); i++) {
+            var rowIdx = scrollStart + i;
+            var row = rows[rowIdx];
+            var rowY = listTop + (i * rowHeight);
+            var isSelected = (rowIdx == selectedIndex);
+
+            if (isSelected) {
+                dc.setColor(Colors.TRACK, Colors.BG);
+                dc.fillRectangle(listLeftInset, rowY, listWidth, rowHeight - 2);
+            }
+
+            var dateStr = formatYmdShort(row[0]);
+            var mgStr = Util.formatMg(row[1]) + " mg";
+
+            // Color the mg text by proportion of daily limit.
+            var mgColor = Colors.ACCENT;
+            if (row[1] > dailyLimit) { mgColor = Colors.DANGER; }
+            else if (row[1] > dailyLimit * 80 / 100) { mgColor = Colors.WARNING; }
+
+            dc.setColor(Colors.TEXT_PRIMARY, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(listLeftInset + 6, rowY + rowHeight / 2,
+                Graphics.FONT_XTINY, dateStr,
+                Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+
+            dc.setColor(mgColor, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(listLeftInset + listWidth - 6, rowY + rowHeight / 2,
+                Graphics.FONT_XTINY, mgStr,
+                Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
+        }
+    }
+
+    // Format a ymd int to "MMM d" string (e.g. 20260424 → "Apr 24").
+    private function formatYmdShort(ymd) {
+        var year = (ymd / 10000).toNumber();
+        var month = ((ymd / 100) % 100).toNumber();
+        var day = (ymd % 100).toNumber();
+        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        var monthStr = (month >= 1 && month <= 12) ? months[month - 1] : "?";
+        return monthStr + " " + day.toString();
+    }
+
+    // Called by HistoryDelegate on UP/DOWN input.
+    function moveSelection(delta) {
+        var newIndex = selectedIndex + delta;
+        if (newIndex < 0) { newIndex = 0; }
+        if (newIndex >= dayRows.size()) { newIndex = dayRows.size() - 1; }
+        if (newIndex != selectedIndex) {
+            selectedIndex = newIndex;
+            WatchUi.requestUpdate();
+        }
+    }
+
+    // Called by HistoryDelegate on SELECT to get the currently-highlighted day.
+    // Returns the ymd int, or -1 if no rows.
+    function getSelectedYmd() {
+        if (dayRows.size() == 0) { return -1; }
+        if (selectedIndex >= dayRows.size()) { return -1; }
+        return dayRows[selectedIndex][0];
     }
 }

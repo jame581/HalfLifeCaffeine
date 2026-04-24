@@ -188,7 +188,6 @@ class HistoryView extends WatchUi.View {
 
     // Format a ymd int to "MMM d" string (e.g. 20260424 → "Apr 24").
     private function formatYmdShort(ymd) {
-        var year = (ymd / 10000).toNumber();
         var month = ((ymd / 100) % 100).toNumber();
         var day = (ymd % 100).toNumber();
         var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",

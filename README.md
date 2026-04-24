@@ -4,6 +4,7 @@
 
 # HalfLife Caffeine
 
+[![Connect IQ Store](https://img.shields.io/badge/Connect%20IQ%20Store-Install-3DDBA8.svg)](https://apps.garmin.com/en-US/apps/7f81c51f-3f4c-486b-b38f-444ac962df47)
 [![License: MIT](https://img.shields.io/badge/License-MIT-3DDBA8.svg)](LICENSE)
 [![Platform: Garmin Connect IQ](https://img.shields.io/badge/platform-Connect%20IQ%203.2%2B-1A2332.svg)](https://developer.garmin.com/connect-iq/)
 [![Release](https://img.shields.io/github/v/tag/jame581/HalfLifeCaffeine?label=release&color=3DDBA8)](https://github.com/jame581/HalfLifeCaffeine/releases)
@@ -37,7 +38,8 @@ A free Garmin Connect IQ widget that tracks caffeine intake and models its decay
 
 ## Install
 
-**From the Connect IQ Store** *(link will be added after review approval)*
+**From the Connect IQ Store**
+Install directly on your watch via [apps.garmin.com/en-US/apps/7f81c51f-3f4c-486b-b38f-444ac962df47](https://apps.garmin.com/en-US/apps/7f81c51f-3f4c-486b-b38f-444ac962df47) or search "HalfLife Caffeine" in the Connect IQ store.
 
 **Sideload the pre-built release**
 1. Download the latest `.iq` or `.prg` from the [Releases page](https://github.com/jame581/HalfLifeCaffeine/releases)

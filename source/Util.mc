@@ -57,4 +57,28 @@ module Util {
         }
         return bedtimeEpoch;
     }
+
+    // Convert epoch seconds to integer YYYYMMDD date key (local time)
+    function ymdFromEpoch(epochSeconds) {
+        var moment = new Time.Moment(epochSeconds);
+        var info = Gregorian.info(moment, Time.FORMAT_SHORT);
+        return info.year.toNumber() * 10000
+             + info.month.toNumber() * 100
+             + info.day.toNumber();
+    }
+
+    // Midnight epoch for the local day containing the given epoch
+    function midnightEpochFor(epochSeconds) {
+        var moment = new Time.Moment(epochSeconds);
+        var info = Gregorian.info(moment, Time.FORMAT_SHORT);
+        var midnight = Gregorian.moment({
+            :year => info.year,
+            :month => info.month,
+            :day => info.day,
+            :hour => 0,
+            :minute => 0,
+            :second => 0
+        });
+        return midnight.value();
+    }
 }

@@ -1,4 +1,5 @@
 import Toybox.Application;
+import Toybox.Lang;
 
 class DrinkPresets {
 
@@ -62,9 +63,19 @@ class DrinkPresets {
         }
         var result = [];
         for (var i = 0; i < raw.size(); i++) {
-            var entry = raw[i];
-            if (entry instanceof Dictionary && entry.hasKey("name") && entry.hasKey("mg")) {
-                result.add({:name => entry["name"].toString(), :mg => entry["mg"].toNumber()});
+            // The Application.Properties type system does not include Dictionary
+            // in its ValueType union, so instanceof Dictionary is statically
+            // unreachable per the SDK types. At runtime, array-type properties
+            // edited via Garmin Connect Mobile return dicts. We cast through
+            // Object to defeat the static check.
+            var entry = raw[i] as Object;
+            if (entry instanceof Dictionary) {
+                var dict = entry as Dictionary;
+                if (dict.hasKey("name") && dict.hasKey("mg")) {
+                    var nameStr = dict["name"].toString();
+                    var mgNum = dict["mg"].toNumber();
+                    result.add({:name => nameStr, :mg => mgNum});
+                }
             }
         }
         return result.size() > 0 ? result : getDefaults();

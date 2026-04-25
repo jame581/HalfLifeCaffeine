@@ -43,7 +43,7 @@ class SyncManager {
         }
     }
 
-    function handlePhoneMessage(data, drinkPresets) {
+    function handlePhoneMessage(data) {
         if (data == null) { return; }
 
         if (data.hasKey("type") && data["type"].equals("settings")) {
@@ -64,21 +64,6 @@ class SyncManager {
             }
             if (data.hasKey("alertSafeToSleep")) {
                 Application.Properties.setValue("alertSafeToSleep", data["alertSafeToSleep"]);
-            }
-            if (data.hasKey("presets") && drinkPresets != null) {
-                var incoming = data["presets"];
-                if (incoming instanceof Array && incoming.size() > 0) {
-                    var parsed = [];
-                    for (var i = 0; i < incoming.size(); i++) {
-                        var p = incoming[i];
-                        if (p instanceof Dictionary && p.hasKey("name") && p.hasKey("mg")) {
-                            parsed.add({:name => p["name"].toString(), :mg => p["mg"].toNumber()});
-                        }
-                    }
-                    if (parsed.size() > 0) {
-                        drinkPresets.setPresets(parsed);
-                    }
-                }
             }
         }
 

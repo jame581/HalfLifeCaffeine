@@ -5,4 +5,5 @@
   <property id="alertLimitWarning" type="boolean">true</property>
   <property id="alertLimitReached" type="boolean">true</property>
   <property id="alertSafeToSleep" type="boolean">true</property>
+  <property id="presets" type="array"></property>
 </properties>

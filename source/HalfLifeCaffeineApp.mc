@@ -57,6 +57,9 @@ class HalfLifeCaffeineApp extends Application.AppBase {
     }
 
     function onSettingsChanged() as Void {
+        if (drinkPresets != null) {
+            drinkPresets.reload();
+        }
         WatchUi.requestUpdate();
     }
 
@@ -77,7 +80,7 @@ class HalfLifeCaffeineApp extends Application.AppBase {
 
     function onPhoneMessage(msg as Communications.PhoneAppMessage) as Void {
         if (syncManager != null) {
-            syncManager.handlePhoneMessage(msg.data, drinkPresets);
+            syncManager.handlePhoneMessage(msg.data);
         }
     }
 }

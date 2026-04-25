@@ -7,4 +7,7 @@
   <string id="OverLimit">Over limit!</string>
   <string id="Bedtime">Bedtime</string>
   <string id="SafeThreshold">Safe</string>
+  <string id="SettingPresetsTitle">Drink Presets</string>
+  <string id="SettingPresetName">Name</string>
+  <string id="SettingPresetMg">Caffeine (mg)</string>
 </strings>

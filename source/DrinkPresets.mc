@@ -2,13 +2,21 @@ import Toybox.Application;
 
 class DrinkPresets {
 
-    private const PRESETS_KEY = "presets";
+    private const PRESETS_PROPERTY = "presets";
 
     // Each preset: {:name => String, :mg => Number}
+    // Cached from Application.Properties on init / reload.
     private var _presets;
 
     function initialize() {
-        _presets = loadFromStorage();
+        _presets = loadFromProperties();
+    }
+
+    // Re-read presets from Application.Properties.
+    // Called from HalfLifeCaffeineApp.onSettingsChanged when the user edits
+    // presets in Garmin Connect Mobile / Garmin Express.
+    function reload() {
+        _presets = loadFromProperties();
     }
 
     function getPresets() {
@@ -23,35 +31,22 @@ class DrinkPresets {
         return _presets[index];
     }
 
-    // Replace presets (e.g. from phone sync) and persist
-    function setPresets(newPresets) {
-        _presets = newPresets;
-        saveToStorage();
-    }
-
-    private function loadFromStorage() {
-        var stored = Application.Storage.getValue(PRESETS_KEY);
-        if (stored == null || !(stored instanceof Array) || stored.size() == 0) {
+    // Convert the array-of-dicts returned by Application.Properties (string keys)
+    // into the symbol-keyed shape the rest of the app expects.
+    // Falls back to baked-in defaults if the property is absent or malformed.
+    private function loadFromProperties() {
+        var raw = Application.Properties.getValue(PRESETS_PROPERTY);
+        if (raw == null || !(raw instanceof Array) || raw.size() == 0) {
             return getDefaults();
         }
-        // Stored format: array of [name, mg] pairs (dictionaries don't serialize reliably)
         var result = [];
-        for (var i = 0; i < stored.size(); i++) {
-            var entry = stored[i];
-            if (entry instanceof Array && entry.size() == 2) {
-                result.add({:name => entry[0].toString(), :mg => entry[1].toNumber()});
+        for (var i = 0; i < raw.size(); i++) {
+            var entry = raw[i];
+            if (entry instanceof Dictionary && entry.hasKey("name") && entry.hasKey("mg")) {
+                result.add({:name => entry["name"].toString(), :mg => entry["mg"].toNumber()});
             }
         }
         return result.size() > 0 ? result : getDefaults();
-    }
-
-    private function saveToStorage() {
-        var storable = [];
-        for (var i = 0; i < _presets.size(); i++) {
-            var p = _presets[i];
-            storable.add([p[:name], p[:mg]]);
-        }
-        Application.Storage.setValue(PRESETS_KEY, storable);
     }
 
     function getDefaults() {

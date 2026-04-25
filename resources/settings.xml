@@ -44,55 +44,5 @@
     <setting title="@Strings.SettingPresetMg" type="number">
       <settingConfig id="mg" type="numeric" min="1" max="500"/>
     </setting>
-    <defaults>
-      <entry>
-        <default id="name">Espresso</default>
-        <default id="mg">63</default>
-      </entry>
-      <entry>
-        <default id="name">Americano</default>
-        <default id="mg">77</default>
-      </entry>
-      <entry>
-        <default id="name">Drip Coffee (S)</default>
-        <default id="mg">95</default>
-      </entry>
-      <entry>
-        <default id="name">Drip Coffee (L)</default>
-        <default id="mg">190</default>
-      </entry>
-      <entry>
-        <default id="name">Latte</default>
-        <default id="mg">63</default>
-      </entry>
-      <entry>
-        <default id="name">Green Tea</default>
-        <default id="mg">30</default>
-      </entry>
-      <entry>
-        <default id="name">Black Tea</default>
-        <default id="mg">47</default>
-      </entry>
-      <entry>
-        <default id="name">Red Bull</default>
-        <default id="mg">80</default>
-      </entry>
-      <entry>
-        <default id="name">Monster</default>
-        <default id="mg">160</default>
-      </entry>
-      <entry>
-        <default id="name">Cola</default>
-        <default id="mg">34</default>
-      </entry>
-      <entry>
-        <default id="name">Dark Chocolate</default>
-        <default id="mg">25</default>
-      </entry>
-      <entry>
-        <default id="name">Pre-Workout</default>
-        <default id="mg">200</default>
-      </entry>
-    </defaults>
   </setting>
 </settings>

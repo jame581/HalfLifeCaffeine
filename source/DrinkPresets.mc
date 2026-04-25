@@ -9,7 +9,28 @@ class DrinkPresets {
     private var _presets;
 
     function initialize() {
+        seedDefaultsIfEmpty();
         _presets = loadFromProperties();
+    }
+
+    // First-run seeding: write the default preset list to Application.Properties
+    // when the property is missing or empty. Without this, Garmin Connect Mobile's
+    // settings editor opens with an empty list (the <defaults> block in
+    // settings.xml only renders display hints — it does not populate the
+    // property), so the user's first edit overwrites the displayed defaults
+    // with just the new entry. Seeding ensures editing starts from a
+    // pre-populated list. Re-seeds if the user deletes every preset.
+    private function seedDefaultsIfEmpty() {
+        var raw = Application.Properties.getValue(PRESETS_PROPERTY);
+        if (raw != null && raw instanceof Array && raw.size() > 0) {
+            return;
+        }
+        var defaults = getDefaults();
+        var seedable = [];
+        for (var i = 0; i < defaults.size(); i++) {
+            seedable.add({"name" => defaults[i][:name], "mg" => defaults[i][:mg]});
+        }
+        Application.Properties.setValue(PRESETS_PROPERTY, seedable);
     }
 
     // Re-read presets from Application.Properties.

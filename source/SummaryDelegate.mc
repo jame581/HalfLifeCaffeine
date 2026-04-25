@@ -24,9 +24,19 @@ class SummaryDelegate extends WatchUi.BehaviorDelegate {
         return true;
     }
 
-    // Swipe down → timeline view
+    // Swipe down (touch) OR DOWN button (non-touch) → timeline view
     function onNextPage() {
         WatchUi.switchToView(new TimelineView(), new TimelineDelegate(), WatchUi.SLIDE_UP);
         return true;
+    }
+
+    // Some non-touch widgets (e.g. fenix 5 Plus without glance) don't
+    // auto-route DOWN/UP buttons to onNextPage/onPreviousPage. Catch the
+    // raw key events and dispatch manually.
+    function onKey(keyEvent) {
+        if (keyEvent.getKey() == WatchUi.KEY_DOWN) {
+            return onNextPage();
+        }
+        return false;
     }
 }

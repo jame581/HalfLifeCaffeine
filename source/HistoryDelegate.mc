@@ -11,7 +11,8 @@ class HistoryDelegate extends WatchUi.BehaviorDelegate {
 
     // Swipe up → back to LogView
     function onPreviousPage() {
-        WatchUi.switchToView(new LogView(), new LogDelegate(), WatchUi.SLIDE_DOWN);
+        var view = new LogView();
+        WatchUi.switchToView(view, new LogDelegate(view), WatchUi.SLIDE_DOWN);
         return true;
     }
 

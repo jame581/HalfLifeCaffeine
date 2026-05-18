@@ -8,7 +8,8 @@ class TimelineDelegate extends WatchUi.BehaviorDelegate {
 
     // Swipe down (touch) OR DOWN button (non-touch) → log view
     function onNextPage() {
-        WatchUi.switchToView(new LogView(), new LogDelegate(), WatchUi.SLIDE_UP);
+        var view = new LogView();
+        WatchUi.switchToView(view, new LogDelegate(view), WatchUi.SLIDE_UP);
         return true;
     }
 

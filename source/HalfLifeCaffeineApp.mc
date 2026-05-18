@@ -78,6 +78,38 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         WatchUi.requestUpdate();
     }
 
+    function removeDose(doseIndex) {
+        if (caffeineModel == null) { return; }
+        var now = Time.now().value();
+        var ymd = Util.ymdFromEpoch(now);
+        caffeineModel.removeDoseAt(doseIndex);
+        storageManager.saveDoses(caffeineModel.getDoses());
+        syncManager.syncDayToPhone(caffeineModel.getDoses(), ymd);
+        WatchUi.requestUpdate();
+    }
+
+    function adjustDoseTime(doseIndex, offsetSeconds) {
+        if (caffeineModel == null) { return; }
+        var doses = caffeineModel.getDoses();
+        if (doseIndex < 0 || doseIndex >= doses.size()) { return; }
+
+        var oldYmd = Util.ymdFromEpoch(doses[doseIndex][:time]);
+        var now = Time.now().value();
+        var newTime = caffeineModel.adjustDoseTime(doseIndex, offsetSeconds, now);
+        if (newTime < 0) { return; } // out-of-bounds defensive
+        var newYmd = Util.ymdFromEpoch(newTime);
+
+        caffeineModel.pruneExpiredDoses(now);
+        var allDoses = caffeineModel.getDoses();
+        storageManager.saveDoses(allDoses);
+
+        syncManager.syncDayToPhone(allDoses, oldYmd);
+        if (newYmd != oldYmd) {
+            syncManager.syncDayToPhone(allDoses, newYmd);
+        }
+        WatchUi.requestUpdate();
+    }
+
     function onPhoneMessage(msg as Communications.PhoneAppMessage) as Void {
         if (syncManager != null) {
             syncManager.handlePhoneMessage(msg.data);

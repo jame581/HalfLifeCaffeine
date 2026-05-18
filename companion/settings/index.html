@@ -465,12 +465,27 @@ function renderTrends() {
 }
 
 function onWatchData(data) {
-    if (data && data.type === 'drinks' && data.data) {
+    if (!data || data.type !== 'drinks' || !data.data) { return; }
+    if (data.mode === 'replace-day' && typeof data.ymd === 'number') {
+        // Drop existing entries whose local date matches the given ymd, then append.
+        drinkHistory = drinkHistory.filter(function(d) {
+            return localYmd(d.time) !== data.ymd;
+        });
         for (var i = 0; i < data.data.length; i++) {
             drinkHistory.push(data.data[i]);
         }
-        localStorage.setItem('drinkHistory', JSON.stringify(drinkHistory));
+    } else {
+        // Legacy / append mode — preserve existing behavior for older watch versions.
+        for (var i = 0; i < data.data.length; i++) {
+            drinkHistory.push(data.data[i]);
+        }
     }
+    localStorage.setItem('drinkHistory', JSON.stringify(drinkHistory));
+}
+
+function localYmd(epochSeconds) {
+    var d = new Date(epochSeconds * 1000);
+    return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
 }
 
 applyIncomingSettings(_incoming);

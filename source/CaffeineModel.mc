@@ -88,6 +88,32 @@ class CaffeineModel {
         return points;
     }
 
+    // Remove the dose at the given _doses index. Out-of-bounds index is a no-op.
+    function removeDoseAt(doseIndex) {
+        if (doseIndex < 0 || doseIndex >= _doses.size()) { return; }
+        var kept = [];
+        for (var i = 0; i < _doses.size(); i++) {
+            if (i != doseIndex) {
+                kept.add(_doses[i]);
+            }
+        }
+        _doses = kept;
+    }
+
+    // Adjust the :time field of dose at the given _doses index by offsetSeconds (signed).
+    // The result is clamped to <= nowEpoch (no future doses). Negative offsets crossing
+    // midnight are allowed (caller re-evaluates day-membership).
+    // Returns the resulting :time, or -1 if the index is out of bounds.
+    function adjustDoseTime(doseIndex, offsetSeconds, nowEpoch) {
+        if (doseIndex < 0 || doseIndex >= _doses.size()) { return -1; }
+        var newTime = _doses[doseIndex][:time] + offsetSeconds;
+        if (newTime > nowEpoch) {
+            newTime = nowEpoch;
+        }
+        _doses[doseIndex][:time] = newTime;
+        return newTime;
+    }
+
     // Get all doses (for storage serialization)
     function getDoses() {
         return _doses;
@@ -109,6 +135,33 @@ class CaffeineModel {
             }
         }
         return log;
+    }
+
+    // Return _doses indices for doses falling on today's local day, sorted by :time ascending.
+    // Used by LogView to translate cursor position → master _doses index safely.
+    function getTodayLogIndices(nowEpoch) {
+        var todayStart = getMidnightEpoch(nowEpoch);
+        var pairs = [];
+        for (var i = 0; i < _doses.size(); i++) {
+            if (_doses[i][:time] >= todayStart) {
+                pairs.add([i, _doses[i][:time]]);
+            }
+        }
+        // Insertion sort by time (n is small — ~10 doses/day worst case).
+        for (var i = 1; i < pairs.size(); i++) {
+            var cur = pairs[i];
+            var j = i - 1;
+            while (j >= 0 && pairs[j][1] > cur[1]) {
+                pairs[j + 1] = pairs[j];
+                j -= 1;
+            }
+            pairs[j + 1] = cur;
+        }
+        var indices = [];
+        for (var i = 0; i < pairs.size(); i++) {
+            indices.add(pairs[i][0]);
+        }
+        return indices;
     }
 
     // Calculate decayed amount for a single dose

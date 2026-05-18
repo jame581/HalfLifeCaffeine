@@ -74,3 +74,110 @@ function testTimeToSafeWithActiveDose(logger) {
     var minutes = model.getMinutesToSafe(now, 50);
     return (minutes >= 680 && minutes <= 690);
 }
+
+(:test)
+function testRemoveDoseAtRemovesCorrectEntry(logger) {
+    var model = new CaffeineModel();
+    var now = Time.now().value();
+    model.addDose(95, now - 3600, "Coffee");
+    model.addDose(63, now - 1800, "Espresso");
+    model.addDose(160, now - 600, "Monster");
+    model.removeDoseAt(1); // remove the middle one (Espresso)
+    var doses = model.getDoses();
+    if (doses.size() != 2) { return false; }
+    if (!doses[0][:name].equals("Coffee")) { return false; }
+    if (!doses[1][:name].equals("Monster")) { return false; }
+    return true;
+}
+
+(:test)
+function testRemoveDoseAtIsNoopOnOutOfBoundsHigh(logger) {
+    var model = new CaffeineModel();
+    var now = Time.now().value();
+    model.addDose(95, now, "Coffee");
+    model.removeDoseAt(5); // out of range
+    return (model.getDoses().size() == 1);
+}
+
+(:test)
+function testRemoveDoseAtIsNoopOnNegativeIndex(logger) {
+    var model = new CaffeineModel();
+    var now = Time.now().value();
+    model.addDose(95, now, "Coffee");
+    model.removeDoseAt(-1);
+    return (model.getDoses().size() == 1);
+}
+
+(:test)
+function testAdjustDoseTimeAppliesNegativeOffset(logger) {
+    var model = new CaffeineModel();
+    var now = Time.now().value();
+    var originalTime = now - 1800; // 30 min ago
+    model.addDose(95, originalTime, "Coffee");
+    var newTime = model.adjustDoseTime(0, -3600, now); // shift 1h earlier
+    if (newTime != originalTime - 3600) { return false; }
+    return (model.getDoses()[0][:time] == originalTime - 3600);
+}
+
+(:test)
+function testAdjustDoseTimeClampsPositiveOffsetToNow(logger) {
+    var model = new CaffeineModel();
+    var now = Time.now().value();
+    var originalTime = now - 300; // 5 min ago
+    model.addDose(95, originalTime, "Coffee");
+    var newTime = model.adjustDoseTime(0, 1800, now); // +30 min would land 25 min in future
+    if (newTime != now) { return false; } // clamped
+    return (model.getDoses()[0][:time] == now);
+}
+
+(:test)
+function testAdjustDoseTimeAllowsNegativeCrossingMidnight(logger) {
+    var model = new CaffeineModel();
+    var fakeNow = 1747526460;
+    model.addDose(95, fakeNow - 60, "Coffee");
+    var newTime = model.adjustDoseTime(0, -7200, fakeNow);
+    var expected = (fakeNow - 60) - 7200;
+    if (newTime != expected) { return false; }
+    return (model.getDoses()[0][:time] == expected);
+}
+
+(:test)
+function testAdjustDoseTimeIsNoopOnOutOfBoundsIndex(logger) {
+    var model = new CaffeineModel();
+    var now = Time.now().value();
+    var result = model.adjustDoseTime(7, -3600, now);
+    return (result == -1);
+}
+
+(:test)
+function testGetTodayLogIndicesReturnsOnlyTodayDoses(logger) {
+    var model = new CaffeineModel();
+    var now = Time.now().value();
+    model.addDose(95, now - 172800, "Coffee2DaysAgo");
+    model.addDose(63, now - 3600, "EspressoToday");
+    model.addDose(160, now - 1800, "MonsterToday");
+    var indices = model.getTodayLogIndices(now);
+    if (indices.size() != 2) { return false; }
+    return (indices[0] == 1 && indices[1] == 2);
+}
+
+(:test)
+function testGetTodayLogIndicesEmptyWhenNoTodayDoses(logger) {
+    var model = new CaffeineModel();
+    var now = Time.now().value();
+    model.addDose(95, now - 172800, "Old");
+    var indices = model.getTodayLogIndices(now);
+    return (indices.size() == 0);
+}
+
+(:test)
+function testGetTodayLogIndicesSortedByTimeAscending(logger) {
+    var model = new CaffeineModel();
+    var now = Time.now().value();
+    model.addDose(95, now - 1800, "Newer");
+    model.addDose(63, now - 3600, "Older");
+    model.addDose(160, now - 900, "Newest");
+    var indices = model.getTodayLogIndices(now);
+    if (indices.size() != 3) { return false; }
+    return (indices[0] == 1 && indices[1] == 0 && indices[2] == 2);
+}

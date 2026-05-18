@@ -6,23 +6,18 @@ import Toybox.WatchUi;
 
 class SyncManager {
 
-    private var _storageManager;
-
     function initialize(storageManager) {
-        _storageManager = storageManager;
+        // storageManager parameter kept for API compatibility
     }
 
-    function syncToPhone(allDoses) {
-        var lastSync = _storageManager.getLastSyncTime();
-        var newDoses = _storageManager.getDosesSince(allDoses, lastSync);
-
-        if (newDoses.size() == 0) {
-            return;
-        }
-
+    // Send a replace-day resync for the given local-day ymd.
+    // Filters allDoses to that day and transmits {type, mode, ymd, data}.
+    // Companion is expected to drop existing entries for ymd and append data.
+    function syncDayToPhone(allDoses, ymd) {
         var payload = [];
-        for (var i = 0; i < newDoses.size(); i++) {
-            var dose = newDoses[i];
+        for (var i = 0; i < allDoses.size(); i++) {
+            var dose = allDoses[i];
+            if (Util.ymdFromEpoch(dose[:time]) != ymd) { continue; }
             var name = dose.hasKey(:name) ? dose[:name] : "";
             payload.add({
                 "mg" => dose[:mg].toNumber(),
@@ -33,11 +28,13 @@ class SyncManager {
 
         var message = {
             "type" => "drinks",
+            "mode" => "replace-day",
+            "ymd" => ymd,
             "data" => payload
         };
 
         try {
-            Communications.transmit(message, null, new SyncCallback(_storageManager));
+            Communications.transmit(message, null, new SyncCallback());
         } catch (e) {
             System.println("SyncManager: phone sync failed - " + e.getErrorMessage());
         }
@@ -73,15 +70,11 @@ class SyncManager {
 
 class SyncCallback extends Communications.ConnectionListener {
 
-    private var _storageManager;
-
-    function initialize(storageManager) {
+    function initialize() {
         ConnectionListener.initialize();
-        _storageManager = storageManager;
     }
 
     function onComplete() {
-        _storageManager.saveLastSyncTime(Time.now().value());
         System.println("SyncManager: phone sync completed");
     }
 

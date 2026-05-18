@@ -69,7 +69,7 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         caffeineModel.addDose(preset[:mg], now, preset[:name]);
         caffeineModel.pruneExpiredDoses(now);
         storageManager.saveDoses(caffeineModel.getDoses());
-        syncManager.syncToPhone(caffeineModel.getDoses());
+        syncManager.syncDayToPhone(caffeineModel.getDoses(), Util.ymdFromEpoch(now));
 
         var dailyIntake = caffeineModel.getDailyIntake(now);
         var currentLevel = caffeineModel.getCurrentLevel(now);

@@ -81,7 +81,7 @@ Two persistent stores with different retention:
 
 The companion app lives in `companion/settings/` (a single-page web app served by the Connect IQ mobile app). Messages are JSON objects with a `"type"` discriminator:
 
-- **Watch → phone** (`SyncManager.syncToPhone`): `{type: "drinks", data: [{mg, time, name}, ...]}`. Only doses newer than `lastSyncTime` are sent; `lastSyncTime` advances only on `onComplete`.
+- **Watch → phone** (`SyncManager.syncDayToPhone(doses, ymd)`): `{type: "drinks", mode: "replace-day", ymd: 20260518, data: [{mg, time, name}, ...]}`. The full dose list for `ymd` is sent (not an incremental delta). Companion is expected to drop existing `drinkHistory` entries matching `ymd` and append the new list. Triggered on `logDrink`, `removeDose`, and `adjustDoseTime` (the last fires twice on cross-midnight edits — once per affected day). The pre-v1.2.0 incremental `syncToPhone`/`lastSyncTime` flow is gone; companion preserves a legacy append branch for old watch firmware (no `mode` field).
 - **Phone → watch** (`SyncManager.handlePhoneMessage`): `{type: "settings", dailyLimit?, bedtimeHour?, bedtimeMinute?, alertLimitWarning?, alertLimitReached?, alertSafeToSleep?, presets?}`. Each field writes its own Property; `presets` replaces the full preset list via `DrinkPresets.setPresets`.
 
 ### View navigation
@@ -92,7 +92,8 @@ Linear swipe chain of four views, plus one modal drilldown:
 - Transitions use `switchToView` so they don't accumulate on the stack. `HistoryView` is terminal — its `onNextPage` is an intentional no-op.
 - SELECT from `SummaryView` pushes a `Menu2` of drink presets (`DrinkMenuDelegate`), which calls `app.logDrink(index)` and pops.
 - SELECT from `HistoryView` **pushes** (not switches) `DayDetailView` for the highlighted day — modal, swipe-back to return.
-- UP/DOWN on `HistoryView` move the day-list selection via `view.moveSelection(±1)`; the delegate holds a reference to the view to forward keys.
+- UP/DOWN on `HistoryView` and `LogView` move the cursor selection via `view.moveSelection(±1)`; each delegate holds a view reference to forward keys. **On non-touch devices, UP/DOWN is consumed by the cursor — no page-switching from these screens; BACK exits the widget.**
+- SELECT from `LogView` opens an action `Menu2` (`EditDrinkMenuDelegate`) with `Edit time` and `Delete`. `Edit time` pushes a second `Menu2` of preset offsets (`EditTimeMenuDelegate`); `Delete` calls `app.removeDose(doseIndex)` and pops. The doseIndex flowing through these delegates is the master `_doses` index, obtained from `LogView.getSelectedDoseIndex()` (which maps cursor position → `_doses` via `getTodayLogIndices`).
 
 ### Domain invariants
 

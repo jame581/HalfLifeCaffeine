@@ -66,6 +66,17 @@ When adding a class that must be reachable from the glance, annotate the class w
 
 **Dictionaries do not round-trip reliably through Storage.** Both `StorageManager.saveDoses` and `DrinkPresets.saveToStorage` serialize dicts to arrays of primitives (`[mg, time, name]` and `[name, mg]`) and rehydrate on load. Keep this convention when adding persisted state.
 
+### Daily-totals roll-up
+
+Two persistent stores with different retention:
+
+- **Doses** (`doses` key, 14-day retention) — full dose records, used by the model and `DayDetailView`.
+- **Daily totals** (`dailyTotals` key, 90-day retention) — rolled-up `[ymd, totalMg, doseCount]` rows, oldest-first. Drives the `HistoryView` bar chart and day list.
+
+`StorageManager.rollUpYesterday(doses, now)` is idempotent and runs from both `initializeManagers()` and `onStop()`. It uses `lastRolledYmd` to avoid re-rolling completed days. `DayDetailView` for today reads live doses from `CaffeineModel`; for older days it reads from `dailyTotals` (and shows "Details expired after 14 days" if the dose-level data is gone).
+
+**`ymd` arithmetic is NOT calendar-safe.** `computeRollup` iterates by epoch-day (`dayEpoch += 86400`) and derives `ymd` from each epoch — never `ymd + 1`, which breaks at month/year boundaries.
+
 ### Phone companion protocol
 
 The companion app lives in `companion/settings/` (a single-page web app served by the Connect IQ mobile app). Messages are JSON objects with a `"type"` discriminator:
@@ -75,16 +86,18 @@ The companion app lives in `companion/settings/` (a single-page web app served b
 
 ### View navigation
 
-Three full-screen views connected by swipes:
+Linear swipe chain of four views, plus one modal drilldown:
 
-- `SummaryView` ↔ `TimelineView` ↔ `LogView` (each with its own delegate)
-- Transitions use `switchToView` so they don't accumulate on the stack
-- SELECT from `SummaryView` pushes a `Menu2` of drink presets (`DrinkMenuDelegate`), which calls `app.logDrink(index)` and pops
+- `SummaryView` ↔ `TimelineView` ↔ `LogView` ↔ `HistoryView` (each with its own delegate)
+- Transitions use `switchToView` so they don't accumulate on the stack. `HistoryView` is terminal — its `onNextPage` is an intentional no-op.
+- SELECT from `SummaryView` pushes a `Menu2` of drink presets (`DrinkMenuDelegate`), which calls `app.logDrink(index)` and pops.
+- SELECT from `HistoryView` **pushes** (not switches) `DayDetailView` for the highlighted day — modal, swipe-back to return.
+- UP/DOWN on `HistoryView` move the day-list selection via `view.moveSelection(±1)`; the delegate holds a reference to the view to forward keys.
 
 ### Domain invariants
 
 - Half-life constant: `HALF_LIFE_SECONDS = 20520` (5.7h, `CaffeineModel`). Sleep-safe threshold: 50mg (`AlertManager.SLEEP_SAFE_MG`, `GlanceView`, `SummaryView`).
-- `pruneExpiredDoses` removes doses once they decay below 1mg — must only be called with the real current time (never a projected future time), or non-expired doses will be dropped.
+- `CaffeineModel.pruneExpiredDoses` removes doses once they decay below 1mg — must only be called with the real current time (never a projected future time), or non-expired doses will be dropped. Distinct from `StorageManager.pruneOldDoses`, which trims by the 14-day retention window (no decay math).
 - `getMinutesToSafe` binary-searches over the next 24h in 1-minute steps; returns 0 if already below threshold.
 - Bedtime logic in `Util.getBedtimeEpoch` rolls forward a day if today's bedtime has passed.
 

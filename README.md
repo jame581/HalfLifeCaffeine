@@ -16,12 +16,13 @@ A free Garmin Connect IQ widget that tracks caffeine intake and models its decay
 - **Glance view** — current caffeine level and time-to-sleep-safe at a glance in the widget loop
 - **Summary screen** — large mg display, progress bar toward daily limit, intake vs. limit, time-to-safe
 - **Timeline graph** — 12-hour window (4h past + 8h future) with dose markers, area fill, bedtime marker, and a prominent NOW indicator
-- **Today's log** — every drink you've logged today
-- **12 drink presets** — Espresso, Americano, Drip Coffee (S/L), Latte, Green Tea, Black Tea, Red Bull, Monster, Cola, Dark Chocolate, Pre-Workout
+- **Today's drinks** — interactive log with cursor selection. SELECT to open an action menu: **edit time** by preset offset (−15 min through −3 hours, or +15/+30 min for fine-tuning) or **delete** a mis-tapped entry instantly
+- **History view** — 14-day caffeine bar chart with daily-limit reference line. Pick any day to see the drinks logged that day (per-drink detail for the last 14 days, daily-total-only for older days, going back 90 days)
+- **12 drink presets** — Espresso, Americano, Drip Coffee (S/L), Latte, Green Tea, Black Tea, Red Bull, Monster, Cola, Dark Chocolate, Pre-Workout. Add, rename, and remove from the phone companion.
 - **Daily limit alerts** — gentle vibration at 80%, stronger alert at 100%
 - **Safe-to-sleep notification** — fires when caffeine drops below 50 mg within 2 hours of your bedtime
 - **Phone companion** — manage presets, adjust limits and bedtime, view history and trends inside the Garmin Connect app
-- **Two-way sync** — drinks stream to the phone; settings and preset edits stream back to the watch
+- **Two-way sync** — drinks stream to the phone (full-day replace-day resync so edits and deletes stay consistent); settings and preset edits stream back to the watch
 - **100% free, no ads, no tracking, no accounts** — all data stays on your watch and phone
 
 ## Screens
@@ -49,7 +50,15 @@ Install directly on your watch via [apps.garmin.com/en-US/apps/7f81c51f-3f4c-486
 
 ## Supported Devices
 
-Vivoactive 4/5, Venu 2 / 2 Plus / 2s / 3 / 3s, Forerunner 955 / 965, Fenix 6 / 6s / 6 Pro / 6x Pro / 7 / 7s / 7x, Epix 2, and related devices. Requires Connect IQ API 3.2+ (for glance views).
+42 watches across these families:
+
+- **Vivoactive** 4, 5, 6
+- **Venu** 2, 2 Plus, 2s, 3, 3s · **Venu Sq** 2, 2m
+- **Forerunner** 165 (+ music), 255 (+ music, s, sm), 265, 265s, 955, 965
+- **Fenix** 6, 6s, 6 Pro, 6x Pro, 7, 7s, 7x · **Fenix 7 Pro** family (regular, s, x, no-WiFi, x no-WiFi) · **Fenix 8** (43mm, 47mm, Solar 47mm/51mm, Pro 47mm) · **Fenix E**
+- **Epix** 2 · **Epix 2 Pro** (42mm, 47mm, 51mm)
+
+Requires Connect IQ API 3.2+ (for glance views). See `manifest.xml` for the authoritative product list.
 
 ## Development
 
@@ -80,17 +89,21 @@ monkeyc -e -f monkey.jungle -y path/to/developer_key -o bin/HalfLifeCaffeine.iq
 source/            Monkey C source
 ├── HalfLifeCaffeineApp.mc   Entry point, manager wiring
 ├── CaffeineModel.mc          Decay math and projections
-├── StorageManager.mc         Persistence layer
+├── StorageManager.mc         Persistence layer (14-day doses + 90-day daily totals)
 ├── DrinkPresets.mc           Preset list (defaults + phone sync)
 ├── AlertManager.mc           Daily limit and sleep notifications
-├── SyncManager.mc            Phone companion sync
+├── SyncManager.mc            Phone companion sync (replace-day mode)
 ├── Util.mc                   Formatting helpers
 ├── Colors.mc                 Palette constants
 ├── GlanceView.mc             At-a-glance view
 ├── SummaryView.mc            Main screen
 ├── TimelineView.mc           Graph
-├── LogView.mc                Today's drinks list
-└── ...Delegate.mc            Input handlers
+├── LogView.mc                Today's drinks (cursor + select to edit/delete)
+├── HistoryView.mc            14-day chart + day list
+├── DayDetailView.mc          Per-day drill-down
+├── EditDrinkMenuDelegate.mc  Edit / delete action menu for a logged drink
+├── EditTimeMenuDelegate.mc   Preset time-offset picker
+└── ...Delegate.mc            Other input handlers
 
 resources/
 ├── drawables/     Launcher icon (SVG) + drawables.xml
@@ -116,7 +129,7 @@ See [`CLAUDE.md`](CLAUDE.md) for deeper architecture notes (glance vs. full-view
 - **Formula:** `current_mg = dose_mg × 0.5^(elapsed_seconds / 20520)`
 - **Sleep-safe threshold:** 50 mg
 - **Default daily limit:** 400 mg (FDA guideline; user-configurable)
-- **Retention:** 14 days of dose history on the watch
+- **Retention:** 14 days of per-dose detail + 90 days of daily totals (rolled up overnight, drives the History bar chart)
 
 ## Contributing
 

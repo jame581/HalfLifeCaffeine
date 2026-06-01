@@ -15,7 +15,7 @@ Free caffeine tracker with pharmacokinetic decay modeling. Log drinks from a men
 
 **Know your caffeine. Sleep better.**
 
-HalfLife Caffeine is a free, science-based caffeine tracker for your Garmin watch. It models how caffeine decays in your bloodstream using the established 5.7-hour half-life, so you always know how much is still active — and when you'll be safe to sleep.
+HalfLife Caffeine is a free, science-based caffeine tracker for your Garmin watch. It models how caffeine decays in your bloodstream using a pharmacokinetic half-life — 5.7 hours by default, and adjustable to your own metabolism — so you always know how much is still active, and when you'll be safe to sleep.
 
 **Features**
 
@@ -27,6 +27,10 @@ HalfLife Caffeine is a free, science-based caffeine tracker for your Garmin watc
 - Today's drinks: interactive log with edit-time and delete on each entry — fix a mis-tap or a forgot-to-log-promptly in seconds
 - History: 14-day bar chart with day-list drill-down (per-drink detail for recent days, daily totals going back 90 days)
 
+⚗️ **Personalize the model** — Set your own caffeine half-life (3–10 hours). Smoking, genetics, pregnancy, and some medications all change how fast you clear caffeine — tune the decay to match you.
+
+🎨 **Choose your look** — Navy or Black background theme. Black is sharper on non-AMOLED (MIP) watches and easier on the battery on AMOLED displays.
+
 🥤 **12 drink presets included** — Espresso, Americano, Drip Coffee (S/L), Latte, Green Tea, Black Tea, Red Bull, Monster, Cola, Dark Chocolate, Pre-Workout. Add, rename, and remove from the phone companion.
 
 🔔 **Smart alerts**
@@ -35,10 +39,6 @@ HalfLife Caffeine is a free, science-based caffeine tracker for your Garmin watc
 - Notification when caffeine drops low enough for sleep (within 2 hours of bedtime)
 
 📱 **Phone companion** — Manage drink presets, adjust limits, view history, see weekly trends, and track your peak caffeine hours — all inside the Garmin Connect app. Watch-side edits and deletes sync automatically.
-
-⚗️ **Configurable half-life** — Your metabolism isn't average. Dial your caffeine half-life anywhere from 3 to 10 hours (default 5.7h) in the phone companion for a decay curve that fits you.
-
-🎨 **Navy or Black theme** — Choose a Navy (default) or Black background to match your preference.
 
 💾 **Your data stays with you** — Everything is stored on your watch and phone. No accounts, no cloud, no tracking.
 

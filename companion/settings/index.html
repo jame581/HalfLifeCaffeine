@@ -104,6 +104,13 @@
         </div>
     </div>
 
+    <div class="setting-row">
+        <span class="setting-label">Caffeine half-life (h)</span>
+        <div class="setting-value">
+            <input type="number" id="halfLifeHours" value="5.7" min="3" max="10" step="0.1">
+        </div>
+    </div>
+
     <h2>Bedtime</h2>
     <div class="setting-row">
         <span class="setting-label">Bedtime Hour</span>
@@ -217,6 +224,7 @@ function applyIncomingSettings(s) {
         }
     }
     setNum('dailyLimit', s.dailyLimit);
+    setNum('halfLifeHours', s.halfLifeHours);
     setNum('bedtimeHour', s.bedtimeHour);
     setNum('bedtimeMinute', s.bedtimeMinute);
     setToggle('alertLimitWarning', s.alertLimitWarning);
@@ -312,6 +320,7 @@ function saveSettings() {
         type: "settings",
         version: 1,
         dailyLimit: parseInt(document.getElementById('dailyLimit').value),
+        halfLifeHours: parseFloat(document.getElementById('halfLifeHours').value),
         bedtimeHour: parseInt(document.getElementById('bedtimeHour').value),
         bedtimeMinute: parseInt(document.getElementById('bedtimeMinute').value),
         alertLimitWarning: document.getElementById('alertLimitWarning').classList.contains('on'),

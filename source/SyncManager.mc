@@ -61,6 +61,9 @@ class SyncManager {
             if (data.hasKey("alertSafeToSleep")) {
                 Application.Properties.setValue("alertSafeToSleep", data["alertSafeToSleep"]);
             }
+            if (data.hasKey("halfLifeHours")) {
+                Application.Properties.setValue("halfLifeHours", data["halfLifeHours"]);
+            }
         }
 
         WatchUi.requestUpdate();

@@ -61,7 +61,7 @@ When adding a class that must be reachable from the glance, annotate the class w
 
 ### Persistence: two stores, two conventions
 
-- **`Application.Properties`** — typed user settings defined in `resources/properties.xml` + `resources/settings.xml` (daily limit, bedtime, alert toggles). Mirrored from the phone companion.
+- **`Application.Properties`** — typed user settings defined in `resources/properties.xml` + `resources/settings.xml` (daily limit, bedtime, alert toggles, `halfLifeHours` float default 5.7 clamped to [3, 10]h, `theme` number 0 = Navy default / 1 = Black). Mirrored from the phone companion.
 - **`Application.Storage`** — app state (doses, presets, last-sync time). Keys are private constants on each manager.
 
 **Dictionaries do not round-trip reliably through Storage.** Both `StorageManager.saveDoses` and `DrinkPresets.saveToStorage` serialize dicts to arrays of primitives (`[mg, time, name]` and `[name, mg]`) and rehydrate on load. Keep this convention when adding persisted state.
@@ -82,7 +82,7 @@ Two persistent stores with different retention:
 The companion app lives in `companion/settings/` (a single-page web app served by the Connect IQ mobile app). Messages are JSON objects with a `"type"` discriminator:
 
 - **Watch → phone** (`SyncManager.syncDayToPhone(doses, ymd)`): `{type: "drinks", mode: "replace-day", ymd: 20260518, data: [{mg, time, name}, ...]}`. The full dose list for `ymd` is sent (not an incremental delta). Companion is expected to drop existing `drinkHistory` entries matching `ymd` and append the new list. Triggered on `logDrink`, `removeDose`, and `adjustDoseTime` (the last fires twice on cross-midnight edits — once per affected day). The pre-v1.2.0 incremental `syncToPhone`/`lastSyncTime` flow is gone; companion preserves a legacy append branch for old watch firmware (no `mode` field).
-- **Phone → watch** (`SyncManager.handlePhoneMessage`): `{type: "settings", dailyLimit?, bedtimeHour?, bedtimeMinute?, alertLimitWarning?, alertLimitReached?, alertSafeToSleep?, presets?}`. Each field writes its own Property; `presets` replaces the full preset list via `DrinkPresets.setPresets`.
+- **Phone → watch** (`SyncManager.handlePhoneMessage`): `{type: "settings", dailyLimit?, bedtimeHour?, bedtimeMinute?, alertLimitWarning?, alertLimitReached?, alertSafeToSleep?, halfLifeHours?, presets?}`. Each field writes its own Property; `presets` replaces the full preset list via `DrinkPresets.setPresets`.
 
 ### View navigation
 
@@ -97,7 +97,7 @@ Linear swipe chain of four views, plus one modal drilldown:
 
 ### Domain invariants
 
-- Half-life constant: `HALF_LIFE_SECONDS = 20520` (5.7h, `CaffeineModel`). Sleep-safe threshold: 50mg (`AlertManager.SLEEP_SAFE_MG`, `GlanceView`, `SummaryView`).
+- Half-life default: 20520s (5.7h), user-configurable via the `halfLifeHours` property (3–10h). `CaffeineModel` holds it in a mutable `_halfLifeSeconds`, injected via `setHalfLifeSeconds(...)` from `Util.getHalfLifeSeconds()` — the model stays free of `Application.Properties`. Sleep-safe threshold: 50mg (`AlertManager.SLEEP_SAFE_MG`, `GlanceView`, `SummaryView`).
 - `CaffeineModel.pruneExpiredDoses` removes doses once they decay below 1mg — must only be called with the real current time (never a projected future time), or non-expired doses will be dropped. Distinct from `StorageManager.pruneOldDoses`, which trims by the 14-day retention window (no decay math).
 - `getMinutesToSafe` binary-searches over the next 24h in 1-minute steps; returns 0 if already below threshold.
 - Bedtime logic in `Util.getBedtimeEpoch` rolls forward a day if today's bedtime has passed.
@@ -107,7 +107,7 @@ Linear swipe chain of four views, plus one modal drilldown:
 - All `.mc` files use single-quoted Monkey C syntax and typed imports (`import Toybox.*`).
 - `StorageManager`, `CaffeineModel`, `Util` are `(:glance)`-tagged because the glance view instantiates them.
 - `Util` is a **module**, not a class — call as `Util.formatMg(...)`.
-- `Colors` is also a module — shared palette (`BG 0x1A2332`, `ACCENT 0x3DDBA8`, plus semantic aliases). Use `Colors.ACCENT`, not hex literals.
+- `Colors` is also a module — shared palette (`ACCENT 0x3DDBA8`, plus semantic aliases). `BG`, `TRACK`, and `AXIS` are runtime `var`s set by `Colors.applyTheme()`, which reads the `theme` property (0 = Navy default, 1 = Black); the rest of the palette is `const`. `applyTheme()` is called in both processes: `initializeManagers` and `GlanceView.onUpdate`, and again on `onSettingsChanged`. Use `Colors.ACCENT` (and friends), not hex literals.
 - Prefer extending the existing manager set over adding new globals; add new manager wiring in `initializeManagers()` and remember `onStop` persistence if state is in-memory only.
 
 ### SDK 9.1.0 gotchas (hard-won)

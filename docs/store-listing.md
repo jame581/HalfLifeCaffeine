@@ -1,6 +1,6 @@
 # Connect IQ Store Listing
 
-> Reference copy mirroring the current store listing. Reflects v1.2.0 state (2026-05-18). Update on every release.
+> Reference copy mirroring the current store listing. Reflects v1.3.0 state (2026-06-01). Update on every release.
 
 ## App Name
 HalfLife Caffeine
@@ -35,6 +35,10 @@ HalfLife Caffeine is a free, science-based caffeine tracker for your Garmin watc
 - Notification when caffeine drops low enough for sleep (within 2 hours of bedtime)
 
 📱 **Phone companion** — Manage drink presets, adjust limits, view history, see weekly trends, and track your peak caffeine hours — all inside the Garmin Connect app. Watch-side edits and deletes sync automatically.
+
+⚗️ **Configurable half-life** — Your metabolism isn't average. Dial your caffeine half-life anywhere from 3 to 10 hours (default 5.7h) in the phone companion for a decay curve that fits you.
+
+🎨 **Navy or Black theme** — Choose a Navy (default) or Black background to match your preference.
 
 💾 **Your data stays with you** — Everything is stored on your watch and phone. No accounts, no cloud, no tracking.
 

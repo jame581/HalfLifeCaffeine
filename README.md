@@ -23,6 +23,8 @@ A free Garmin Connect IQ widget that tracks caffeine intake and models its decay
 - **Safe-to-sleep notification** — fires when caffeine drops below 50 mg within 2 hours of your bedtime
 - **Phone companion** — manage presets, adjust limits and bedtime, view history and trends inside the Garmin Connect app
 - **Two-way sync** — drinks stream to the phone (full-day replace-day resync so edits and deletes stay consistent); settings and preset edits stream back to the watch
+- **Configurable half-life** — adjust caffeine half-life from 3 to 10 hours (default 5.7h) to match your own metabolism, via the phone companion
+- **Navy or Black theme** — choose a Navy (default) or Black background via the phone companion
 - **100% free, no ads, no tracking, no accounts** — all data stays on your watch and phone
 
 ## Screens
@@ -125,8 +127,8 @@ See [`CLAUDE.md`](CLAUDE.md) for deeper architecture notes (glance vs. full-view
 
 ## Caffeine Model
 
-- **Half-life:** 5.7 hours (`CaffeineModel.HALF_LIFE_SECONDS = 20520`)
-- **Formula:** `current_mg = dose_mg × 0.5^(elapsed_seconds / 20520)`
+- **Half-life:** 5.7 hours by default (user-configurable 3–10h via phone companion)
+- **Formula:** `current_mg = dose_mg × 0.5^(elapsed_seconds / half_life_seconds)`
 - **Sleep-safe threshold:** 50 mg
 - **Default daily limit:** 400 mg (FDA guideline; user-configurable)
 - **Retention:** 14 days of per-dose detail + 90 days of daily totals (rolled up overnight, drives the History bar chart)

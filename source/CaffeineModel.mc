@@ -5,8 +5,9 @@ import Toybox.Time.Gregorian;
 (:glance)
 class CaffeineModel {
 
-    // Half-life of caffeine in seconds (5.7 hours)
-    private const HALF_LIFE_SECONDS = 20520;
+    // Half-life of caffeine in seconds — default 5.7 hours (20520s).
+    // Mutable so callers can inject a user-configured value via setHalfLifeSeconds.
+    private var _halfLifeSeconds;
     // Minimum mg before a dose is considered cleared
     private const MIN_DOSE_MG = 1.0;
 
@@ -15,6 +16,15 @@ class CaffeineModel {
 
     function initialize() {
         _doses = [];
+        _halfLifeSeconds = 20520;
+    }
+
+    // Set the caffeine half-life used by all decay math. Ignores null or
+    // non-positive values (keeps the previous/default half-life).
+    function setHalfLifeSeconds(seconds) {
+        if (seconds == null) { return; }
+        if (seconds <= 0) { return; }
+        _halfLifeSeconds = seconds;
     }
 
     // Add a new caffeine dose
@@ -172,7 +182,7 @@ class CaffeineModel {
         }
         // mg * e^(decay_constant * elapsed_seconds)
         // equivalent to: mg * 0.5^(elapsed / half_life)
-        var remaining = originalMg * Math.pow(0.5, elapsedSeconds.toFloat() / HALF_LIFE_SECONDS.toFloat());
+        var remaining = originalMg * Math.pow(0.5, elapsedSeconds.toFloat() / _halfLifeSeconds.toFloat());
         return remaining;
     }
 

@@ -181,3 +181,43 @@ function testGetTodayLogIndicesSortedByTimeAscending(logger) {
     if (indices.size() != 3) { return false; }
     return (indices[0] == 1 && indices[1] == 0 && indices[2] == 2);
 }
+
+(:test)
+function testDefaultHalfLifeUnchangedWithoutSetter(logger) {
+    var model = new CaffeineModel();
+    var now = Time.now().value();
+    model.addDose(100, now - 20520, "Test"); // one default half-life ago
+    var level = model.getCurrentLevel(now);
+    return (level >= 48 && level <= 52);
+}
+
+(:test)
+function testSetHalfLifeSecondsChangesDecay(logger) {
+    var model = new CaffeineModel();
+    model.setHalfLifeSeconds(10800); // 3 hours
+    var now = Time.now().value();
+    model.addDose(100, now - 10800, "Test"); // one (new) half-life ago
+    var level = model.getCurrentLevel(now);
+    return (level >= 48 && level <= 52);
+}
+
+(:test)
+function testSetHalfLifeSecondsTwoHalfLives(logger) {
+    var model = new CaffeineModel();
+    model.setHalfLifeSeconds(10800); // 3 hours
+    var now = Time.now().value();
+    model.addDose(100, now - 21600, "Test"); // two (new) half-lives ago
+    var level = model.getCurrentLevel(now);
+    return (level >= 23 && level <= 27);
+}
+
+(:test)
+function testSetHalfLifeSecondsIgnoresInvalid(logger) {
+    var model = new CaffeineModel();
+    model.setHalfLifeSeconds(0);    // ignored
+    model.setHalfLifeSeconds(null); // ignored
+    var now = Time.now().value();
+    model.addDose(100, now - 20520, "Test"); // default still in effect
+    var level = model.getCurrentLevel(now);
+    return (level >= 48 && level <= 52);
+}

@@ -35,6 +35,13 @@
     <settingConfig type="boolean"/>
   </setting>
 
+  <setting propertyKey="@Properties.halfLifeHours"
+           title="Caffeine half-life (hours)">
+    <settingConfig type="numeric"
+                   min="3"
+                   max="10"/>
+  </setting>
+
   <setting propertyKey="@Properties.presets"
            title="@Strings.SettingPresetsTitle"
            maxLength="20">

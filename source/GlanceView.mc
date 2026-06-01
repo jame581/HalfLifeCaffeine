@@ -17,6 +17,7 @@ class GlanceView extends WatchUi.GlanceView {
         var storage = new StorageManager();
         var model = new CaffeineModel();
         model.setDoses(storage.loadDoses());
+        model.setHalfLifeSeconds(Util.getHalfLifeSeconds());
 
         var level = model.getCurrentLevel(now);
         var numText = Util.formatMg(level);

@@ -53,12 +53,16 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         storageManager.rollUpYesterday(savedDoses, now);
         savedDoses = storageManager.pruneOldDoses(savedDoses, now);
         caffeineModel.setDoses(savedDoses);
+        caffeineModel.setHalfLifeSeconds(Util.getHalfLifeSeconds());
         caffeineModel.pruneExpiredDoses(now);
     }
 
     function onSettingsChanged() as Void {
         if (drinkPresets != null) {
             drinkPresets.reload();
+        }
+        if (caffeineModel != null) {
+            caffeineModel.setHalfLifeSeconds(Util.getHalfLifeSeconds());
         }
         WatchUi.requestUpdate();
     }

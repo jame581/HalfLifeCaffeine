@@ -5,5 +5,6 @@
   <property id="alertLimitWarning" type="boolean">true</property>
   <property id="alertLimitReached" type="boolean">true</property>
   <property id="alertSafeToSleep" type="boolean">true</property>
+  <property id="halfLifeHours" type="float">5.7</property>
   <property id="presets" type="array"></property>
 </properties>

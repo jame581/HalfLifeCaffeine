@@ -35,6 +35,17 @@ module Util {
         return (mg + 0.5).toNumber().toString();
     }
 
+    // Read the user-configured caffeine half-life and return it in seconds.
+    // Defaults to 5.7h if unset, clamps to [3, 10] hours. Used by both the
+    // full-view and glance processes to inject the half-life into CaffeineModel.
+    function getHalfLifeSeconds() {
+        var hours = Application.Properties.getValue("halfLifeHours");
+        if (hours == null) { hours = 5.7; }
+        if (hours < 3.0) { hours = 3.0; }
+        if (hours > 10.0) { hours = 10.0; }
+        return (hours * 3600).toNumber();
+    }
+
     // Get bedtime as epoch seconds for today
     function getBedtimeEpoch(nowEpoch) {
         var hour = Application.Properties.getValue("bedtimeHour");

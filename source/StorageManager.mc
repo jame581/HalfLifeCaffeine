@@ -135,11 +135,15 @@ class StorageManager {
             // lastRolledYmd == todayYmd - 1 means yesterday already rolled
             if (lastRolledYmd == todayYmd - 1) { return result; }
         }
-        // Roll every day from lastRolledYmd+1 through todayYmd-1 (inclusive)
-        // Note: ymd arithmetic (+1) is NOT calendar-safe; we iterate by epoch-day.
-        var startEpoch = epochForYmd(lastRolledYmd == 0 ? todayYmd - 1 : lastRolledYmd);
-        var endEpoch = epochForYmd(todayYmd);
-        var dayEpoch = startEpoch + 86400; // day AFTER lastRolledYmd (or yesterday if lastRolled==0)
+        // Roll every completed day from the day after lastRolledYmd up to (not including) today.
+        // We iterate by epoch-day below; ymd arithmetic (+/- 1) is NOT calendar-safe.
+        var endEpoch = epochForYmd(todayYmd); // today's local midnight
+        // Fresh install (lastRolledYmd == 0): start from yesterday's midnight, derived by
+        // epoch subtraction so it is calendar-safe. Do NOT use epochForYmd(todayYmd - 1):
+        // on the 1st of a month todayYmd - 1 ends in 00 (day 0) and Gregorian.moment throws
+        // "Invalid Value", which crashed fresh installs opened on the 1st of any month.
+        var startEpoch = (lastRolledYmd == 0) ? (endEpoch - 86400) : epochForYmd(lastRolledYmd);
+        var dayEpoch = startEpoch + 86400; // day AFTER lastRolledYmd (or today if lastRolled==0)
         while (dayEpoch < endEpoch) {
             var dayYmd = Util.ymdFromEpoch(dayEpoch);
             var dayStart = Util.midnightEpochFor(dayEpoch);

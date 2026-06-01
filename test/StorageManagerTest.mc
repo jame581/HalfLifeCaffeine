@@ -75,3 +75,32 @@ function testRollupPrunesToNinetyDays(logger) {
     var pruned = sm.pruneDailyTotals(existing, 90);
     return (pruned.size() == 90) && (pruned[0][0] == existing[5][0]);
 }
+
+// Regression: fresh install (lastRolledYmd == 0) opened on the 1st of a month.
+// Before the fix, computeRollup called epochForYmd(todayYmd - 1) = epochForYmd(20260600),
+// i.e. day 00, and Gregorian.moment threw "Invalid Value" — crashing the widget on
+// tap-through. A fresh install has no completed prior day to roll, so the result is empty.
+(:test)
+function testRollupFreshInstallOnFirstOfMonthDoesNotCrash(logger) {
+    var sm = new StorageManager();
+    var result = sm.computeRollup([], [], 0, 20260601);
+    return (result.size() == 0);
+}
+
+// Regression: rolling a completed day across a month boundary (non-fresh install).
+// Exercises the epoch-day iteration over the May 31 -> June 1 transition; ymd +/- 1
+// arithmetic would mis-handle the boundary, but iterating by epoch is calendar-safe.
+(:test)
+function testRollupCrossesMonthBoundary(logger) {
+    var sm = new StorageManager();
+    var may31 = Gregorian.moment({
+        :year => 2026, :month => 5, :day => 31,
+        :hour => 9, :minute => 0, :second => 0
+    }).value();
+    var doses = [{:mg => 120.0, :time => may31, :name => "Coffee"}];
+    // lastRolled = 20260530, today = 20260601 -> must roll exactly 20260531.
+    var result = sm.computeRollup(doses, [], 20260530, 20260601);
+    if (result.size() != 1) { return false; }
+    var row = result[0];
+    return (row[0] == 20260531) && (row[1] == 120) && (row[2] == 1);
+}

@@ -51,7 +51,7 @@ When adding a class that must be reachable from the glance, annotate the class w
 
 `HalfLifeCaffeineApp` owns five managers, initialized together in `initializeManagers()`:
 
-- `StorageManager` — persistence layer for doses + last-sync timestamp. 14-day retention.
+- `StorageManager` — persistence layer for doses (14-day retention) + daily totals (90-day retention).
 - `CaffeineModel` — domain logic: dose list, decay math (`0.5^(elapsed/HALF_LIFE)`), projections, `getMinutesToSafe()` binary search.
 - `DrinkPresets` — user-editable drink menu, persisted separately. Defaults baked into `getDefaults()`.
 - `AlertManager` — fires vibrations for 80%/100% limit + safe-to-sleep (once per day, tracked by `_*FiredDate`).
@@ -62,7 +62,7 @@ When adding a class that must be reachable from the glance, annotate the class w
 ### Persistence: two stores, two conventions
 
 - **`Application.Properties`** — typed user settings defined in `resources/properties.xml` + `resources/settings.xml` (daily limit, bedtime, alert toggles, `halfLifeHours` float default 5.7 clamped to [3, 10]h, `theme` number 0 = Navy default / 1 = Black). Mirrored from the phone companion.
-- **`Application.Storage`** — app state (doses, presets, last-sync time). Keys are private constants on each manager.
+- **`Application.Storage`** — app state (doses, presets, daily totals). Keys are private constants on each manager.
 
 **Dictionaries do not round-trip reliably through Storage.** Both `StorageManager.saveDoses` and `DrinkPresets.saveToStorage` serialize dicts to arrays of primitives (`[mg, time, name]` and `[name, mg]`) and rehydrate on load. Keep this convention when adding persisted state.
 

@@ -35,6 +35,14 @@
     <settingConfig type="boolean"/>
   </setting>
 
+  <setting propertyKey="@Properties.theme"
+           title="@Strings.SettingThemeTitle">
+    <settingConfig type="list">
+      <listEntry value="0">@Strings.ThemeNavy</listEntry>
+      <listEntry value="1">@Strings.ThemeBlack</listEntry>
+    </settingConfig>
+  </setting>
+
   <setting propertyKey="@Properties.halfLifeHours"
            title="Caffeine half-life (hours)">
     <settingConfig type="numeric"

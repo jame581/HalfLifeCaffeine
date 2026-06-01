@@ -40,6 +40,7 @@ class HalfLifeCaffeineApp extends Application.AppBase {
     }
 
     function initializeManagers() {
+        Colors.applyTheme();
         if (caffeineModel != null) { return; }
         storageManager = new StorageManager();
         caffeineModel = new CaffeineModel();
@@ -58,6 +59,7 @@ class HalfLifeCaffeineApp extends Application.AppBase {
     }
 
     function onSettingsChanged() as Void {
+        Colors.applyTheme();
         if (drinkPresets != null) {
             drinkPresets.reload();
         }

@@ -10,6 +10,7 @@ class GlanceView extends WatchUi.GlanceView {
     }
 
     function onUpdate(dc) {
+        Colors.applyTheme();
         var now = Time.now().value();
 
         // Glance process doesn't share state with the full-view app,

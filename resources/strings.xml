@@ -7,6 +7,9 @@
   <string id="OverLimit">Over limit!</string>
   <string id="Bedtime">Bedtime</string>
   <string id="SafeThreshold">Safe</string>
+  <string id="SettingThemeTitle">Background theme</string>
+  <string id="ThemeNavy">Navy (default)</string>
+  <string id="ThemeBlack">Black</string>
   <string id="SettingPresetsTitle">Drink Presets</string>
   <string id="SettingPresetName">Name</string>
   <string id="SettingPresetMg">Caffeine (mg)</string>

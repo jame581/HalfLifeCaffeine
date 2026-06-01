@@ -45,7 +45,7 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         caffeineModel = new CaffeineModel();
         drinkPresets = new DrinkPresets();
         alertManager = new AlertManager();
-        syncManager = new SyncManager(storageManager);
+        syncManager = new SyncManager();
         Communications.registerForPhoneAppMessages(method(:onPhoneMessage));
 
         var savedDoses = storageManager.loadDoses();

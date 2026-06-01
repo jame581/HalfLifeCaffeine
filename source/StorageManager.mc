@@ -6,7 +6,6 @@ import Toybox.Time.Gregorian;
 class StorageManager {
 
     private const DOSES_KEY = "doses";
-    private const LAST_SYNC_KEY = "lastSync";
     private const RETENTION_SECONDS = 1209600; // 14 * 24 * 60 * 60
     private const DAILY_TOTALS_KEY = "dailyTotals";
     private const LAST_ROLLED_YMD_KEY = "lastRolledYmd";
@@ -51,31 +50,6 @@ class StorageManager {
             }
         }
         return kept;
-    }
-
-    // Save the epoch of the last successful sync to phone
-    function saveLastSyncTime(epochSeconds) {
-        Application.Storage.setValue(LAST_SYNC_KEY, epochSeconds);
-    }
-
-    // Get the epoch of the last successful sync
-    function getLastSyncTime() {
-        var value = Application.Storage.getValue(LAST_SYNC_KEY);
-        if (value != null && value instanceof Number) {
-            return value;
-        }
-        return 0;
-    }
-
-    // Get doses added since a given epoch (for incremental sync)
-    function getDosesSince(doses, sinceEpoch) {
-        var result = [];
-        for (var i = 0; i < doses.size(); i++) {
-            if (doses[i][:time] > sinceEpoch) {
-                result.add(doses[i]);
-            }
-        }
-        return result;
     }
 
     // Load daily totals from storage. Returns array of [ymd, totalMg, doseCount].

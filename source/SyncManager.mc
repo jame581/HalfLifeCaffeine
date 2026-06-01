@@ -6,8 +6,7 @@ import Toybox.WatchUi;
 
 class SyncManager {
 
-    function initialize(storageManager) {
-        // storageManager parameter kept for API compatibility
+    function initialize() {
     }
 
     // Send a replace-day resync for the given local-day ymd.

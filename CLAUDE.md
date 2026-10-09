@@ -12,13 +12,7 @@ Live on the Connect IQ store since 2026-04-24: https://apps.garmin.com/en-US/app
 
 ## Build & test
 
-Monkey C projects are built through the VS Code Monkey C extension, not a CLI task runner. `.vscode/launch.json` provides:
-
-- **Run App** — build and launch in simulator
-- **Run App with Debug** — same but stops at launch and opens debugger on port 4711
-- **Run Tests** — executes `(:test)`-annotated functions (e.g. `test/CaffeineModelTest.mc`)
-
-All launches prompt `GetTargetDevice` (the simulator picks the device). The build produces `bin/CoffeTracker.prg` + `bin/CoffeTracker.prg.debug.xml`. Simulator devices are installed under `%APPDATA%/Garmin/ConnectIQ/Devices/`.
+Monkey C projects are built through the VS Code Monkey C extension, not a CLI task runner; launch configs are in `.vscode/launch.json` (**Run App**, **Run App with Debug**, **Run Tests**). Tests live in `test/` (`CaffeineModelTest`, `StorageManagerTest`, `UtilTest`). Simulator devices are installed under `%APPDATA%/Garmin/ConnectIQ/Devices/`.
 
 `monkey.jungle` excludes the `test` annotation from non-test builds — test files must be tagged `(:test)`.
 
@@ -31,7 +25,7 @@ Single-device (for simulator/sideload):
 monkeyc -f monkey.jungle -d vivoactive5_sim -y D:/Garmin/Key/developer_key -o bin/CoffeTracker.prg -w
 ```
 
-Multi-device release `.iq` (43 devices, ~770 KB):
+Multi-device release `.iq` (all devices in `manifest.xml`):
 ```
 monkeyc -e -f monkey.jungle -y D:/Garmin/Key/developer_key -o bin/HalfLifeCaffeine.iq
 ```
@@ -45,7 +39,7 @@ The widget runs in **two separate processes** that do not share in-memory state:
 1. **Glance process** — renders the at-a-glance tile. Only code annotated `(:glance)` is linked into this process. Managers initialized in `getInitialView()` are **not available here**. `GlanceView.onUpdate()` works around this by instantiating `StorageManager` + `CaffeineModel` fresh and loading doses directly from storage.
 2. **Full-view widget process** — launched when the user taps into the widget. `HalfLifeCaffeineApp.initializeManagers()` runs lazily on first `getInitialView()` call and wires up all managers.
 
-When adding a class that must be reachable from the glance, annotate the class with `(:glance)` (see `CaffeineModel`, `StorageManager`, `Util`). Forgetting this causes link-time errors only for glance builds.
+When adding a class that must be reachable from the glance, annotate the class with `(:glance)` (see `CaffeineModel`, `StorageManager`, `Util`, `Colors`). Forgetting this causes link-time errors only for glance builds.
 
 ### Manager wiring (full-view process)
 
@@ -105,7 +99,6 @@ Linear swipe chain of four views, plus one modal drilldown:
 ## Conventions
 
 - All `.mc` files use single-quoted Monkey C syntax and typed imports (`import Toybox.*`).
-- `StorageManager`, `CaffeineModel`, `Util` are `(:glance)`-tagged because the glance view instantiates them.
 - `Util` is a **module**, not a class — call as `Util.formatMg(...)`.
 - `Colors` is also a module — shared palette (`ACCENT 0x3DDBA8`, plus semantic aliases). `BG`, `TRACK`, and `AXIS` are runtime `var`s set by `Colors.applyTheme()`, which reads the `theme` property (0 = Navy default, 1 = Black); the rest of the palette is `const`. `applyTheme()` is called in both processes: `initializeManagers` and `GlanceView.onUpdate`, and again on `onSettingsChanged`. Use `Colors.ACCENT` (and friends), not hex literals.
 - Prefer extending the existing manager set over adding new globals; add new manager wiring in `initializeManagers()` and remember `onStop` persistence if state is in-memory only.

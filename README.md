@@ -68,6 +68,12 @@ Install directly on your watch via [apps.garmin.com/en-US/apps/7f81c51f-3f4c-486
 
 Requires Connect IQ API 3.2+ (for glance views). See `manifest.xml` for the authoritative product list.
 
+## Languages
+
+English, Finnish, Czech, German and French. German and French are drafts that no native speaker has reviewed yet; corrections are welcome.
+
+To add or fix a translation, see [`translations/README.md`](translations/README.md).
+
 ## Development
 
 ### Prerequisites

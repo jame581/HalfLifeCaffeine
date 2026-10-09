@@ -109,7 +109,7 @@ Linear swipe chain of four views, plus one modal drilldown:
 - To add a string: add a row to `translations/en.csv`, run the script with `-Sync`, then use `Rez.Strings.<Key>`. Views load strings once in `initialize()`, never in `onUpdate`.
 - **Anything the glance draws needs `glance` in its `where` column** (emits `scope="glance"`). Unscoped strings do not exist in the glance process.
 - Sentences with values use `Lang.format` templates (`$1$`), never string concatenation; word order differs per language.
-- Sheet codes `fi`/`cs`/`de`/`fr` map to resource qualifiers `fin`/`ces`/`deu`/`fre`. A language goes into `manifest.xml` only when its sheet is complete.
+- Sheet codes `fi`/`cs`/`de`/`fr` map to resource qualifiers `fin`/`ces`/`deu`/`fre`. A language goes into `manifest.xml` only when its sheet is complete. Currently `manifest.xml` declares `deu` and `fre` (unreviewed drafts); the `fi` and `cs` sheets exist but are empty and are skipped by the generator.
 - Default drink names are read from resources **only when seeding an empty preset list**; stored names are plain text and are never re-translated.
 
 ### SDK 9.1.0 gotchas (hard-won)

@@ -1,5 +1,6 @@
 import Toybox.Application;
 import Toybox.Lang;
+import Toybox.WatchUi;
 
 class DrinkPresets {
 
@@ -81,20 +82,23 @@ class DrinkPresets {
         return result.size() > 0 ? result : getDefaults();
     }
 
+    // Names come from the string resources, so a first seed is written in the
+    // watch language. Only called when the preset list is empty or unreadable;
+    // an existing list is never renamed.
     function getDefaults() {
         return [
-            {:name => "Espresso", :mg => 63},
-            {:name => "Americano", :mg => 77},
-            {:name => "Drip Coffee (S)", :mg => 95},
-            {:name => "Drip Coffee (L)", :mg => 190},
-            {:name => "Latte", :mg => 63},
-            {:name => "Green Tea", :mg => 30},
-            {:name => "Black Tea", :mg => 47},
-            {:name => "Red Bull", :mg => 80},
-            {:name => "Monster", :mg => 160},
-            {:name => "Cola", :mg => 34},
-            {:name => "Dark Chocolate", :mg => 25},
-            {:name => "Pre-Workout", :mg => 200}
+            {:name => WatchUi.loadResource(Rez.Strings.PresetEspresso), :mg => 63},
+            {:name => WatchUi.loadResource(Rez.Strings.PresetAmericano), :mg => 77},
+            {:name => WatchUi.loadResource(Rez.Strings.PresetDripS), :mg => 95},
+            {:name => WatchUi.loadResource(Rez.Strings.PresetDripL), :mg => 190},
+            {:name => WatchUi.loadResource(Rez.Strings.PresetLatte), :mg => 63},
+            {:name => WatchUi.loadResource(Rez.Strings.PresetGreenTea), :mg => 30},
+            {:name => WatchUi.loadResource(Rez.Strings.PresetBlackTea), :mg => 47},
+            {:name => WatchUi.loadResource(Rez.Strings.PresetRedBull), :mg => 80},
+            {:name => WatchUi.loadResource(Rez.Strings.PresetMonster), :mg => 160},
+            {:name => WatchUi.loadResource(Rez.Strings.PresetCola), :mg => 34},
+            {:name => WatchUi.loadResource(Rez.Strings.PresetDarkChocolate), :mg => 25},
+            {:name => WatchUi.loadResource(Rez.Strings.PresetPreWorkout), :mg => 200}
         ];
     }
 }

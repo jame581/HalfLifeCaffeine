@@ -48,9 +48,9 @@ HalfLife Caffeine is a free, science-based caffeine tracker for your Garmin watc
 Health & Fitness
 
 ## Supported Languages
-English, Finnish, Czech, German, French
+English, German, French
 
-German and French are community drafts that no native speaker has reviewed yet. Corrections are welcome: https://github.com/jame581/HalfLifeCaffeine
+German and French are drafts that no native speaker has reviewed yet. Corrections are welcome: https://github.com/jame581/HalfLifeCaffeine
 
 ## Compatibility
 

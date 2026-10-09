@@ -90,90 +90,90 @@
 <h1>&#9749; HalfLife Caffeine</h1>
 
 <div class="tabs">
-    <div class="tab active" onclick="switchTab('settings', this)">Settings</div>
-    <div class="tab" onclick="switchTab('history', this)">History</div>
-    <div class="tab" onclick="switchTab('trends', this)">Trends</div>
+    <div class="tab active" onclick="switchTab('settings', this)" data-i18n="CTabSettings">Settings</div>
+    <div class="tab" onclick="switchTab('history', this)" data-i18n="CTabHistory">History</div>
+    <div class="tab" onclick="switchTab('trends', this)" data-i18n="CTabTrends">Trends</div>
 </div>
 
 <div id="tab-settings" class="tab-content active">
-    <h2>Limits</h2>
+    <h2 data-i18n="CHLimits">Limits</h2>
     <div class="setting-row">
-        <span class="setting-label">Daily Limit (mg)</span>
+        <span class="setting-label" data-i18n="CDailyLimit">Daily Limit (mg)</span>
         <div class="setting-value">
             <input type="number" id="dailyLimit" value="400" min="100" max="1000">
         </div>
     </div>
 
     <div class="setting-row">
-        <span class="setting-label">Caffeine half-life (h)</span>
+        <span class="setting-label" data-i18n="CHalfLife">Caffeine half-life (h)</span>
         <div class="setting-value">
             <input type="number" id="halfLifeHours" value="5.7" min="3" max="10" step="0.1">
         </div>
     </div>
 
-    <h2>Bedtime</h2>
+    <h2 data-i18n="CHBedtime">Bedtime</h2>
     <div class="setting-row">
-        <span class="setting-label">Bedtime Hour</span>
+        <span class="setting-label" data-i18n="CBedtimeHour">Bedtime Hour</span>
         <div class="setting-value">
             <input type="number" id="bedtimeHour" value="22" min="0" max="23">
         </div>
     </div>
     <div class="setting-row">
-        <span class="setting-label">Bedtime Minute</span>
+        <span class="setting-label" data-i18n="CBedtimeMinute">Bedtime Minute</span>
         <div class="setting-value">
             <input type="number" id="bedtimeMinute" value="30" min="0" max="59">
         </div>
     </div>
 
-    <h2>Notifications</h2>
+    <h2 data-i18n="CHNotifications">Notifications</h2>
     <div class="setting-row">
-        <span class="setting-label">Warn at 80%</span>
+        <span class="setting-label" data-i18n="CWarn80">Warn at 80%</span>
         <div class="toggle on" id="alertLimitWarning" onclick="toggleSetting(this)"></div>
     </div>
     <div class="setting-row">
-        <span class="setting-label">Alert at 100%</span>
+        <span class="setting-label" data-i18n="CAlert100">Alert at 100%</span>
         <div class="toggle on" id="alertLimitReached" onclick="toggleSetting(this)"></div>
     </div>
     <div class="setting-row">
-        <span class="setting-label">Safe to sleep</span>
+        <span class="setting-label" data-i18n="CSafeToSleep">Safe to sleep</span>
         <div class="toggle on" id="alertSafeToSleep" onclick="toggleSetting(this)"></div>
     </div>
 
-    <h2>Drink Presets</h2>
+    <h2 data-i18n="CHPresets">Drink Presets</h2>
     <div class="add-preset">
-        <input type="text" id="newPresetName" placeholder="Drink name">
+        <input type="text" id="newPresetName" placeholder="Drink name" data-i18n-placeholder="CPhDrinkName">
         <input type="number" id="newPresetMg" placeholder="mg" min="1" max="500">
-        <button class="btn" onclick="addPreset()">Add</button>
+        <button class="btn" onclick="addPreset()" data-i18n="CBtnAdd">Add</button>
     </div>
     <div id="presetList" class="preset-list"></div>
 
-    <button class="btn btn-save" onclick="saveSettings()">Save Settings</button>
+    <button class="btn btn-save" onclick="saveSettings()" data-i18n="CBtnSave">Save Settings</button>
 </div>
 
 <div id="tab-history" class="tab-content">
-    <h2>Drink History</h2>
+    <h2 data-i18n="CHHistory">Drink History</h2>
     <div id="historyContent"></div>
 </div>
 
 <div id="tab-trends" class="tab-content">
-    <h2>Overview</h2>
+    <h2 data-i18n="CHOverview">Overview</h2>
     <div class="trend-stat">
-        <span>7-Day Average</span>
+        <span data-i18n="CAvg7">7-Day Average</span>
         <span class="trend-value" id="avg7day">-- mg</span>
     </div>
     <div class="trend-stat">
-        <span>30-Day Average</span>
+        <span data-i18n="CAvg30">30-Day Average</span>
         <span class="trend-value" id="avg30day">-- mg</span>
     </div>
     <div class="trend-stat">
-        <span>Days Over Limit</span>
+        <span data-i18n="CDaysOver">Days Over Limit</span>
         <span class="trend-value" id="daysOver">--</span>
     </div>
 
-    <h2>Daily Intake</h2>
+    <h2 data-i18n="CHDailyIntake">Daily Intake</h2>
     <canvas id="trendChart" height="200"></canvas>
 
-    <h2>Peak Hours</h2>
+    <h2 data-i18n="CHPeakHours">Peak Hours</h2>
     <canvas id="peakChart" height="150"></canvas>
 </div>
 
@@ -225,6 +225,30 @@ var I18N = {
   }
 };
 /* i18n:end */
+// Language: ?lang=xx override (for previewing translations), else the phone's
+// language. Region tags ("cs-CZ") match their base language; anything the
+// page does not have falls back to English.
+function pickLang(tag) {
+    var base = String(tag || '').toLowerCase().split('-')[0];
+    return Object.prototype.hasOwnProperty.call(I18N, base) ? base : 'en';
+}
+var LANG = (function() {
+    var m = /[?&]lang=([A-Za-z-]+)/.exec(window.location.search);
+    return pickLang(m ? m[1] : navigator.language);
+})();
+function t(key) {
+    return I18N[LANG][key] || I18N.en[key] || key;
+}
+function applyI18n() {
+    document.documentElement.lang = LANG;
+    document.title = t('CTitle');
+    document.querySelectorAll('[data-i18n]').forEach(function(el) {
+        el.textContent = t(el.getAttribute('data-i18n'));
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
+        el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+    });
+}
 var drinkHistory = JSON.parse(localStorage.getItem('drinkHistory') || '[]');
 
 function parseSettingsFromUrl() {
@@ -288,18 +312,18 @@ if (_incoming && _incoming.presets && _incoming.presets.length > 0) {
     presets = JSON.parse(localStorage.getItem('presets') || 'null');
     if (!presets) {
         presets = [
-            {name: "Espresso", mg: 63},
-            {name: "Americano", mg: 77},
-            {name: "Drip Coffee (S)", mg: 95},
-            {name: "Drip Coffee (L)", mg: 190},
-            {name: "Latte", mg: 63},
-            {name: "Green Tea", mg: 30},
-            {name: "Black Tea", mg: 47},
-            {name: "Red Bull", mg: 80},
-            {name: "Monster", mg: 160},
-            {name: "Cola", mg: 34},
-            {name: "Dark Chocolate", mg: 25},
-            {name: "Pre-Workout", mg: 200}
+            {name: t('PresetEspresso'), mg: 63},
+            {name: t('PresetAmericano'), mg: 77},
+            {name: t('PresetDripS'), mg: 95},
+            {name: t('PresetDripL'), mg: 190},
+            {name: t('PresetLatte'), mg: 63},
+            {name: t('PresetGreenTea'), mg: 30},
+            {name: t('PresetBlackTea'), mg: 47},
+            {name: t('PresetRedBull'), mg: 80},
+            {name: t('PresetMonster'), mg: 160},
+            {name: t('PresetCola'), mg: 34},
+            {name: t('PresetDarkChocolate'), mg: 25},
+            {name: t('PresetPreWorkout'), mg: 200}
         ];
     }
 }
@@ -379,7 +403,7 @@ function saveSettings() {
         var encoded = encodeURIComponent(JSON.stringify(settings));
         window.location.href = "ciq://settings?" + encoded;
     } catch(e) {
-        alert("Settings saved locally.");
+        alert(t('CSavedLocally'));
     }
 }
 
@@ -389,9 +413,9 @@ function renderHistory() {
     if (drinkHistory.length === 0) {
         var empty = document.createElement('div');
         empty.className = 'empty-state';
-        empty.appendChild(document.createTextNode('No drink history yet.'));
+        empty.appendChild(document.createTextNode(t('CEmptyHistory1')));
         empty.appendChild(document.createElement('br'));
-        empty.appendChild(document.createTextNode('Log drinks on your watch to see them here.'));
+        empty.appendChild(document.createTextNode(t('CEmptyHistory2')));
         container.appendChild(empty);
         return;
     }
@@ -433,7 +457,7 @@ function renderHistory() {
             var entry = document.createElement('div');
             entry.className = 'history-entry';
             var left = document.createElement('span');
-            left.textContent = time + ' - ' + (e.name || 'Unknown');
+            left.textContent = time + ' - ' + (e.name || t('CUnknownDrink'));
             var right = document.createElement('span');
             right.textContent = e.mg + ' mg';
             entry.appendChild(left);
@@ -546,6 +570,7 @@ function localYmd(epochSeconds) {
 
 applyIncomingSettings(_incoming);
 renderPresets();
+applyI18n();
 </script>
 
 </body>

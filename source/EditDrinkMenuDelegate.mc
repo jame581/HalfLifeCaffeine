@@ -13,14 +13,14 @@ class EditDrinkMenuDelegate extends WatchUi.Menu2InputDelegate {
     function onSelect(item) {
         var id = item.getId();
         if (id.equals("edit_time")) {
-            var menu = new WatchUi.Menu2({:title => "Edit Time"});
-            menu.addItem(new WatchUi.MenuItem("-15 min",   null, -900,    {}));
-            menu.addItem(new WatchUi.MenuItem("-30 min",   null, -1800,   {}));
-            menu.addItem(new WatchUi.MenuItem("-1 hour",   null, -3600,   {}));
-            menu.addItem(new WatchUi.MenuItem("-2 hours",  null, -7200,   {}));
-            menu.addItem(new WatchUi.MenuItem("-3 hours",  null, -10800,  {}));
-            menu.addItem(new WatchUi.MenuItem("+15 min",   null, 900,     {}));
-            menu.addItem(new WatchUi.MenuItem("+30 min",   null, 1800,    {}));
+            var menu = new WatchUi.Menu2({:title => WatchUi.loadResource(Rez.Strings.MenuEditTime)});
+            menu.addItem(new WatchUi.MenuItem(WatchUi.loadResource(Rez.Strings.OffsetMinus15m), null, -900,   {}));
+            menu.addItem(new WatchUi.MenuItem(WatchUi.loadResource(Rez.Strings.OffsetMinus30m), null, -1800,  {}));
+            menu.addItem(new WatchUi.MenuItem(WatchUi.loadResource(Rez.Strings.OffsetMinus1h),  null, -3600,  {}));
+            menu.addItem(new WatchUi.MenuItem(WatchUi.loadResource(Rez.Strings.OffsetMinus2h),  null, -7200,  {}));
+            menu.addItem(new WatchUi.MenuItem(WatchUi.loadResource(Rez.Strings.OffsetMinus3h),  null, -10800, {}));
+            menu.addItem(new WatchUi.MenuItem(WatchUi.loadResource(Rez.Strings.OffsetPlus15m),  null, 900,    {}));
+            menu.addItem(new WatchUi.MenuItem(WatchUi.loadResource(Rez.Strings.OffsetPlus30m),  null, 1800,   {}));
             WatchUi.pushView(menu, new EditTimeMenuDelegate(_doseIndex), WatchUi.SLIDE_UP);
         } else if (id.equals("delete")) {
             Application.getApp().removeDose(_doseIndex);

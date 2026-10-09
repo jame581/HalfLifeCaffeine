@@ -2,15 +2,20 @@ import Toybox.WatchUi;
 import Toybox.Graphics;
 import Toybox.Application;
 import Toybox.Time;
-import Toybox.Time.Gregorian;
 
 class DayDetailView extends WatchUi.View {
 
     private var _ymd;
+    private var _sNoDrinks;
+    private var _sExpired;
+    private var _tplDateLong;
 
     function initialize(ymd) {
         View.initialize();
         _ymd = ymd;
+        _sNoDrinks = WatchUi.loadResource(Rez.Strings.NoDrinksToday);
+        _sExpired = WatchUi.loadResource(Rez.Strings.DetailsExpired);
+        _tplDateLong = WatchUi.loadResource(Rez.Strings.DateLong);
     }
 
     function onUpdate(dc) {
@@ -23,7 +28,7 @@ class DayDetailView extends WatchUi.View {
 
         if (app.caffeineModel == null || app.storageManager == null) { return; }
 
-        var headerStr = formatYmdLong(_ymd);
+        var headerStr = Util.formatYmd(_ymd, _tplDateLong);
         dc.setColor(Colors.TEXT_SECONDARY, Graphics.COLOR_TRANSPARENT);
         dc.drawText(width / 2, height * 12 / 100, Graphics.FONT_XTINY,
             headerStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
@@ -59,9 +64,7 @@ class DayDetailView extends WatchUi.View {
 
         if (dayDoses.size() == 0) {
             dc.setColor(Colors.TEXT_DIM, Graphics.COLOR_TRANSPARENT);
-            var msg = (_ymd == nowYmd)
-                ? "No drinks today"
-                : "Details expired after 14 days";
+            var msg = (_ymd == nowYmd) ? _sNoDrinks : _sExpired;
             dc.drawText(width / 2, height * 55 / 100, Graphics.FONT_XTINY,
                 msg, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
             return;
@@ -86,16 +89,5 @@ class DayDetailView extends WatchUi.View {
             dc.drawText(width / 2, y, Graphics.FONT_XTINY,
                 line, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }
-    }
-
-    // Format a ymd int to "Apr 24, 2026" style string.
-    private function formatYmdLong(ymd) {
-        var year = (ymd / 10000).toNumber();
-        var month = ((ymd / 100) % 100).toNumber();
-        var day = (ymd % 100).toNumber();
-        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        var monthStr = (month >= 1 && month <= 12) ? months[month - 1] : "?";
-        return monthStr + " " + day.toString() + ", " + year.toString();
     }
 }

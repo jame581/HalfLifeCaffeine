@@ -15,11 +15,16 @@ class LogView extends WatchUi.View {
     // Cached array of dose dicts in rendered (newest-first) order, parallel to dayIndices.
     var dayDoses;
 
+    private var _sTitle;
+    private var _sEmpty;
+
     function initialize() {
         View.initialize();
         selectedIndex = 0;
         dayIndices = [];
         dayDoses = [];
+        _sTitle = WatchUi.loadResource(Rez.Strings.TitleLog);
+        _sEmpty = WatchUi.loadResource(Rez.Strings.NoDrinksToday);
     }
 
     function onUpdate(dc) {
@@ -33,7 +38,7 @@ class LogView extends WatchUi.View {
 
         dc.setColor(Colors.TEXT_SECONDARY, Graphics.COLOR_TRANSPARENT);
         dc.drawText(width / 2, height * 18 / 100, Graphics.FONT_XTINY,
-            "Today's Drinks", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            _sTitle, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         if (app.caffeineModel == null) { return; }
 
@@ -51,7 +56,7 @@ class LogView extends WatchUi.View {
             selectedIndex = 0;
             dc.setColor(Colors.TEXT_DIM, Graphics.COLOR_TRANSPARENT);
             dc.drawText(width / 2, height / 2, Graphics.FONT_SMALL,
-                "No drinks today", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+                _sEmpty, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
             return;
         }
 

@@ -12,10 +12,17 @@ class HistoryView extends WatchUi.View {
     // Built in onUpdate from dailyTotals + today's live dose sum.
     var dayRows;
 
+    private var _sTitle;
+    private var _sEmpty;
+    private var _tplDateShort;
+
     function initialize() {
         View.initialize();
         selectedIndex = 0;
         dayRows = [];
+        _sTitle = WatchUi.loadResource(Rez.Strings.TitleHistory);
+        _sEmpty = WatchUi.loadResource(Rez.Strings.NoHistoryYet);
+        _tplDateShort = WatchUi.loadResource(Rez.Strings.DateShort);
     }
 
     function onUpdate(dc) {
@@ -29,7 +36,7 @@ class HistoryView extends WatchUi.View {
         if (app.caffeineModel == null || app.storageManager == null) {
             dc.setColor(Colors.TEXT_DIM, Graphics.COLOR_TRANSPARENT);
             dc.drawText(width / 2, height / 2, Graphics.FONT_SMALL,
-                "History", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+                _sTitle, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
             return;
         }
 
@@ -62,7 +69,7 @@ class HistoryView extends WatchUi.View {
     private function drawTitle(dc, width, height) {
         dc.setColor(Colors.TEXT_SECONDARY, Graphics.COLOR_TRANSPARENT);
         dc.drawText(width / 2, height * 8 / 100, Graphics.FONT_XTINY,
-            "History", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            _sTitle, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 
     // Top ~37% of screen height: 14-bar chart with daily-limit reference line.
@@ -142,7 +149,7 @@ class HistoryView extends WatchUi.View {
         if (rows.size() == 0) {
             dc.setColor(Colors.TEXT_DIM, Graphics.COLOR_TRANSPARENT);
             dc.drawText(width / 2, (listTop + listBottom) / 2, Graphics.FONT_XTINY,
-                "No history yet", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+                _sEmpty, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
             return;
         }
 
@@ -167,7 +174,7 @@ class HistoryView extends WatchUi.View {
                 dc.fillRectangle(listLeftInset, rowY, listWidth, rowHeight - 2);
             }
 
-            var dateStr = formatYmdShort(row[0]);
+            var dateStr = Util.formatYmd(row[0], _tplDateShort);
             var mgStr = Util.formatMg(row[1]) + " mg";
 
             // Color the mg text by proportion of daily limit.
@@ -185,16 +192,6 @@ class HistoryView extends WatchUi.View {
                 Graphics.FONT_XTINY, mgStr,
                 Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
         }
-    }
-
-    // Format a ymd int to "MMM d" string (e.g. 20260424 → "Apr 24").
-    private function formatYmdShort(ymd) {
-        var month = ((ymd / 100) % 100).toNumber();
-        var day = (ymd % 100).toNumber();
-        var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        var monthStr = (month >= 1 && month <= 12) ? months[month - 1] : "?";
-        return monthStr + " " + day.toString();
     }
 
     // Called by HistoryDelegate on UP/DOWN input.

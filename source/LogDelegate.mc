@@ -36,9 +36,9 @@ class LogDelegate extends WatchUi.BehaviorDelegate {
         var doseIndex = _view.getSelectedDoseIndex();
         if (doseIndex < 0) { return true; } // empty list — no-op
 
-        var menu = new WatchUi.Menu2({:title => "Edit Drink"});
-        menu.addItem(new WatchUi.MenuItem("Edit time", null, "edit_time", {}));
-        menu.addItem(new WatchUi.MenuItem("Delete", null, "delete", {}));
+        var menu = new WatchUi.Menu2({:title => WatchUi.loadResource(Rez.Strings.MenuEditDrink)});
+        menu.addItem(new WatchUi.MenuItem(WatchUi.loadResource(Rez.Strings.ItemEditTime), null, "edit_time", {}));
+        menu.addItem(new WatchUi.MenuItem(WatchUi.loadResource(Rez.Strings.ItemDelete), null, "delete", {}));
         WatchUi.pushView(menu, new EditDrinkMenuDelegate(doseIndex), WatchUi.SLIDE_UP);
         return true;
     }

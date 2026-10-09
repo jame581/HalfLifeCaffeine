@@ -1,3 +1,4 @@
+import Toybox.Lang;
 import Toybox.WatchUi;
 import Toybox.Graphics;
 import Toybox.Application;
@@ -18,8 +19,17 @@ class TimelineView extends WatchUi.View {
     private var _graphHeight;
     private var _maxMg;
 
+    private var _sTitle;
+    private var _sNow;
+    private var _tplNowLevel;
+    private var _unitHour;
+
     function initialize() {
         View.initialize();
+        _sTitle = WatchUi.loadResource(Rez.Strings.TitleTimeline);
+        _sNow = WatchUi.loadResource(Rez.Strings.TimelineNow);
+        _tplNowLevel = WatchUi.loadResource(Rez.Strings.TimelineNowLevel);
+        _unitHour = WatchUi.loadResource(Rez.Strings.UnitHour);
     }
 
     function onUpdate(dc) {
@@ -34,7 +44,7 @@ class TimelineView extends WatchUi.View {
         // Title
         dc.setColor(Colors.TEXT_SECONDARY, Graphics.COLOR_TRANSPARENT);
         dc.drawText(width / 2, height * 16 / 100, Graphics.FONT_XTINY,
-            "Caffeine Timeline", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            _sTitle, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         if (app.caffeineModel == null) { return; }
 
@@ -160,10 +170,10 @@ class TimelineView extends WatchUi.View {
         dc.setColor(Colors.TEXT_DIM, Graphics.COLOR_TRANSPARENT);
         var labelY = _graphBottom + 8;
         var labels = [
-            [-PAST_HOURS * 60, "-" + PAST_HOURS + "h"],
-            [0, "now"],
-            [FUTURE_HOURS * 60 / 2, "+" + (FUTURE_HOURS / 2) + "h"],
-            [FUTURE_HOURS * 60, "+" + FUTURE_HOURS + "h"]
+            [-PAST_HOURS * 60, "-" + PAST_HOURS + _unitHour],
+            [0, _sNow],
+            [FUTURE_HOURS * 60 / 2, "+" + (FUTURE_HOURS / 2) + _unitHour],
+            [FUTURE_HOURS * 60, "+" + FUTURE_HOURS + _unitHour]
         ];
         for (var i = 0; i < labels.size(); i++) {
             var lx = minutesToX(labels[i][0], totalMinutes);
@@ -183,7 +193,7 @@ class TimelineView extends WatchUi.View {
         }
         dc.setColor(Colors.TEXT_PRIMARY, Graphics.COLOR_TRANSPARENT);
         dc.drawText(width / 2, height * 83 / 100, Graphics.FONT_XTINY,
-            "Now: " + Util.formatMg(currentMg) + " mg", Graphics.TEXT_JUSTIFY_CENTER);
+            Lang.format(_tplNowLevel, [Util.formatMg(currentMg)]), Graphics.TEXT_JUSTIFY_CENTER);
     }
 
     // minutes: -240 to +480 (past and future offset from now)

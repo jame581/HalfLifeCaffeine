@@ -21,6 +21,8 @@ $Require = @($Require | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
 $tDir    = Join-Path $Root 'translations'
 $errors  = [System.Collections.Generic.List[string]]::new()
 $utf8    = [System.Text.UTF8Encoding]::new($false)
+# A language is "shipped" when its watch resources already exist at the start of the run.
+$shipped = @($LangMap.Keys | Where-Object { Test-Path (Join-Path $Root "resources-$($LangMap[$_])/strings.xml") })
 
 function Read-Sheet([string]$path) {
     # Strict UTF-8. Excel's plain "CSV" in a fi/cs locale is Windows-125x; decoded
@@ -67,6 +69,22 @@ foreach ($r in $en) {
 
 # --- Optional: refresh language sheets from the master ----------------------
 if ($Sync) {
+    # Check the existing sheets first: the rebuild below drops unknown keys and
+    # collapses duplicates, so those errors would never be seen afterwards.
+    foreach ($lang in $LangMap.Keys) {
+        $path = Join-Path $tDir "$lang.csv"
+        if (-not (Test-Path $path)) { continue }
+        $seen = @{}
+        foreach ($r in Read-Sheet $path) {
+            if ($seen.ContainsKey($r.key)) { $errors.Add("${lang}: $($r.key): duplicate key") }
+            $seen[$r.key] = $true
+            if (-not $known.ContainsKey($r.key)) { $errors.Add("${lang}: unknown key $($r.key)") }
+        }
+    }
+    if ($errors.Count -gt 0) {
+        $errors | ForEach-Object { Write-Host "ERROR $_" }
+        exit 1
+    }
     foreach ($lang in $LangMap.Keys) {
         $path = Join-Path $tDir "$lang.csv"
         $old = @{}
@@ -105,7 +123,7 @@ foreach ($lang in $LangMap.Keys) {
         $row = $map[$r.key]
         if (-not $row) { $errors.Add("${lang}: missing key $($r.key)"); continue }
         $tr = "$($row.translation)".Trim()
-        if ($tr -eq '') { $missing++; continue }
+        if ($tr -eq '') { $missing++; $texts[$r.key] = $r.text; continue }
         # Translations are written into a <script> block of the companion page.
         if ($tr -match '<\s*/?\s*script') { $errors.Add("${lang}: $($r.key): must not contain a script tag") }
         if ((Get-Placeholders $tr) -ne (Get-Placeholders $r.text)) {
@@ -117,9 +135,9 @@ foreach ($lang in $LangMap.Keys) {
         $texts[$r.key] = $tr
     }
     if ($missing -gt 0) {
-        if ($lang -in $Require) { $errors.Add("${lang}: $missing untranslated strings") }
-        else { Write-Host "SKIPPED ${lang}: $missing untranslated strings" }
-        continue
+        if ($lang -in $Require) { $errors.Add("${lang}: $missing untranslated strings"); continue }
+        elseif ($lang -in $shipped) { Write-Host "WARNING ${lang}: $missing untranslated strings, English used" }
+        else { Write-Host "SKIPPED ${lang}: $missing untranslated strings"; continue }
     }
     $complete[$lang] = $texts
 }
@@ -129,7 +147,8 @@ $html = [System.IO.File]::ReadAllText($htmlPath)
 $pattern = '(?s)/\* i18n:begin.*?/\* i18n:end \*/'
 if ($html -notmatch $pattern) { $errors.Add('companion: page has no i18n markers') }
 
-# Nothing is written unless every check above passed.
+# No resource or page is written unless every check above passed. Under -Sync the
+# sheets are rewritten earlier, but only after the key checks passed.
 if ($errors.Count -gt 0) {
     $errors | ForEach-Object { Write-Host "ERROR $_" }
     exit 1

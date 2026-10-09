@@ -100,4 +100,34 @@ $r = New-Fixture ($good -replace 'Tee & maito', '</script>'); $b = Invoke-Build 
 Check 'script tag fails and is named' ($b.Code -eq 1 -and $b.Out -match 'fi: Tea: must not contain a script tag')
 Check 'failing run writes no resources' (-not (Test-Path "$r/resources/strings.xml"))
 
+# 11. Duplicated placeholder
+$r = New-Fixture ($good.Replace('$1$ jäljellä', '$1$ $1$')); $b = Invoke-Build $r
+Check 'duplicated placeholder fails and is named' ($b.Code -eq 1 -and $b.Out -match 'fi: SafeIn: placeholders differ')
+
+# 12. A shipped language that becomes incomplete keeps building with English text
+$r = New-Fixture ($good -replace 'Selvä', '')
+New-Item -ItemType Directory -Path "$r/resources-fin" | Out-Null
+'<strings></strings>' | Set-Content "$r/resources-fin/strings.xml"
+$b = Invoke-Build $r
+$xml = Get-Content "$r/resources-fin/strings.xml" -Raw
+$html = Get-Content "$r/companion/settings/index.html" -Raw
+Check 'shipped incomplete language exits 0 with a warning' ($b.Code -eq 0 -and $b.Out -match 'WARNING fi: 1 untranslated strings, English used')
+Check 'shipped incomplete language uses English for the gap' ($xml -match '<string id="Clear" scope="glance">Clear</string>' -and $xml -match '<string id="Tea">Tee &amp; maito</string>')
+Check 'shipped incomplete language stays in the companion dictionary' ($html -match '"fi"')
+$b = Invoke-Build $r @('-Require', 'fi')
+Check 'required shipped incomplete language fails' ($b.Code -eq 1 -and $b.Out -match 'ERROR fi: 1 untranslated strings')
+
+# 13. -Sync validates before rewriting any sheet
+foreach ($case in @(
+    @{ Name = 'unknown key'; Sheet = $good + "`nGhost,watch,x,,Ghost,Aave,"; Pattern = 'fi: unknown key Ghost' }
+    @{ Name = 'duplicate key'; Sheet = $good + "`nClear,glance,all clear,10,Clear,Selvä,"; Pattern = 'fi: Clear: duplicate key' }
+)) {
+    $r = New-Fixture $case.Sheet
+    $before = [System.IO.File]::ReadAllBytes("$r/translations/fi.csv")
+    $b = Invoke-Build $r @('-Sync')
+    $after = [System.IO.File]::ReadAllBytes("$r/translations/fi.csv")
+    Check "-Sync with $($case.Name) fails and is named" ($b.Code -eq 1 -and $b.Out -match $case.Pattern)
+    Check "-Sync with $($case.Name) leaves the sheet unchanged" ([System.Linq.Enumerable]::SequenceEqual($before, $after))
+}
+
 if ($script:failed -gt 0) { "`n$($script:failed) FAILED"; exit 1 } else { "`nALL PASSED" }

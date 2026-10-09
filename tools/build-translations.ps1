@@ -41,6 +41,19 @@ function Read-Sheet([string]$path) {
 function Get-Placeholders([string]$s) {
     ([regex]::Matches($s, '\$\d\$') | ForEach-Object Value | Sort-Object) -join ' '
 }
+function Get-PlaceholderNumbers([string]$s) {
+    @([regex]::Matches($s, '\$(\d)\$') | ForEach-Object { [int]$_.Groups[1].Value } | Sort-Object -Unique)
+}
+# The text as it appears on screen: placeholders replaced by the worst-case sample
+# parts. {duration} becomes 23 + hour unit + space + 59 + minute unit. Assumes the
+# sample was validated (one part per distinct placeholder, numbered from 1).
+function Get-Filled([string]$text, [string]$sample, [string]$unitHour, [string]$unitMinute) {
+    if (-not $sample) { return $text }
+    $parts = @($sample -split '\|' | ForEach-Object { $_.Replace('{duration}', "23$unitHour 59$unitMinute") })
+    [regex]::Replace($text, '\$(\d)\$', [System.Text.RegularExpressions.MatchEvaluator] {
+        param($m) $parts[[int]$m.Groups[1].Value - 1]
+    })
+}
 function Get-Where($row) { @("$($row.where)" -split '\s+' | Where-Object { $_ }) }
 function Escape-Xml([string]$s) { $s.Replace('&', '&amp;').Replace('<', '&lt;').Replace('>', '&gt;') }
 function Write-Text([string]$path, [string]$text) {
@@ -52,6 +65,17 @@ function Write-Text([string]$path, [string]$text) {
 # --- English master -------------------------------------------------------
 $en = Read-Sheet (Join-Path $tDir 'en.csv')
 $known = @{}
+$hasSample = @{}
+$enUnitHour = 'h'; $enUnitMinute = 'm'
+foreach ($r in $en) {
+    if ($r.key -eq 'UnitHour' -and $r.text) { $enUnitHour = $r.text }
+    if ($r.key -eq 'UnitMinute' -and $r.text) { $enUnitMinute = $r.text }
+}
+foreach ($lang in $Require) {
+    if ($lang -notin $LangMap.Keys) {
+        $errors.Add("-Require: unknown language '$lang' (known: $(@($LangMap.Keys) -join ', '))")
+    }
+}
 foreach ($r in $en) {
     if ($r.key -notmatch '^[A-Z][A-Za-z0-9]*$') { $errors.Add("en: bad key '$($r.key)'"); continue }
     if ($known.ContainsKey($r.key)) { $errors.Add("en: $($r.key): duplicate key") }
@@ -61,9 +85,27 @@ foreach ($r in $en) {
         $errors.Add("en: $($r.key): bad where '$($r.where)'")
     }
     if ($r.max -and $r.max -notmatch '^\d+$') { $errors.Add("en: $($r.key): max '$($r.max)' is not a number"); $r.max = '' }
-    if ([string]::IsNullOrEmpty($r.text)) { $errors.Add("en: $($r.key): empty text") }
-    elseif ($r.max -and $r.text.Length -gt [int]$r.max) {
-        $errors.Add("en: $($r.key): $($r.text.Length) chars, max $($r.max)")
+    if ([string]::IsNullOrEmpty($r.text)) { $errors.Add("en: $($r.key): empty text"); continue }
+    # English text goes into the same <script> block as the translations.
+    if ($r.text -match '<\s*/?\s*script') { $errors.Add("en: $($r.key): must not contain a script tag") }
+    $nums = Get-PlaceholderNumbers $r.text
+    $sample = "$($r.sample)"
+    $sampleOk = $true
+    if ($nums.Count -gt 0 -and -not $sample) {
+        $errors.Add("en: $($r.key): has placeholders but no sample"); $sampleOk = $false
+    } elseif ($sample) {
+        $n = @($sample -split '\|').Count
+        if ($n -ne $nums.Count -or ($nums | Measure-Object -Maximum).Maximum -gt $n) {
+            $errors.Add("en: $($r.key): sample has $n parts, text has $($nums.Count) placeholders"); $sampleOk = $false
+        }
+    }
+    $hasSample[$r.key] = $sampleOk -and [bool]$sample
+    if ($sampleOk -and $r.max) {
+        $filled = Get-Filled $r.text $sample $enUnitHour $enUnitMinute
+        if ($filled.Length -gt [int]$r.max) {
+            if ($sample) { $errors.Add("en: $($r.key): $($filled.Length) chars when filled in (`"$filled`"), max $($r.max)") }
+            else { $errors.Add("en: $($r.key): $($filled.Length) chars, max $($r.max)") }
+        }
     }
 }
 
@@ -94,9 +136,11 @@ if ($Sync) {
             $translation = if ($o) { "$($o.translation)" } else { '' }
             $status = if ($o) { "$($o.status)" } else { '' }
             if ($o -and $translation -and "$($o.english)" -ne $r.text) { $status = 'changed' }
+            # Informational only (never read back): the English text as it appears on screen.
+            $example = if ($hasSample[$r.key]) { Get-Filled $r.text "$($r.sample)" $enUnitHour $enUnitMinute } else { '' }
             [pscustomobject][ordered]@{
                 key = $r.key; where = $r.where; context = $r.context; max = $r.max
-                english = $r.text; translation = $translation; status = $status
+                english = $r.text; example = $example; translation = $translation; status = $status
             }
         }
         $rows | Export-Csv -LiteralPath $path -Encoding utf8BOM -UseQuotes Always
@@ -119,18 +163,31 @@ foreach ($lang in $LangMap.Keys) {
     foreach ($k in $map.Keys) { if (-not $known.ContainsKey($k)) { $errors.Add("${lang}: unknown key $k") } }
     $missing = 0
     $texts = @{}
+    # {duration} in a sample uses this language's own units, English where untranslated.
+    $uh = "$($map['UnitHour'].translation)".Trim(); if (-not $uh) { $uh = $enUnitHour }
+    $um = "$($map['UnitMinute'].translation)".Trim(); if (-not $um) { $um = $enUnitMinute }
     foreach ($r in $en) {
         $row = $map[$r.key]
         if (-not $row) { $errors.Add("${lang}: missing key $($r.key)"); continue }
         $tr = "$($row.translation)".Trim()
         if ($tr -eq '') { $missing++; $texts[$r.key] = $r.text; continue }
+        if ("$($row.status)".Trim() -eq 'changed') {
+            if ($lang -in $Require) { $errors.Add("${lang}: $($r.key): English changed since this was translated") }
+            else { Write-Host "WARNING ${lang}: $($r.key): English changed since this was translated" }
+        }
         # Translations are written into a <script> block of the companion page.
         if ($tr -match '<\s*/?\s*script') { $errors.Add("${lang}: $($r.key): must not contain a script tag") }
-        if ((Get-Placeholders $tr) -ne (Get-Placeholders $r.text)) {
-            $errors.Add("${lang}: $($r.key): placeholders differ from English")
-        }
-        if ($r.max -and $tr.Length -gt [int]$r.max) {
-            $errors.Add("${lang}: $($r.key): $($tr.Length) chars, max $($r.max)")
+        $samePlaceholders = (Get-Placeholders $tr) -eq (Get-Placeholders $r.text)
+        if (-not $samePlaceholders) { $errors.Add("${lang}: $($r.key): placeholders differ from English") }
+        # Length is measured on what is drawn: the translation with the sample filled in.
+        # Skipped when English has no usable sample (already an error) or placeholders differ.
+        if ($r.max -and $samePlaceholders -and ($hasSample[$r.key] -or -not (Get-PlaceholderNumbers $r.text))) {
+            $sample = "$($r.sample)"
+            $filled = Get-Filled $tr $sample $uh $um
+            if ($filled.Length -gt [int]$r.max) {
+                if ($sample) { $errors.Add("${lang}: $($r.key): $($filled.Length) chars when filled in (`"$filled`"), max $($r.max)") }
+                else { $errors.Add("${lang}: $($r.key): $($filled.Length) chars, max $($r.max)") }
+            }
         }
         $texts[$r.key] = $tr
     }

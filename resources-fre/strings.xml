@@ -5,9 +5,9 @@
   <string id="UnitHour" scope="glance">h</string>
   <string id="UnitMinute" scope="glance">min</string>
   <string id="SummaryUnit">mg de caféine</string>
-  <string id="SummarySleepSafeIn">Sommeil OK dans $1$</string>
+  <string id="SummarySleepSafeIn">OK dans $1$</string>
   <string id="SummaryIntake">$1$ / $2$ mg ce jour</string>
-  <string id="SummaryHint">Appuyer pour ajouter</string>
+  <string id="SummaryHint">Ajouter une boisson</string>
   <string id="TitleTimeline">Courbe de caféine</string>
   <string id="TimelineNow">maint.</string>
   <string id="TimelineNowLevel">Actuel : $1$ mg</string>

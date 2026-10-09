@@ -20,8 +20,10 @@ Fill in the `translation` column. Leave every other column as it is.
 
 - `english` is the text to translate; `context` says where it appears.
 - `max` is the longest your translation may be, in characters. Watch screens
-  are small and round, so shorter is better. If nothing fits, say so and we
-  will find room.
+  are small and round, so shorter is better. For texts with `$1$`-style
+  placeholders the limit counts the text as it appears once filled in; the
+  `example` column shows the English text filled in with the longest values.
+  If nothing fits, say so and we will find room.
 - `$1$`, `$2$`, `$3$` are placeholders the app fills in (a time, a number, a
   date part). Keep each one exactly once; you may move them to wherever your
   language wants them. Example: `Sleep safe in $1$` → `$1$ jäljellä`.
@@ -42,4 +44,7 @@ headings, the emoji and the `**bold**` markers. The tagline must stay within
 
 `pwsh tools/build-translations.ps1` validates every sheet and regenerates
 `resources*/strings.xml` and the dictionary in `companion/settings/index.html`.
-Add `-Sync` after editing `en.csv`. Incomplete sheets are skipped, not built.
+Add `-Sync` after editing `en.csv`. An incomplete sheet for a language that has never been built is skipped. A
+language that is already built keeps building with the English text for
+missing rows and prints a WARNING. `-Require <langs>` turns missing or stale
+(`status` = `changed`) translations into errors.

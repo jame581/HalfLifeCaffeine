@@ -52,13 +52,19 @@ Install directly on your watch via [apps.garmin.com/en-US/apps/7f81c51f-3f4c-486
 
 ## Supported Devices
 
-42 watches across these families:
+94 watches across these families:
 
-- **Vivoactive** 4, 5, 6
-- **Venu** 2, 2 Plus, 2s, 3, 3s · **Venu Sq** 2, 2m
-- **Forerunner** 165 (+ music), 255 (+ music, s, sm), 265, 265s, 955, 965
-- **Fenix** 6, 6s, 6 Pro, 6x Pro, 7, 7s, 7x · **Fenix 7 Pro** family (regular, s, x, no-WiFi, x no-WiFi) · **Fenix 8** (43mm, 47mm, Solar 47mm/51mm, Pro 47mm) · **Fenix E**
+- **Vivoactive** 4, 4S, 5, 6
+- **Venu** 2, 2 Plus, 2s, 3, 3s · **Venu 4** (41mm, 45mm) · **Venu Sq** 2, 2m
+- **Forerunner** 70, 165 (+ music), 170 (+ music), 245 (+ music), 255 (+ music, s, sm), 265, 265s, 570 (42mm, 47mm), 745, 945, 945 LTE, 955, 965, 970
+- **Fenix** 6, 6s, 6 Pro, 6S Pro, 6x Pro, 7, 7s, 7x · **Fenix 7 Pro** family (regular, s, x, no-WiFi, x no-WiFi) · **Fenix 8** (43mm, 47mm, Solar 47mm/51mm, Pro 47mm) · **Fenix 9** (43mm, 47mm) · **Fenix 9 Pro** (43mm, 47mm, 51mm, Solar 47mm/51mm) · **Fenix E**
 - **Epix** 2 · **Epix 2 Pro** (42mm, 47mm, 51mm)
+- **Enduro** 1, 3, 4
+- **Instinct 3 AMOLED** (45mm, 50mm) · **Instinct Crossover AMOLED**
+- **Approach** S50, S70 (42mm, 47mm), S72 (43mm, 47mm)
+- **Descent** G2, Mk2, Mk2i, Mk2 S, Mk3 43mm, Mk3i (43mm, 51mm)
+- **D2** Air X10, Mach 1, Mach 2, Mach 2 Pro
+- **MARQ** Adventurer, Athlete, Aviator, Captain, Commander, Driver, Expedition, Golfer · **MARQ Gen 2** (all editions incl. Aviator)
 
 Requires Connect IQ API 3.2+ (for glance views). See `manifest.xml` for the authoritative product list.
 

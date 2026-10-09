@@ -1,12 +1,23 @@
 import Toybox.WatchUi;
 import Toybox.Graphics;
 import Toybox.Time;
+import Toybox.Lang;
 
 (:glance)
 class GlanceView extends WatchUi.GlanceView {
 
+    // Loaded once; every string here is scope="glance" in the resources.
+    private var _sClear;
+    private var _tplSafeIn;
+    private var _unitHour;
+    private var _unitMinute;
+
     function initialize() {
         GlanceView.initialize();
+        _sClear = WatchUi.loadResource(Rez.Strings.Clear);
+        _tplSafeIn = WatchUi.loadResource(Rez.Strings.GlanceSafeIn);
+        _unitHour = WatchUi.loadResource(Rez.Strings.UnitHour);
+        _unitMinute = WatchUi.loadResource(Rez.Strings.UnitMinute);
     }
 
     function onUpdate(dc) {
@@ -23,11 +34,12 @@ class GlanceView extends WatchUi.GlanceView {
         var level = model.getCurrentLevel(now);
         var numText = Util.formatMg(level);
 
-        var statusText = "Clear";
+        var statusText = _sClear;
         if (level >= 1.0) {
             var minutesToSafe = model.getMinutesToSafe(now, 50);
             if (minutesToSafe > 0) {
-                statusText = "Safe in " + Util.formatDuration(minutesToSafe);
+                statusText = Lang.format(_tplSafeIn,
+                    [Util.formatDuration(minutesToSafe, _unitHour, _unitMinute)]);
             }
         }
 

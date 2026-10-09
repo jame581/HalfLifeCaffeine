@@ -2,11 +2,27 @@ import Toybox.WatchUi;
 import Toybox.Graphics;
 import Toybox.Application;
 import Toybox.Time;
+import Toybox.Lang;
 
 class SummaryView extends WatchUi.View {
 
+    private var _sUnit;
+    private var _sClear;
+    private var _tplSleepSafe;
+    private var _tplIntake;
+    private var _sHint;
+    private var _unitHour;
+    private var _unitMinute;
+
     function initialize() {
         View.initialize();
+        _sUnit = WatchUi.loadResource(Rez.Strings.SummaryUnit);
+        _sClear = WatchUi.loadResource(Rez.Strings.Clear);
+        _tplSleepSafe = WatchUi.loadResource(Rez.Strings.SummarySleepSafeIn);
+        _tplIntake = WatchUi.loadResource(Rez.Strings.SummaryIntake);
+        _sHint = WatchUi.loadResource(Rez.Strings.SummaryHint);
+        _unitHour = WatchUi.loadResource(Rez.Strings.UnitHour);
+        _unitMinute = WatchUi.loadResource(Rez.Strings.UnitMinute);
     }
 
     function onUpdate(dc) {
@@ -46,7 +62,7 @@ class SummaryView extends WatchUi.View {
 
         dc.setColor(Colors.TEXT_SECONDARY, Graphics.COLOR_TRANSPARENT);
         dc.drawText(centerX, (height * 33 / 100), Graphics.FONT_TINY,
-            "mg caffeine", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            _sUnit, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Progress bar
         var barY = height * 42 / 100;
@@ -65,16 +81,17 @@ class SummaryView extends WatchUi.View {
         dc.fillRectangle(barX, barY, fillWidth, barHeight);
 
         // Time until sleep-safe
-        var sleepText = "Clear";
+        var sleepText = _sClear;
         if (level >= 1.0 && minutesToSafe > 0) {
-            sleepText = "Sleep safe in " + Util.formatDuration(minutesToSafe);
+            sleepText = Lang.format(_tplSleepSafe,
+                [Util.formatDuration(minutesToSafe, _unitHour, _unitMinute)]);
         }
         dc.setColor(Colors.TEXT_PRIMARY, Graphics.COLOR_TRANSPARENT);
         dc.drawText(centerX, (height * 55 / 100), Graphics.FONT_SMALL,
             sleepText, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Daily intake vs limit
-        var intakeText = dailyIntake.toString() + " / " + dailyLimit.toString() + " mg today";
+        var intakeText = Lang.format(_tplIntake, [dailyIntake.toString(), dailyLimit.toString()]);
         var intakeColor = Colors.TEXT_SECONDARY;
         if (alertStatus.equals("warning")) { intakeColor = Colors.WARNING; }
         if (alertStatus.equals("over")) { intakeColor = Colors.DANGER; }
@@ -85,6 +102,6 @@ class SummaryView extends WatchUi.View {
         // Hint
         dc.setColor(Colors.TEXT_DIM, Graphics.COLOR_TRANSPARENT);
         dc.drawText(centerX, (height * 88 / 100), Graphics.FONT_XTINY,
-            "Press to add drink", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            _sHint, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 }

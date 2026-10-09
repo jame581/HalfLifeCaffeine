@@ -10,7 +10,7 @@ class SummaryDelegate extends WatchUi.BehaviorDelegate {
     // SELECT button → open drink menu
     function onSelect() {
         var app = Application.getApp();
-        var menu = new WatchUi.Menu2({:title => "Add Drink"});
+        var menu = new WatchUi.Menu2({:title => WatchUi.loadResource(Rez.Strings.MenuAddDrink)});
         for (var i = 0; i < app.drinkPresets.getPresetCount(); i++) {
             var preset = app.drinkPresets.getPresetAt(i);
             menu.addItem(new WatchUi.MenuItem(

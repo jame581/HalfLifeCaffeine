@@ -1,24 +1,47 @@
 import Toybox.Application;
 import Toybox.Time;
 import Toybox.Time.Gregorian;
+import Toybox.Lang;
 
 (:glance)
 module Util {
 
-    // Format minutes as "Xh Ym" (e.g. 200 → "3h 20m")
-    function formatDuration(totalMinutes) {
+    // Format minutes as "Xh Ym" (e.g. 200 → "3h 20m"). The unit strings are
+    // passed in so this stays free of resource loading and unit-testable.
+    function formatDuration(totalMinutes, hourUnit, minuteUnit) {
         if (totalMinutes <= 0) {
-            return "0m";
+            return "0" + minuteUnit;
         }
         var hours = (totalMinutes / 60).toNumber();
         var mins = (totalMinutes % 60).toNumber();
         if (hours > 0 && mins > 0) {
-            return hours + "h " + mins + "m";
+            return hours + hourUnit + " " + mins + minuteUnit;
         } else if (hours > 0) {
-            return hours + "h";
+            return hours + hourUnit;
         } else {
-            return mins + "m";
+            return mins + minuteUnit;
         }
+    }
+
+    // Format a ymd int (20260424) with a template: $1$ = month abbreviation in
+    // the watch language, $2$ = day, $3$ = year. Only the month name comes from
+    // the system, so the lookup uses a fixed, always-valid date (the 15th of
+    // that month in 2024, UTC on both sides) and the caller's year and day never
+    // reach Gregorian.moment, which throws on anything that is not a real date.
+    // A month outside 1-12 yields "?".
+    function formatYmd(ymd, template) {
+        var year = (ymd / 10000).toNumber();
+        var month = ((ymd / 100) % 100).toNumber();
+        var day = (ymd % 100).toNumber();
+        var monthStr = "?";
+        if (month >= 1 && month <= 12) {
+            var moment = Gregorian.moment({
+                :year => 2024, :month => month, :day => 15,
+                :hour => 12, :minute => 0, :second => 0
+            });
+            monthStr = Gregorian.utcInfo(moment, Time.FORMAT_MEDIUM).month;
+        }
+        return Lang.format(template, [monthStr, day.toString(), year.toString()]);
     }
 
     // Format epoch to "HH:MM" local time

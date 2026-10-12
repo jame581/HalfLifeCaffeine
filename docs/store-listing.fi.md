@@ -1,5 +1,8 @@
 > Store listing for Finnish. Translate the text under each heading; keep headings, emoji and **bold** markers. Tagline limit: 50 characters.
 
+## App Name
+HalfLife Caffeine – Kofeiinilaskuri
+
 ## Tagline (50 chars max)
 Track caffeine and see when you're safe to sleep.
 

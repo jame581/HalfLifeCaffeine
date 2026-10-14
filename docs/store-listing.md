@@ -1,6 +1,13 @@
 # Connect IQ Store Listing
 
-> Reference copy mirroring the current store listing. Reflects v1.3.1 state (2026-10-09). Update on every release.
+> Reference copy mirroring the current store listing. Reflects v1.4.0 state (2026-10-14). Update on every release.
+
+## What's New (v1.4.0)
+- Now in Finnish, Czech, German and French. The app follows your watch language.
+- Tap a drink, a day or a chart bar to open it. Lists and day details scroll.
+- Days now start at local midnight, not 00:00 UTC.
+- Per-drink history is kept for 14 days.
+- UP/DOWN buttons move the cursor in the log and History on button watches.
 
 ## App Name
 HalfLife Caffeine

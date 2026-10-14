@@ -95,7 +95,7 @@ monkeyc -e -f monkey.jungle -y path/to/developer_key -o bin/HalfLifeCaffeine.iq
 ```
 
 ### Run tests
-`(:test)` annotated functions in `test/` — execute via **Run → Run Tests** in VS Code.
+`(:test)` annotated functions in `test/` — run them with `pwsh tools/run-tests.ps1` (builds with `test.jungle` and runs in the simulator). **Run → Run Tests** in VS Code uses `monkey.jungle`, which does not include `test/`, so it runs no tests.
 
 ## Project Layout
 

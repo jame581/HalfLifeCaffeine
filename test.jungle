@@ -1,0 +1,6 @@
+# Unit-test build, used by tools/run-tests.ps1.
+# monkey.jungle compiles only source/, so its builds contain no tests at all.
+project.manifest = manifest.xml
+
+base.sourcePath = source;test
+base.resourcePath = resources

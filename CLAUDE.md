@@ -14,7 +14,7 @@ Live on the Connect IQ store since 2026-04-24: https://apps.garmin.com/en-US/app
 
 Monkey C projects are built through the VS Code Monkey C extension, not a CLI task runner; launch configs are in `.vscode/launch.json` (**Run App**, **Run App with Debug**, **Run Tests**). Tests live in `test/` (`CaffeineModelTest`, `DrinkPresetsTest`, `StorageManagerTest`, `UtilTest`). Simulator devices are installed under `%APPDATA%/Garmin/ConnectIQ/Devices/`.
 
-`monkey.jungle` excludes the `test` annotation from non-test builds — test files must be tagged `(:test)`.
+`monkey.jungle` compiles only `source/` and excludes the `test` annotation, so its builds — including **Run Tests** in VS Code — contain no tests. Run the tests with `pwsh tools/run-tests.ps1` (builds with `test.jungle`, which adds `test/`, then runs them in the simulator; no mouse input; exit code 0 when all pass). Test functions must be tagged `(:test)`. Tests that use "now" can fail when run in the first hour after local midnight.
 
 ### CLI builds
 

@@ -29,8 +29,8 @@ function testRollupAggregatesDosesForYesterday(logger) {
         {:mg => 100.0, :time => y_start, :name => "Coffee"},
         {:mg => 50.0, :time => y_late, :name => "Tea"}
     ];
-    // Roll forward from lastRolled=20260422 through yesterday=20260423
-    var result = sm.computeRollup(doses, [], 20260422, 20260423);
+    // lastRolled = 20260422, today = 20260424 -> rolls the one completed day, 20260423
+    var result = sm.computeRollup(doses, [], 20260422, 20260424);
     // One daily totals row for 20260423: [20260423, 150, 2]
     if (result.size() != 1) { return false; }
     var row = result[0];
@@ -46,7 +46,7 @@ function testRollupAppendsToExistingTotals(logger) {
     }).value();
     var doses = [{:mg => 80.0, :time => y, :name => "RedBull"}];
     var existing = [[20260420, 200, 3], [20260421, 150, 2]];
-    var result = sm.computeRollup(doses, existing, 20260421, 20260423);
+    var result = sm.computeRollup(doses, existing, 20260421, 20260424);
     // Existing two rows + new row for 20260423 (20260422 had no doses, skipped)
     if (result.size() != 3) { return false; }
     var last = result[2];

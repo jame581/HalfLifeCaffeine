@@ -29,7 +29,7 @@ HalfLife Caffeine je bezplatný tracker kofeinu pro tvé hodinky Garmin, postave
 
 🎨 **Vyber si vzhled** — Tmavě modré nebo černé pozadí. Černé je ostřejší na hodinkách bez AMOLED displeje (MIP) a na AMOLED displejích šetří baterii.
 
-🥤 **12 předvoleb nápojů** — Espresso, Americano, překapávaná káva (M/V), Latte, zelený čaj, černý čaj, Red Bull, Monster, Cola, hořká čokoláda, Pre-Workout. Přidávej, přejmenovávej a odebírej je v aplikaci v telefonu.
+🥤 **12 předvoleb nápojů** — Espresso, Americano, překapávaná káva (malá/velká), Latte, zelený čaj, černý čaj, Red Bull, Monster, Cola, hořká čokoláda, Pre-Workout. Přidávej, přejmenovávej a odebírej je v aplikaci v telefonu.
 
 🔔 **Chytrá upozornění**
 - Varování při 80 % denního limitu

@@ -117,8 +117,13 @@ foreach ($Device in $Devices) {
         $null = Close-SimDialogs
         $before = Get-SimSignature
         & $Action
-        Start-Sleep -Milliseconds 300
-        if (Test-SimSameScreen $before (Get-SimSignature)) { & $Action }
+        # Menus on the larger AMOLED watches take longer than 300 ms to start moving;
+        # repeating too early sends the press twice.
+        foreach ($i in 1..6) {
+            Start-Sleep -Milliseconds 250
+            if (-not (Test-SimSameScreen $before (Get-SimSignature))) { return }
+        }
+        & $Action
     }
     # "Select" and "Next" are PowerShell aliases; keep the Press prefix.
     function PressNext     { Press { if ($hasKey['down'])  { Send-SimButton $Device down }  else { Send-SimSwipe $Device 72 25 } } }
@@ -126,13 +131,45 @@ foreach ($Device in $Devices) {
     # In a menu, touch-only watches need a tap on the first row.
     function PressMenuItem { Press { if ($hasKey['down'])  { Send-SimButton $Device enter } else { Send-SimTap $Device 50 42 } } }
     function PressBack     { Press { Send-SimButton $Device esc } }
+    # History's chart bars are the only ACCENT green in the upper half of the
+    # screen; the log draws none. Loose bounds, since MIP watches show fewer colors.
+    function Test-HistoryShown {
+        $file = Join-Path $env:TEMP 'sim-matrix-probe.png'
+        Save-SimShot $file
+        $bmp = [System.Drawing.Bitmap]::FromFile($file); $n = 0
+        try {
+            for ($y = $disp.y + $disp.height * 15 / 100; $y -lt $disp.y + $disp.height * 55 / 100; $y += 2) {
+                for ($x = $disp.x + $disp.width * 10 / 100; $x -lt $disp.x + $disp.width * 90 / 100; $x += 2) {
+                    $c = $bmp.GetPixel([int]$x, [int]$y)
+                    if ($c.G -gt 150 -and $c.G - $c.R -gt 80 -and $c.B -lt $c.G) { $n++ }
+                }
+            }
+        } finally { $bmp.Dispose() }
+        $n -ge 15
+    }
+    # On a button watch DOWN moves the log cursor and pages to History only past
+    # the last row, so press until the chart shows.
+    function PressToHistory {
+        if (-not $hasKey['down']) { PressNext; return }
+        foreach ($i in 1..30) {
+            Send-SimButton $Device down; Start-Sleep -Milliseconds 400; $null = Close-SimDialogs
+            if (Test-HistoryShown) { return }
+        }
+        throw "History did not appear after 30 presses of DOWN"
+    }
     function Shot([string]$Name) {
         Start-Sleep -Milliseconds 500; $null = Close-SimDialogs
         Save-SimShot "$script:dir\$Name.png"; $script:shots += $Name
     }
     # Loads the device too, which the language list needs.
     function Launch([string]$Mode) {
-        if ($hasGlance) { Invoke-SimMenu "Settings > Glance Launch Mode > Launch in $Mode Mode" }
+        if ($hasGlance) {
+            # A restarted simulator lists Glance Launch Mode only once a glance device is
+            # loaded, and does not always come back with this one; starting the app loads it.
+            $item = "Settings > Glance Launch Mode > Launch in $Mode Mode"
+            if (-not (Get-SimMenu | Where-Object Path -eq $item)) { Start-SimApp $prg $Device; $null = Close-SimDialogs }
+            Invoke-SimMenu $item
+        }
         Start-SimApp $prg $Device; $null = Close-SimDialogs
     }
 
@@ -177,7 +214,7 @@ foreach ($Device in $Devices) {
             PressSelect; Shot '5-edit-menu'
             PressMenuItem; Shot '6-edit-time'
             PressBack; PressBack
-            PressNext; Shot '7-history'
+            PressToHistory; Shot '7-history'
             PressSelect; Shot '8-day-detail'
             PressBack
         }

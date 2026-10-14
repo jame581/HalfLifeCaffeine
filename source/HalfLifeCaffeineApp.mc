@@ -49,13 +49,17 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         syncManager = new SyncManager();
         Communications.registerForPhoneAppMessages(method(:onPhoneMessage));
 
+        caffeineModel.setHalfLifeSeconds(Util.getHalfLifeSeconds());
         var savedDoses = storageManager.loadDoses();
         var now = Time.now().value();
         storageManager.rollUpYesterday(savedDoses, now);
-        savedDoses = storageManager.pruneOldDoses(savedDoses, now);
+        // Keep yesterday and today (phone sync of an edit across midnight) and
+        // the decay tail of the timeline's 4 past hours (TimelineView.PAST_HOURS)
+        // in memory; older doses move to the archive.
+        var since = storageManager.recentWindowStart(now,
+            caffeineModel.getOldestCountedTime(now - 4 * 3600));
+        savedDoses = storageManager.archiveOldDoses(savedDoses, since, now);
         caffeineModel.setDoses(savedDoses);
-        caffeineModel.setHalfLifeSeconds(Util.getHalfLifeSeconds());
-        caffeineModel.pruneExpiredDoses(now);
     }
 
     function onSettingsChanged() as Void {
@@ -73,7 +77,6 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         var preset = drinkPresets.getPresetAt(presetIndex);
         var now = Time.now().value();
         caffeineModel.addDose(preset[:mg], now, preset[:name]);
-        caffeineModel.pruneExpiredDoses(now);
         storageManager.saveDoses(caffeineModel.getDoses());
         syncManager.syncDayToPhone(caffeineModel.getDoses(), Util.ymdFromEpoch(now));
 
@@ -105,7 +108,6 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         if (newTime < 0) { return; } // out-of-bounds defensive
         var newYmd = Util.ymdFromEpoch(newTime);
 
-        caffeineModel.pruneExpiredDoses(now);
         var allDoses = caffeineModel.getDoses();
         storageManager.saveDoses(allDoses);
 

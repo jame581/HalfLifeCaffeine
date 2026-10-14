@@ -162,16 +162,30 @@ function testDosesForDayUsesLocalMidnight(logger) {
     return today.size() == 2 && today[0][:mg] == 63.0 && today[1][:mg] == 80.0;
 }
 
-// rollUpYesterday with the one-time v1.4.0 re-roll. Runs against real Storage,
-// so the keys it touches are saved first and put back afterwards.
+// Checks that run against real Storage (the v1.4.0 re-roll, dose loading and
+// archiving), so the keys they touch are saved first and put back afterwards,
+// also when the check throws.
 function withCleanRollupStorage(check) {
-    var keys = ["dailyTotals", "lastRolledYmd", "localDayFix"];
+    var keys = ["dailyTotals", "lastRolledYmd", "localDayFix", "doses", "archDays"];
+    var origDays = Application.Storage.getValue("archDays");
+    if (origDays instanceof Array) {
+        for (var i = 0; i < origDays.size(); i++) { keys.add("arch" + origDays[i]); }
+    }
     var saved = [];
     for (var i = 0; i < keys.size(); i++) {
         saved.add(Application.Storage.getValue(keys[i]));
         Application.Storage.deleteValue(keys[i]);
     }
-    var ok = check.invoke();
+    var ok = false;
+    try {
+        ok = check.invoke();
+    } catch (e) {
+        ok = false;
+    }
+    var newDays = Application.Storage.getValue("archDays");
+    if (newDays instanceof Array) {
+        for (var i = 0; i < newDays.size(); i++) { Application.Storage.deleteValue("arch" + newDays[i]); }
+    }
     for (var i = 0; i < keys.size(); i++) {
         if (saved[i] == null) {
             Application.Storage.deleteValue(keys[i]);
@@ -243,4 +257,143 @@ function checkMigrationKeepsExistingRow() {
 (:test)
 function testRollUpMigrationKeepsExistingRow(logger) {
     return withCleanRollupStorage(new Lang.Method($, :checkMigrationKeepsExistingRow));
+}
+
+// The glance builds records only for doses that can still add to the level.
+function checkLoadDosesSinceSkipsOlder() {
+    var sm = new StorageManager();
+    var now = Time.now().value();
+    sm.saveDoses([
+        {:mg => 80.0, :time => now - 5 * 86400, :name => "Old"},
+        {:mg => 95.0, :time => now - 3600, :name => "New"}
+    ]);
+    var recent = sm.loadDosesSince(now - 86400);
+    return recent.size() == 1 && recent[0][:name].equals("New")
+        && sm.loadDoses().size() == 2;
+}
+
+(:test)
+function testLoadDosesSinceSkipsOlderDoses(logger) {
+    return withCleanRollupStorage(new Lang.Method($, :checkLoadDosesSinceSkipsOlder));
+}
+
+// Old doses leave the dose list for the archive; the day detail still finds them.
+function checkArchiveMovesOldDoses() {
+    var sm = new StorageManager();
+    var now = Time.now().value();
+    var day3 = noonDaysAgo(now, 3);
+    var doses = [
+        {:mg => 80.0, :time => day3, :name => "Old"},
+        {:mg => 95.0, :time => now - 3600, :name => "New"}
+    ];
+    var recent = sm.archiveOldDoses(doses, now - 2 * 86400, now);
+    var stored = sm.loadDoses();
+    var archived = sm.loadArchivedDosesForDay(Util.ymdFromEpoch(day3));
+    return recent.size() == 1 && recent[0][:name].equals("New")
+        && stored.size() == 1 && stored[0][:name].equals("New")
+        && archived.size() == 1 && archived[0][:name].equals("Old")
+        && archived[0][:mg] == 80.0 && archived[0][:time] == day3;
+}
+
+(:test)
+function testArchiveMovesOldDoses(logger) {
+    return withCleanRollupStorage(new Lang.Method($, :checkArchiveMovesOldDoses));
+}
+
+// The archive keeps 14 days; each archiving pass drops what is older.
+function checkArchiveKeepsFourteenDays() {
+    var sm = new StorageManager();
+    var now = Time.now().value();
+    var day15 = noonDaysAgo(now, 15);
+    var day5 = noonDaysAgo(now, 5);
+    sm.archiveOldDoses([{:mg => 60.0, :time => day15, :name => "Ancient"}], now - 86400, now - 2 * 86400);
+    sm.archiveOldDoses([{:mg => 70.0, :time => day5, :name => "Five"}], now - 86400, now);
+    return sm.loadArchivedDosesForDay(Util.ymdFromEpoch(day15)).size() == 0
+        && sm.loadArchivedDosesForDay(Util.ymdFromEpoch(day5)).size() == 1;
+}
+
+(:test)
+function testArchiveKeepsFourteenDays(logger) {
+    return withCleanRollupStorage(new Lang.Method($, :checkArchiveKeepsFourteenDays));
+}
+
+function checkArchiveLeavesRecentDosesAlone() {
+    var sm = new StorageManager();
+    var now = Time.now().value();
+    var doses = [{:mg => 95.0, :time => now - 3600, :name => "New"}];
+    // Nothing to move: the same list comes back and the dose list is not rewritten.
+    return sm.archiveOldDoses(doses, now - 86400, now) == doses
+        && Application.Storage.getValue("doses") == null;
+}
+
+(:test)
+function testArchiveLeavesRecentDosesAlone(logger) {
+    return withCleanRollupStorage(new Lang.Method($, :checkArchiveLeavesRecentDosesAlone));
+}
+
+// If the app dies after archiving but before the dose list is shortened, the
+// next pass archives the same doses again; they must not double.
+function checkArchiveTwiceDoesNotDouble() {
+    var sm = new StorageManager();
+    var now = Time.now().value();
+    var day3 = noonDaysAgo(now, 3);
+    var doses = [
+        {:mg => 80.0, :time => day3, :name => "A"},
+        {:mg => 60.0, :time => day3 + 3600, :name => "B"}
+    ];
+    sm.archiveOldDoses(doses, now - 2 * 86400, now);
+    sm.archiveOldDoses(doses, now - 2 * 86400, now);
+    return sm.loadArchivedDosesForDay(Util.ymdFromEpoch(day3)).size() == 2;
+}
+
+(:test)
+function testArchiveTwiceDoesNotDouble(logger) {
+    return withCleanRollupStorage(new Lang.Method($, :checkArchiveTwiceDoesNotDouble));
+}
+
+// Doses of an old day stay countable: rolled up first, then archived, and the
+// day keeps its total row and its per-drink detail.
+function checkRollUpThenArchiveKeepsDay() {
+    var sm = new StorageManager();
+    var now = Time.now().value();
+    var day3 = noonDaysAgo(now, 4); // well outside the recent window, even just after midnight
+    sm.saveLastRolledYmd(Util.ymdFromEpoch(noonDaysAgo(now, 5)));
+    Application.Storage.setValue("localDayFix", true);
+    var doses = [
+        {:mg => 80.0, :time => day3, :name => "Old"},
+        {:mg => 95.0, :time => now - 60, :name => "New"}
+    ];
+    sm.rollUpYesterday(doses, now);
+    var model = new CaffeineModel();
+    var since = sm.recentWindowStart(now, model.getOldestCountedTime(now - 4 * 3600));
+    var recent = sm.archiveOldDoses(doses, since, now);
+    var ymd3 = Util.ymdFromEpoch(day3);
+    var rows = sm.loadDailyTotals();
+    var hasTotal = false;
+    for (var i = 0; i < rows.size(); i++) {
+        if (rows[i][0] == ymd3 && rows[i][1] == 80) { hasTotal = true; }
+    }
+    return hasTotal && recent.size() == 1
+        && sm.loadArchivedDosesForDay(ymd3).size() == 1;
+}
+
+(:test)
+function testRollUpThenArchiveKeepsDay(logger) {
+    return withCleanRollupStorage(new Lang.Method($, :checkRollUpThenArchiveKeepsDay));
+}
+
+// The in-memory window always holds all of yesterday (replace-day phone sync),
+// and reaches further back when the decay tail needs it.
+(:test)
+function testRecentWindowCoversYesterday(logger) {
+    var sm = new StorageManager();
+    var now = Time.now().value();
+    var yesterdayStart = Util.midnightEpochFor(noonDaysAgo(now, 1));
+    var shortHl = new CaffeineModel();
+    shortHl.setHalfLifeSeconds(3 * 3600);
+    var longHl = new CaffeineModel();
+    longHl.setHalfLifeSeconds(10 * 3600);
+    var longCutoff = longHl.getOldestCountedTime(now - 4 * 3600);
+    return sm.recentWindowStart(now, shortHl.getOldestCountedTime(now - 4 * 3600)) == yesterdayStart
+        && sm.recentWindowStart(now, longCutoff) == longCutoff;
 }

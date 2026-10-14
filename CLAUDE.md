@@ -66,12 +66,12 @@ When adding a class that must be reachable from the glance, annotate the class w
 
 Two persistent stores with different retention:
 
-- **Doses** (`doses` key, 14-day retention) — full dose records, used by the model and `DayDetailView`.
+- **Doses** — full dose records in two keys. `doses` holds the recent ones (from yesterday's local midnight or the timeline's decay tail, whichever is earlier — `StorageManager.recentWindowStart`; yesterday must stay whole because an edit across midnight syncs it to the phone as replace-day): the glance and `CaffeineModel` read only this key. Older doses live one key per local day (`"arch" + ymd`, index in `archDays`), kept 14 days and read only by `DayDetailView`. `StorageManager.archiveOldDoses` moves doses across in `initializeManagers()`, after the roll-up (which reads only `doses`); it skips rows already archived, so a crash between its two writes doubles nothing. The split keeps memory flat on small watches: 14 days of dose records would cost up to ~15 KB on fenix6.
 - **Daily totals** (`dailyTotals` key, 90-day retention) — rolled-up `[ymd, totalMg, doseCount]` rows, oldest-first. Drives the `HistoryView` bar chart and day list.
 
-`StorageManager.rollUpYesterday(doses, now)` is idempotent and runs from both `initializeManagers()` and `onStop()`. It uses `lastRolledYmd` to avoid re-rolling completed days. `DayDetailView` for today reads live doses from `CaffeineModel`; for older days it reads from `dailyTotals` (and shows "Details expired after 14 days" if the dose-level data is gone).
+`StorageManager.rollUpYesterday(doses, now)` is idempotent and runs from both `initializeManagers()` and `onStop()`. It uses `lastRolledYmd` to avoid re-rolling completed days. `DayDetailView` lists a day's doses from the archive plus the model (a day can straddle the two) and takes the total from `dailyTotals` (live for today); it shows "Details expired after 14 days" when no doses are left.
 
-**`ymd` arithmetic is NOT calendar-safe.** `computeRollup` hops from local midnight to local midnight (`Util.midnightEpochFor(dayStart + 129600)`) and derives `ymd` from each epoch — never `ymd + 1`, which breaks at month/year boundaries, and never `+ 86400`, which repeats or skips a day when the clocks change. A day that already has a row keeps it (stored doses are pruned once they decay below 1 mg, so a second roll would count fewer). `rollUpYesterday` rolls the last marked day once more (Storage flag `localDayFix`) because pre-1.4.0 builds cut days at 00:00 UTC and, west of UTC, never rolled the marked day.
+**`ymd` arithmetic is NOT calendar-safe.** `computeRollup` hops from local midnight to local midnight (`Util.midnightEpochFor(dayStart + 129600)`) and derives `ymd` from each epoch — never `ymd + 1`, which breaks at month/year boundaries, and never `+ 86400`, which repeats or skips a day when the clocks change. A day that already has a row keeps it (the roll-up reads only the recent `doses` key, so re-rolling an archived day would count fewer). `rollUpYesterday` rolls the last marked day once more (Storage flag `localDayFix`) because pre-1.4.0 builds cut days at 00:00 UTC and, west of UTC, never rolled the marked day.
 
 ### Phone companion protocol
 
@@ -94,7 +94,7 @@ Linear swipe chain of four views, plus one modal drilldown:
 ### Domain invariants
 
 - Half-life default: 20520s (5.7h), user-configurable via the `halfLifeHours` property (3–10h). `CaffeineModel` holds it in a mutable `_halfLifeSeconds`, injected via `setHalfLifeSeconds(...)` from `Util.getHalfLifeSeconds()` — the model stays free of `Application.Properties`. Sleep-safe threshold: 50mg (`AlertManager.SLEEP_SAFE_MG`, `GlanceView`, `SummaryView`).
-- `CaffeineModel.pruneExpiredDoses` removes doses once they decay below 1mg — must only be called with the real current time (never a projected future time), or non-expired doses will be dropped. Distinct from `StorageManager.pruneOldDoses`, which trims by the 14-day retention window (no decay math).
+- Decay never removes a dose. `CaffeineModel.getCurrentLevel` skips doses older than 10 half-lives (`SKIP_HALF_LIVES`, under 0.1 % left); `getOldestCountedTime` exposes that cutoff for the glance's `loadDosesSince` and the archive boundary. Before v1.4.0 a decay prune dropped doses below 1 mg, so per-drink history vanished after about two days.
 - `getMinutesToSafe` binary-searches over the next 24h in 1-minute steps; returns 0 if already below threshold.
 - Bedtime logic in `Util.getBedtimeEpoch` rolls forward a day if today's bedtime has passed.
 - **Local times are built with `Util.localTimeOnDay` / `Util.midnightEpochFor`, never by feeding `Gregorian.info` fields into `Gregorian.moment`.** `info` returns local fields, `moment` reads its fields as UTC; mixing them put "midnight" at 02:00 in UTC+2 and hid drinks logged before that from today's total and log (fixed in v1.4.0).

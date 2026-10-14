@@ -9,6 +9,8 @@ class DayDetailView extends WatchUi.View {
     private var _sNoDrinks;
     private var _sExpired;
     private var _tplDateLong;
+    // Doses of this day that were moved to the archive; read once.
+    private var _archived;
     private var _monthNames;
 
     function initialize(ymd) {
@@ -18,6 +20,9 @@ class DayDetailView extends WatchUi.View {
         _sExpired = WatchUi.loadResource(Rez.Strings.DetailsExpired);
         _tplDateLong = WatchUi.loadResource(Rez.Strings.DateLong);
         _monthNames = MonthNames.load();
+        var app = Application.getApp();
+        _archived = (app.storageManager != null)
+            ? app.storageManager.loadArchivedDosesForDay(ymd) : [];
     }
 
     function onUpdate(dc) {
@@ -35,9 +40,23 @@ class DayDetailView extends WatchUi.View {
         dc.drawText(width / 2, height * 12 / 100, Graphics.FONT_XTINY,
             headerStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        // Resolve doses for this day from the live 14-day store.
-        var allDoses = app.caffeineModel.getDoses();
-        var dayDoses = app.storageManager.getDosesForDay(allDoses, _ymd);
+        // Doses for this day: the archived ones (older), then those still in
+        // the model. A day can straddle the boundary between the two.
+        var dayDoses = [];
+        for (var i = 0; i < _archived.size(); i++) { dayDoses.add(_archived[i]); }
+        var live = app.storageManager.getDosesForDay(app.caffeineModel.getDoses(), _ymd);
+        for (var i = 0; i < live.size(); i++) { dayDoses.add(live[i]); }
+        // By time: an edited dose keeps its stored position. Insertion sort, a
+        // day has few doses.
+        for (var i = 1; i < dayDoses.size(); i++) {
+            var d = dayDoses[i];
+            var j = i - 1;
+            while (j >= 0 && dayDoses[j][:time] > d[:time]) {
+                dayDoses[j + 1] = dayDoses[j];
+                j--;
+            }
+            dayDoses[j + 1] = d;
+        }
 
         // Resolve daily total from daily-totals store (covers days older than 14 days).
         var totalMg = 0;

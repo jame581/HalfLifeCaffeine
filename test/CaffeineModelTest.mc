@@ -41,12 +41,30 @@ function testMultipleDosesStack(logger) {
 }
 
 (:test)
-function testExpiredDosesArePruned(logger) {
+function testOldDoseDecaysBelowOneMg(logger) {
     var model = new CaffeineModel();
     var now = Time.now().value();
     model.addDose(100, now - 172800, "Test");
     var level = model.getCurrentLevel(now);
     return (level < 1);
+}
+
+// Decay alone never removes a dose from the model; the level math skips it.
+(:test)
+function testDecayedDoseIsKeptButAddsNoLevel(logger) {
+    var model = new CaffeineModel();
+    var now = Time.now().value();
+    model.addDose(1000, now - 4 * 86400, "Test");
+    return model.getDoses().size() == 1 && model.getCurrentLevel(now) == 0.0;
+}
+
+(:test)
+function testDoseInsideSkipWindowStillCounts(logger) {
+    var model = new CaffeineModel();
+    var now = Time.now().value();
+    model.addDose(1000, now - 9 * 20520, "Test");
+    var level = model.getCurrentLevel(now); // 1000 / 2^9 = 1.95
+    return level > 1.9 && level < 2.0;
 }
 
 (:test)

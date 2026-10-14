@@ -28,8 +28,8 @@ class GlanceView extends WatchUi.GlanceView {
         // so instantiate model+storage locally and read doses fresh.
         var storage = new StorageManager();
         var model = new CaffeineModel();
-        model.setDoses(storage.loadDoses());
         model.setHalfLifeSeconds(Util.getHalfLifeSeconds());
+        model.setDoses(storage.loadDosesSince(model.getOldestCountedTime(now)));
 
         var level = model.getCurrentLevel(now);
         var numText = Util.formatMg(level);

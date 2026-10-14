@@ -6,8 +6,10 @@ class CaffeineModel {
     // Half-life of caffeine in seconds — default 5.7 hours (20520s).
     // Mutable so callers can inject a user-configured value via setHalfLifeSeconds.
     private var _halfLifeSeconds;
-    // Minimum mg before a dose is considered cleared
-    private const MIN_DOSE_MG = 1.0;
+    // Doses older than this many half-lives are skipped by the level math
+    // (under 0.1 % left: 1 mg of a 1000 mg dose). Decay alone never removes a
+    // dose; StorageManager.archiveOldDoses moves old ones out of the model.
+    private const SKIP_HALF_LIVES = 10;
 
     // Array of active doses: each is {:mg => Float, :time => Number, :name => String}
     private var _doses;
@@ -25,6 +27,11 @@ class CaffeineModel {
         _halfLifeSeconds = seconds;
     }
 
+    // Earliest dose time that still adds to the level at epoch.
+    function getOldestCountedTime(epoch) {
+        return epoch - SKIP_HALF_LIVES * _halfLifeSeconds;
+    }
+
     // Add a new caffeine dose
     function addDose(mg, timeEpoch, name) {
         _doses.add({:mg => mg.toFloat(), :time => timeEpoch, :name => name});
@@ -34,17 +41,13 @@ class CaffeineModel {
     // For historical queries, doses taken after the given time don't count.
     function getCurrentLevel(epoch) {
         var total = 0.0;
+        var oldest = getOldestCountedTime(epoch);
         for (var i = 0; i < _doses.size(); i++) {
             var dose = _doses[i];
-            if (dose[:time] > epoch) { continue; }
+            if (dose[:time] > epoch || dose[:time] < oldest) { continue; }
             total += decayedAmount(dose[:mg], dose[:time], epoch);
         }
         return total;
-    }
-
-    // Call periodically to clean up expired doses (only with real current time)
-    function pruneExpiredDoses(nowEpoch) {
-        pruneExpired(nowEpoch);
     }
 
     // Get total caffeine consumed today (sum of original doses, not decayed)
@@ -182,18 +185,6 @@ class CaffeineModel {
         // equivalent to: mg * 0.5^(elapsed / half_life)
         var remaining = originalMg * Math.pow(0.5, elapsedSeconds.toFloat() / _halfLifeSeconds.toFloat());
         return remaining;
-    }
-
-    // Remove doses that have decayed below MIN_DOSE_MG
-    private function pruneExpired(nowEpoch) {
-        var kept = [];
-        for (var i = 0; i < _doses.size(); i++) {
-            var dose = _doses[i];
-            if (decayedAmount(dose[:mg], dose[:time], nowEpoch) >= MIN_DOSE_MG) {
-                kept.add(dose);
-            }
-        }
-        _doses = kept;
     }
 
     // Get epoch seconds for midnight today (local time)

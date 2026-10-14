@@ -6,51 +6,144 @@ import Toybox.Time.Gregorian;
 class StorageManager {
 
     private const DOSES_KEY = "doses";
+    private const ARCHIVE_PREFIX = "arch";
+    private const ARCHIVE_DAYS_KEY = "archDays";
     private const RETENTION_SECONDS = 1209600; // 14 * 24 * 60 * 60
     private const DAILY_TOTALS_KEY = "dailyTotals";
     private const LAST_ROLLED_YMD_KEY = "lastRolledYmd";
     private const DAILY_TOTALS_RETENTION_DAYS = 90;
     private const LOCAL_DAY_FIX_KEY = "localDayFix";
 
-    // Save all active doses to storage
-    // doses: Array of {:mg => Float, :time => Number}
+    // Save the recent doses (see archiveOldDoses) to storage
+    // doses: Array of {:mg => Float, :time => Number, :name => String}
     function saveDoses(doses) {
         var storable = [];
         for (var i = 0; i < doses.size(); i++) {
-            var dose = doses[i];
-            var name = dose.hasKey(:name) ? dose[:name] : "";
-            storable.add([dose[:mg], dose[:time], name]);
+            storable.add(toStorable(doses[i]));
         }
         Application.Storage.setValue(DOSES_KEY, storable);
     }
 
-    // Load doses from storage
-    // Returns Array of {:mg => Float, :time => Number}
+    // Load the recent doses from storage
+    // Returns Array of {:mg => Float, :time => Number, :name => String}
     function loadDoses() {
-        var storable = Application.Storage.getValue(DOSES_KEY);
+        return loadDosesSince(0);
+    }
+
+    // Load only the recent doses taken at or after sinceEpoch. The glance uses
+    // it to skip building records for doses that no longer add to the level.
+    function loadDosesSince(sinceEpoch) {
+        return fromStorable(Application.Storage.getValue(DOSES_KEY), sinceEpoch);
+    }
+
+    // Start of the doses kept in memory: the earlier of yesterday's local
+    // midnight and levelCutoff (where the level math stops looking). Yesterday
+    // must stay whole: an edit across midnight sends it to the phone as a
+    // replace-day list, which would drop archived doses from the phone.
+    function recentWindowStart(nowEpoch, levelCutoff) {
+        var yesterdayStart = Util.midnightEpochFor(Util.midnightEpochFor(nowEpoch) - 43200);
+        return (levelCutoff < yesterdayStart) ? levelCutoff : yesterdayStart;
+    }
+
+    // Move doses taken before sinceEpoch from the dose list to the archive and
+    // return the rest, so the glance and the model hold only recent doses. The
+    // archive is one Storage key per local day ("arch" + ymd, listed in
+    // "archDays"), so the day detail reads a single day; days older than 14 are
+    // deleted here. Call after rollUpYesterday: the roll-up reads the dose list,
+    // not the archive.
+    function archiveOldDoses(doses, sinceEpoch, nowEpoch) {
+        var recent = [];
+        var old = [];
+        for (var i = 0; i < doses.size(); i++) {
+            if (doses[i][:time] < sinceEpoch) {
+                old.add(doses[i]);
+            } else {
+                recent.add(doses[i]);
+            }
+        }
+
+        var cutoffYmd = Util.ymdFromEpoch(nowEpoch - RETENTION_SECONDS);
+        var days = loadArchiveDays();
+        var kept = [];
+        for (var i = 0; i < days.size(); i++) {
+            if (days[i] < cutoffYmd) {
+                Application.Storage.deleteValue(ARCHIVE_PREFIX + days[i]);
+            } else {
+                kept.add(days[i]);
+            }
+        }
+        var daysChanged = kept.size() != days.size();
+        days = kept;
+
+        // Archive first, then shorten the dose list. If the app dies between
+        // the two writes the doses are archived again next time; rows that are
+        // already in their day are skipped, so nothing doubles.
+        var done = new [old.size()];
+        for (var i = 0; i < old.size(); i++) {
+            if (done[i] != null) { continue; }
+            var ymd = Util.ymdFromEpoch(old[i][:time]);
+            if (ymd < cutoffYmd) { continue; }
+            var rows = Application.Storage.getValue(ARCHIVE_PREFIX + ymd);
+            if (rows == null || !(rows instanceof Array)) { rows = []; }
+            for (var j = i; j < old.size(); j++) {
+                if (done[j] != null || Util.ymdFromEpoch(old[j][:time]) != ymd) { continue; }
+                done[j] = true;
+                if (!hasRow(rows, old[j])) { rows.add(toStorable(old[j])); }
+            }
+            Application.Storage.setValue(ARCHIVE_PREFIX + ymd, rows);
+            if (days.indexOf(ymd) < 0) {
+                days.add(ymd);
+                daysChanged = true;
+            }
+        }
+        if (daysChanged) {
+            Application.Storage.setValue(ARCHIVE_DAYS_KEY, days);
+        }
+        if (old.size() == 0) { return doses; }
+        saveDoses(recent);
+        return recent;
+    }
+
+    // Archived doses of one local day, in stored order.
+    function loadArchivedDosesForDay(ymd) {
+        return fromStorable(Application.Storage.getValue(ARCHIVE_PREFIX + ymd), 0);
+    }
+
+    private function loadArchiveDays() {
+        var days = Application.Storage.getValue(ARCHIVE_DAYS_KEY);
+        return (days != null && days instanceof Array) ? days : [];
+    }
+
+    private function hasRow(rows, dose) {
+        for (var i = 0; i < rows.size(); i++) {
+            var row = rows[i];
+            if (row instanceof Array && row.size() >= 2
+                    && row[1] == dose[:time] && row[0] == dose[:mg]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function toStorable(dose) {
+        var name = dose.hasKey(:name) ? dose[:name] : "";
+        return [dose[:mg], dose[:time], name];
+    }
+
+    // Rehydrate stored [mg, time, name] rows taken at or after fromEpoch.
+    private function fromStorable(storable, fromEpoch) {
         var doses = [];
         if (storable != null && storable instanceof Array) {
             for (var i = 0; i < storable.size(); i++) {
                 var entry = storable[i];
-                if (entry instanceof Array && entry.size() >= 2) {
-                    var name = (entry.size() >= 3) ? entry[2].toString() : "";
-                    doses.add({:mg => entry[0].toFloat(), :time => entry[1].toNumber(), :name => name});
-                }
+                if (!(entry instanceof Array) || entry.size() < 2) { continue; }
+                var time = entry[1].toNumber();
+                if (time < fromEpoch) { continue; }
+                var name = (entry.size() >= 3) ? entry[2].toString() : "";
+                doses.add({:mg => entry[0].toFloat(), :time => time, :name => name});
             }
         }
         return doses;
-    }
-
-    // Remove doses older than 14 days
-    function pruneOldDoses(doses, nowEpoch) {
-        var cutoff = nowEpoch - RETENTION_SECONDS;
-        var kept = [];
-        for (var i = 0; i < doses.size(); i++) {
-            if (doses[i][:time] >= cutoff) {
-                kept.add(doses[i]);
-            }
-        }
-        return kept;
     }
 
     // Load daily totals from storage. Returns array of [ymd, totalMg, doseCount].
@@ -173,8 +266,8 @@ class StorageManager {
                     count += 1;
                 }
             }
-            // A day that already has a row keeps it: doses are pruned once they
-            // decay below 1 mg, so rolling the day again would count fewer.
+            // A day that already has a row keeps it: the roll-up reads only the
+            // recent dose list, so rolling an archived day again would count fewer.
             var hasRow = false;
             for (var i = 0; i < result.size(); i++) {
                 if (result[i][0] == dayYmd) { hasRow = true; }

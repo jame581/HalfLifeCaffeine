@@ -90,8 +90,9 @@ class StorageManager {
         var todayYmd = Util.ymdFromEpoch(nowEpoch);
         var lastRolledYmd = getLastRolledYmd();
         // Before v1.4.0 days were cut at 00:00 UTC instead of local midnight, and
-        // west of UTC the roll-up ran a day behind its own marker. Once, roll the
-        // last marked day again so no day is skipped and its row gets local bounds.
+        // west of UTC the roll-up ran a day behind its own marker, so the marked
+        // day may have no row. Once, roll the last marked day again; a row that
+        // exists is kept.
         if (Application.Storage.getValue(LOCAL_DAY_FIX_KEY) == null) {
             if (lastRolledYmd != 0) {
                 lastRolledYmd = Util.ymdFromEpoch(epochForYmd(lastRolledYmd) - 43200);
@@ -134,7 +135,7 @@ class StorageManager {
 
     // Pure function: given doses, existing daily totals, lastRolled ymd, and today's ymd,
     // return new daily totals array with any newly-completed days appended. A day
-    // that already has a row gets that row replaced, so no ymd appears twice.
+    // that already has a row is left as it is, so no ymd appears twice.
     // Does NOT mutate inputs; does NOT touch Storage.
     function computeRollup(doses, existingTotals, lastRolledYmd, todayYmd) {
         var result = [];
@@ -172,16 +173,14 @@ class StorageManager {
                     count += 1;
                 }
             }
-            if (totalMg > 0) {
-                var at = -1;
-                for (var i = 0; i < result.size(); i++) {
-                    if (result[i][0] == dayYmd) { at = i; }
-                }
-                if (at >= 0) {
-                    result[at] = [dayYmd, totalMg, count];
-                } else {
-                    result.add([dayYmd, totalMg, count]);
-                }
+            // A day that already has a row keeps it: doses are pruned once they
+            // decay below 1 mg, so rolling the day again would count fewer.
+            var hasRow = false;
+            for (var i = 0; i < result.size(); i++) {
+                if (result[i][0] == dayYmd) { hasRow = true; }
+            }
+            if (totalMg > 0 && !hasRow) {
+                result.add([dayYmd, totalMg, count]);
             }
             dayStart = dayEnd;
         }

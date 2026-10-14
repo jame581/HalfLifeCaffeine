@@ -1,4 +1,6 @@
 import Toybox.Test;
+import Toybox.Application;
+import Toybox.Lang;
 import Toybox.Time;
 import Toybox.Time.Gregorian;
 
@@ -105,10 +107,10 @@ function testRollupCrossesMonthBoundary(logger) {
     return (row[0] == 20260531) && (row[1] == 120) && (row[2] == 1);
 }
 
-// A day that already has a row is replaced, not listed twice (the one-time
-// re-roll in v1.4.0 and a 25 h clock-change day both revisit a rolled day).
+// A day that already has a row keeps it and is not listed twice: the doses
+// behind it may have been pruned since (they go once they decay below 1 mg).
 (:test)
-function testRollupReplacesExistingRowForSameDay(logger) {
+function testRollupKeepsExistingRowForSameDay(logger) {
     var sm = new StorageManager();
     var y = Gregorian.moment({
         :year => 2026, :month => 4, :day => 23,
@@ -119,7 +121,7 @@ function testRollupReplacesExistingRowForSameDay(logger) {
     var result = sm.computeRollup(doses, existing, 20260422, 20260424);
     if (result.size() != 2) { return false; }
     return (result[0][0] == 20260422) && (result[0][1] == 200)
-        && (result[1][0] == 20260423) && (result[1][1] == 80) && (result[1][2] == 1);
+        && (result[1][0] == 20260423) && (result[1][1] == 999) && (result[1][2] == 9);
 }
 
 // Rolling several days at once gives one row per day, each with its own doses.
@@ -158,4 +160,87 @@ function testDosesForDayUsesLocalMidnight(logger) {
     ];
     var today = sm.getDosesForDay(doses, Util.ymdFromEpoch(now));
     return today.size() == 2 && today[0][:mg] == 63.0 && today[1][:mg] == 80.0;
+}
+
+// rollUpYesterday with the one-time v1.4.0 re-roll. Runs against real Storage,
+// so the keys it touches are saved first and put back afterwards.
+function withCleanRollupStorage(check) {
+    var keys = ["dailyTotals", "lastRolledYmd", "localDayFix"];
+    var saved = [];
+    for (var i = 0; i < keys.size(); i++) {
+        saved.add(Application.Storage.getValue(keys[i]));
+        Application.Storage.deleteValue(keys[i]);
+    }
+    var ok = check.invoke();
+    for (var i = 0; i < keys.size(); i++) {
+        if (saved[i] == null) {
+            Application.Storage.deleteValue(keys[i]);
+        } else {
+            Application.Storage.setValue(keys[i], saved[i]);
+        }
+    }
+    return ok;
+}
+
+// Noon of the local day "back" days before today, worked out without the
+// roll-up code.
+function noonDaysAgo(now, back) {
+    var t = Util.midnightEpochFor(now) - 43200;
+    for (var i = 1; i < back; i++) {
+        t = Util.midnightEpochFor(t) - 43200;
+    }
+    return Util.localTimeOnDay(t, 43200);
+}
+
+// West of UTC old builds marked a day as rolled without a row for it; the
+// re-roll adds it, once.
+function checkMigrationAddsMissingMarkedDay() {
+    var sm = new StorageManager();
+    var now = Time.now().value();
+    var y1 = noonDaysAgo(now, 1);
+    var y2 = noonDaysAgo(now, 2);
+    var y3 = noonDaysAgo(now, 3);
+    sm.saveDailyTotals([[Util.ymdFromEpoch(y3), 300, 3]]);
+    sm.saveLastRolledYmd(Util.ymdFromEpoch(y2));
+    var doses = [
+        {:mg => 50.0, :time => y2, :name => "Coffee"},
+        {:mg => 70.0, :time => y1, :name => "Tea"}
+    ];
+    sm.rollUpYesterday(doses, now);
+    var rows = sm.loadDailyTotals();
+    var ok = rows.size() == 3
+        && rows[1][0] == Util.ymdFromEpoch(y2) && rows[1][1] == 50
+        && rows[2][0] == Util.ymdFromEpoch(y1) && rows[2][1] == 70
+        && sm.getLastRolledYmd() == Util.ymdFromEpoch(y1)
+        && Application.Storage.getValue("localDayFix") == true;
+    // A second open changes nothing.
+    sm.saveLastRolledYmd(Util.ymdFromEpoch(y2));
+    sm.rollUpYesterday(doses, now);
+    return ok && sm.loadDailyTotals().size() == 3;
+}
+
+(:test)
+function testRollUpMigrationAddsMissingMarkedDay(logger) {
+    return withCleanRollupStorage(new Lang.Method($, :checkMigrationAddsMissingMarkedDay));
+}
+
+// East of UTC the marked day already has a row; the re-roll must not lower it
+// with doses that have been pruned since.
+function checkMigrationKeepsExistingRow() {
+    var sm = new StorageManager();
+    var now = Time.now().value();
+    var y1 = noonDaysAgo(now, 1);
+    var y2 = noonDaysAgo(now, 2);
+    sm.saveDailyTotals([[Util.ymdFromEpoch(y2), 400, 4]]);
+    sm.saveLastRolledYmd(Util.ymdFromEpoch(y2));
+    var doses = [{:mg => 50.0, :time => y2, :name => "Coffee"}];
+    sm.rollUpYesterday(doses, now);
+    var rows = sm.loadDailyTotals();
+    return rows.size() == 1 && rows[0][1] == 400 && rows[0][2] == 4
+        && sm.getLastRolledYmd() == Util.ymdFromEpoch(y1);
+}
+
+(:test)
+function testRollUpMigrationKeepsExistingRow(logger) {
+    return withCleanRollupStorage(new Lang.Method($, :checkMigrationKeepsExistingRow));
 }

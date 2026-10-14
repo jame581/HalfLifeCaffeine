@@ -71,7 +71,7 @@ Two persistent stores with different retention:
 
 `StorageManager.rollUpYesterday(doses, now)` is idempotent and runs from both `initializeManagers()` and `onStop()`. It uses `lastRolledYmd` to avoid re-rolling completed days. `DayDetailView` for today reads live doses from `CaffeineModel`; for older days it reads from `dailyTotals` (and shows "Details expired after 14 days" if the dose-level data is gone).
 
-**`ymd` arithmetic is NOT calendar-safe.** `computeRollup` hops from local midnight to local midnight (`Util.midnightEpochFor(dayStart + 129600)`) and derives `ymd` from each epoch — never `ymd + 1`, which breaks at month/year boundaries, and never `+ 86400`, which repeats or skips a day when the clocks change. A day that already has a row is replaced, not appended. `rollUpYesterday` re-rolls the last marked day once (Storage flag `localDayFix`) because pre-1.4.0 builds cut days at 00:00 UTC.
+**`ymd` arithmetic is NOT calendar-safe.** `computeRollup` hops from local midnight to local midnight (`Util.midnightEpochFor(dayStart + 129600)`) and derives `ymd` from each epoch — never `ymd + 1`, which breaks at month/year boundaries, and never `+ 86400`, which repeats or skips a day when the clocks change. A day that already has a row keeps it (stored doses are pruned once they decay below 1 mg, so a second roll would count fewer). `rollUpYesterday` rolls the last marked day once more (Storage flag `localDayFix`) because pre-1.4.0 builds cut days at 00:00 UTC and, west of UTC, never rolled the marked day.
 
 ### Phone companion protocol
 

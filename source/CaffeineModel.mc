@@ -28,8 +28,9 @@ class CaffeineModel {
     }
 
     // Doses older than this many half-lives at epoch may leave memory for the
-    // archive: under 1 mg is left of a 128 mg dose, the tolerance the decay
-    // prune had before v1.4.0. Memory is tight on small watches (fenix 6).
+    // archive: under 1 % of each dose is left (under 1 mg up to 128 mg, the
+    // tolerance the decay prune had before v1.4.0). Memory is tight on small
+    // watches (fenix 6).
     private const ARCHIVE_HALF_LIVES = 7;
 
     // Earliest dose time that still adds to the level at epoch.

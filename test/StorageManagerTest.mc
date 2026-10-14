@@ -357,25 +357,25 @@ function checkRollUpThenArchiveKeepsDay() {
     var sm = new StorageManager();
     var now = Time.now().value();
     // Outside the recent window (up to 104 h at the 10 h maximum), even just after midnight.
-    var day3 = noonDaysAgo(now, 6);
+    var oldDay = noonDaysAgo(now, 6);
     sm.saveLastRolledYmd(Util.ymdFromEpoch(noonDaysAgo(now, 7)));
     Application.Storage.setValue("localDayFix", true);
     var doses = [
-        {:mg => 80.0, :time => day3, :name => "Old"},
+        {:mg => 80.0, :time => oldDay, :name => "Old"},
         {:mg => 95.0, :time => now - 60, :name => "New"}
     ];
     sm.rollUpYesterday(doses, now);
     var model = new CaffeineModel();
     var since = sm.recentWindowStart(now, model.getArchiveCutoff(now - 4 * 3600));
     var recent = sm.archiveOldDoses(doses, since, now);
-    var ymd3 = Util.ymdFromEpoch(day3);
+    var oldYmd = Util.ymdFromEpoch(oldDay);
     var rows = sm.loadDailyTotals();
     var hasTotal = false;
     for (var i = 0; i < rows.size(); i++) {
-        if (rows[i][0] == ymd3 && rows[i][1] == 80) { hasTotal = true; }
+        if (rows[i][0] == oldYmd && rows[i][1] == 80) { hasTotal = true; }
     }
     return hasTotal && recent.size() == 1
-        && sm.loadArchivedDosesForDay(ymd3).size() == 1;
+        && sm.loadArchivedDosesForDay(oldYmd).size() == 1;
 }
 
 (:test)

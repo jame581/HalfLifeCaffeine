@@ -58,7 +58,7 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         // in memory; older doses move to the archive. Each dose in memory costs
         // ~160 B and fenix 6 has little to spare, so the tail is cut at 7
         // half-lives of the current setting; raising the half-life later
-        // ignores the archived tails (under 1 mg per dose).
+        // ignores the archived tails (under 1 % of each dose).
         var since = storageManager.recentWindowStart(now,
             caffeineModel.getArchiveCutoff(now - 4 * 3600));
         savedDoses = storageManager.archiveOldDoses(savedDoses, since, now);

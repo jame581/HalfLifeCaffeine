@@ -5,12 +5,8 @@ import Toybox.Time.Gregorian;
 
 (:test)
 function testYmdFromEpochConvertsCorrectly(logger) {
-    // 2026-04-24 12:00:00 UTC — but ymd uses local time, so compute from Gregorian
-    var moment = Gregorian.moment({
-        :year => 2026, :month => 4, :day => 24,
-        :hour => 12, :minute => 0, :second => 0
-    });
-    var ymd = Util.ymdFromEpoch(moment.value());
+    // Local noon on 2026-04-24, whatever the time zone.
+    var ymd = Util.ymdFromEpoch(Util.localTimeOnDay(new StorageManager().epochForYmdPublic(20260424), 12 * 3600));
     return (ymd == 20260424);
 }
 
@@ -25,16 +21,11 @@ function testYmdFromEpochIsDateOnly(logger) {
 
 (:test)
 function testYmdFromEpochHandlesMonthBoundary(logger) {
-    var endOfJan = Gregorian.moment({
-        :year => 2026, :month => 1, :day => 31,
-        :hour => 20, :minute => 0, :second => 0
-    });
-    var startOfFeb = Gregorian.moment({
-        :year => 2026, :month => 2, :day => 1,
-        :hour => 2, :minute => 0, :second => 0
-    });
-    return (Util.ymdFromEpoch(endOfJan.value()) == 20260131)
-        && (Util.ymdFromEpoch(startOfFeb.value()) == 20260201);
+    // Local 23:59 on Jan 31 and local 00:01 on Feb 1.
+    var endOfJan = Util.localTimeOnDay(new StorageManager().epochForYmdPublic(20260131), 23 * 3600 + 59 * 60);
+    var startOfFeb = Util.localTimeOnDay(new StorageManager().epochForYmdPublic(20260201), 60);
+    return (Util.ymdFromEpoch(endOfJan) == 20260131)
+        && (Util.ymdFromEpoch(startOfFeb) == 20260201);
 }
 
 (:test)

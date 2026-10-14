@@ -57,10 +57,10 @@ When adding a class that must be reachable from the glance, annotate the class w
 
 ### Persistence: two stores, two conventions
 
-- **`Application.Properties`** — typed user settings defined in `resources/properties.xml` + `resources/settings.xml` (daily limit, bedtime, alert toggles, `halfLifeHours` float default 5.7 clamped to [3, 10]h, `theme` number 0 = Navy default / 1 = Black). Mirrored from the phone companion.
-- **`Application.Storage`** — app state (doses, presets, daily totals). Keys are private constants on each manager.
+- **`Application.Properties`** — typed user settings defined in `resources/properties.xml` + `resources/settings.xml` (daily limit, bedtime, alert toggles, `halfLifeHours` float default 5.7 clamped to [3, 10]h, `theme` number 0 = Navy default / 1 = Black) and the drink presets (`presets` array, read by `DrinkPresets.loadFromProperties`, reloaded in `onSettingsChanged`). Mirrored from the phone companion.
+- **`Application.Storage`** — app state (doses, daily totals). Keys are private constants on each manager.
 
-**Dictionaries do not round-trip reliably through Storage.** Both `StorageManager.saveDoses` and `DrinkPresets.saveToStorage` serialize dicts to arrays of primitives (`[mg, time, name]` and `[name, mg]`) and rehydrate on load. Keep this convention when adding persisted state.
+**Dictionaries do not round-trip reliably through Storage.** `StorageManager.saveDoses` serializes dose dicts to arrays of primitives (`[mg, time, name]`) and rehydrates on load. Keep this convention when adding persisted state.
 
 ### Daily-totals roll-up
 
@@ -78,7 +78,7 @@ Two persistent stores with different retention:
 The companion app lives in `companion/settings/` (a single-page web app served by the Connect IQ mobile app). Messages are JSON objects with a `"type"` discriminator:
 
 - **Watch → phone** (`SyncManager.syncDayToPhone(doses, ymd)`): `{type: "drinks", mode: "replace-day", ymd: 20260518, data: [{mg, time, name}, ...]}`. The full dose list for `ymd` is sent (not an incremental delta). Companion is expected to drop existing `drinkHistory` entries matching `ymd` and append the new list. Triggered on `logDrink`, `removeDose`, and `adjustDoseTime` (the last fires twice on cross-midnight edits — once per affected day). The pre-v1.2.0 incremental `syncToPhone`/`lastSyncTime` flow is gone; companion preserves a legacy append branch for old watch firmware (no `mode` field).
-- **Phone → watch** (`SyncManager.handlePhoneMessage`): `{type: "settings", dailyLimit?, bedtimeHour?, bedtimeMinute?, alertLimitWarning?, alertLimitReached?, alertSafeToSleep?, halfLifeHours?, presets?}`. Each field writes its own Property; `presets` replaces the full preset list via `DrinkPresets.setPresets`.
+- **Phone → watch** (`SyncManager.handlePhoneMessage`): `{type: "settings", dailyLimit?, bedtimeHour?, bedtimeMinute?, alertLimitWarning?, alertLimitReached?, alertSafeToSleep?, halfLifeHours?}`. Each field writes its own Property. Presets reach the watch through the `presets` setting, not this message.
 
 ### View navigation
 

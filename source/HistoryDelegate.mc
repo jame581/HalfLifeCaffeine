@@ -9,26 +9,27 @@ class HistoryDelegate extends WatchUi.BehaviorDelegate {
         _view = view;
     }
 
-    // Swipe up → back to LogView
-    function onPreviousPage() {
-        var view = new LogView();
-        WatchUi.switchToView(view, new LogDelegate(view), WatchUi.SLIDE_DOWN);
-        return true;
+    // Watches whose UP/DOWN buttons carry the previousPage/nextPage behaviors
+    // (fr255s, fenix 7, ...) call these first and pass the key on to onKey only
+    // when they return false. Here the buttons move the cursor, so both decline
+    // and swipes change page in onSwipe instead.
+    function onPreviousPage() { return false; }
+    function onNextPage() { return false; }
+
+    // Finger down → back to LogView. History is the last page, so a swipe up
+    // is swallowed rather than falling off the end of the chain.
+    function onSwipe(swipeEvent) {
+        var dir = swipeEvent.getDirection();
+        if (dir == WatchUi.SWIPE_DOWN) { showLog(); return true; }
+        return dir == WatchUi.SWIPE_UP;
     }
 
-    // D-pad / touch-up arrow → move selection up in day list
-    function onNextPage() {
-        // NOTE: The existing chain maps swipe DOWN to onNextPage (see SummaryDelegate).
-        // History is the terminal step; onNextPage is a no-op so the user doesn't
-        // fall off the end of the chain.
-        return true;
-    }
-
-    // UP button → scroll to newer day (smaller index)
+    // UP button → newer day (smaller index); on the newest day, back to LogView
+    // so watches without touch can page back.
     function onKey(keyEvent) {
         var key = keyEvent.getKey();
         if (key == WatchUi.KEY_UP) {
-            _view.moveSelection(-1);
+            if (isAtTop()) { showLog(); } else { _view.moveSelection(-1); }
             return true;
         }
         if (key == WatchUi.KEY_DOWN) {
@@ -36,6 +37,15 @@ class HistoryDelegate extends WatchUi.BehaviorDelegate {
             return true;
         }
         return false;
+    }
+
+    function isAtTop() {
+        return _view.selectedIndex <= 0;
+    }
+
+    private function showLog() {
+        var view = new LogView();
+        WatchUi.switchToView(view, new LogDelegate(view), WatchUi.SLIDE_DOWN);
     }
 
     // SELECT → drill into selected day

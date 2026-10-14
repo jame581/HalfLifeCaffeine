@@ -1,5 +1,6 @@
 import Toybox.Test;
 import Toybox.Time;
+import Toybox.Time.Gregorian;
 import Toybox.Math;
 
 (:test)
@@ -220,4 +221,22 @@ function testSetHalfLifeSecondsIgnoresInvalid(logger) {
     model.addDose(100, now - 20520, "Test"); // default still in effect
     var level = model.getCurrentLevel(now);
     return (level >= 48 && level <= 52);
+}
+
+// Regression: "today" must start at local midnight, not at 00:00 UTC of the
+// local date. Checked on both sides of the boundary.
+(:test)
+function testDailyIntakeStartsAtLocalMidnight(logger) {
+    var model = new CaffeineModel();
+    // Midnight worked out here, not by the code under test (an hour off on a
+    // clock-change day, which the margins below absorb).
+    var t = Time.now().value();
+    var info = Gregorian.info(new Time.Moment(t), Time.FORMAT_SHORT);
+    var midnight = t - (info.hour * 3600 + info.min * 60 + info.sec);
+    model.addDose(100, midnight - 7200, "LateYesterday");
+    model.addDose(63, midnight + 5400, "EarlyToday");
+    var now = midnight + 5460;
+    var indices = model.getTodayLogIndices(now);
+    return model.getDailyIntake(now) == 63
+        && indices.size() == 1 && indices[0] == 1;
 }

@@ -10,6 +10,7 @@ class StorageManager {
     private const DAILY_TOTALS_KEY = "dailyTotals";
     private const LAST_ROLLED_YMD_KEY = "lastRolledYmd";
     private const DAILY_TOTALS_RETENTION_DAYS = 90;
+    private const LOCAL_DAY_FIX_KEY = "localDayFix";
 
     // Save all active doses to storage
     // doses: Array of {:mg => Float, :time => Number}
@@ -88,7 +89,17 @@ class StorageManager {
     function rollUpYesterday(doses, nowEpoch) {
         var todayYmd = Util.ymdFromEpoch(nowEpoch);
         var lastRolledYmd = getLastRolledYmd();
-        var yesterdayYmd = Util.ymdFromEpoch(nowEpoch - 86400);
+        // Before v1.4.0 days were cut at 00:00 UTC instead of local midnight, and
+        // west of UTC the roll-up ran a day behind its own marker. Once, roll the
+        // last marked day again so no day is skipped and its row gets local bounds.
+        if (Application.Storage.getValue(LOCAL_DAY_FIX_KEY) == null) {
+            if (lastRolledYmd != 0) {
+                lastRolledYmd = Util.ymdFromEpoch(epochForYmd(lastRolledYmd) - 43200);
+            }
+            Application.Storage.setValue(LOCAL_DAY_FIX_KEY, true);
+        }
+        // Noon of the previous local day; "now - 24 h" is still today late on a 25 h day.
+        var yesterdayYmd = Util.ymdFromEpoch(Util.midnightEpochFor(nowEpoch) - 43200);
         if (lastRolledYmd >= yesterdayYmd) {
             return; // Nothing to do
         }
@@ -103,7 +114,7 @@ class StorageManager {
     // Returns array of dose dicts (unmodified, so :mg/:time/:name are preserved).
     function getDosesForDay(doses, ymd) {
         var startEpoch = epochForYmdPublic(ymd);
-        var endEpoch = startEpoch + 86400;
+        var endEpoch = Util.midnightEpochFor(startEpoch + 129600); // next local midnight
         var result = [];
         for (var i = 0; i < doses.size(); i++) {
             var dose = doses[i];
@@ -122,7 +133,8 @@ class StorageManager {
     }
 
     // Pure function: given doses, existing daily totals, lastRolled ymd, and today's ymd,
-    // return new daily totals array with any newly-completed days appended.
+    // return new daily totals array with any newly-completed days appended. A day
+    // that already has a row gets that row replaced, so no ymd appears twice.
     // Does NOT mutate inputs; does NOT touch Storage.
     function computeRollup(doses, existingTotals, lastRolledYmd, todayYmd) {
         var result = [];
@@ -136,18 +148,21 @@ class StorageManager {
             if (lastRolledYmd == todayYmd - 1) { return result; }
         }
         // Roll every completed day from the day after lastRolledYmd up to (not including) today.
-        // We iterate by epoch-day below; ymd arithmetic (+/- 1) is NOT calendar-safe.
+        // We hop from local midnight to local midnight; ymd arithmetic (+/- 1) is NOT
+        // calendar-safe, and adding 86400 is not either: a day is 23 or 25 h long when
+        // the clocks change. Midnight + 36 h is always inside the next day.
         var endEpoch = epochForYmd(todayYmd); // today's local midnight
-        // Fresh install (lastRolledYmd == 0): start from yesterday's midnight, derived by
-        // epoch subtraction so it is calendar-safe. Do NOT use epochForYmd(todayYmd - 1):
-        // on the 1st of a month todayYmd - 1 ends in 00 (day 0) and Gregorian.moment throws
-        // "Invalid Value", which crashed fresh installs opened on the 1st of any month.
-        var startEpoch = (lastRolledYmd == 0) ? (endEpoch - 86400) : epochForYmd(lastRolledYmd);
-        var dayEpoch = startEpoch + 86400; // day AFTER lastRolledYmd (or today if lastRolled==0)
-        while (dayEpoch < endEpoch) {
-            var dayYmd = Util.ymdFromEpoch(dayEpoch);
-            var dayStart = Util.midnightEpochFor(dayEpoch);
-            var dayEnd = dayStart + 86400;
+        // Fresh install (lastRolledYmd == 0): no completed day to roll. Do NOT use
+        // epochForYmd(todayYmd - 1): on the 1st of a month todayYmd - 1 ends in 00 (day 0)
+        // and Gregorian.moment throws "Invalid Value", which crashed fresh installs
+        // opened on the 1st of any month.
+        var dayStart = endEpoch;
+        if (lastRolledYmd != 0) {
+            dayStart = Util.midnightEpochFor(epochForYmd(lastRolledYmd) + 129600);
+        }
+        while (dayStart < endEpoch) {
+            var dayYmd = Util.ymdFromEpoch(dayStart);
+            var dayEnd = Util.midnightEpochFor(dayStart + 129600);
             var totalMg = 0;
             var count = 0;
             for (var i = 0; i < doses.size(); i++) {
@@ -158,9 +173,17 @@ class StorageManager {
                 }
             }
             if (totalMg > 0) {
-                result.add([dayYmd, totalMg, count]);
+                var at = -1;
+                for (var i = 0; i < result.size(); i++) {
+                    if (result[i][0] == dayYmd) { at = i; }
+                }
+                if (at >= 0) {
+                    result[at] = [dayYmd, totalMg, count];
+                } else {
+                    result.add([dayYmd, totalMg, count]);
+                }
             }
-            dayEpoch += 86400;
+            dayStart = dayEnd;
         }
         return result;
     }
@@ -181,14 +204,17 @@ class StorageManager {
         var year = (ymd / 10000).toNumber();
         var month = ((ymd / 100) % 100).toNumber();
         var day = (ymd % 100).toNumber();
-        var moment = Gregorian.moment({
+        // Gregorian.moment reads its fields as UTC. Noon UTC falls on the same
+        // local date everywhere except UTC+12 and beyond, where it is already tomorrow.
+        var noon = Gregorian.moment({
             :year => year,
             :month => month,
             :day => day,
-            :hour => 0,
+            :hour => 12,
             :minute => 0,
             :second => 0
-        });
-        return moment.value();
+        }).value();
+        if (Util.ymdFromEpoch(noon) != ymd) { noon -= 43200; }
+        return Util.midnightEpochFor(noon);
     }
 }

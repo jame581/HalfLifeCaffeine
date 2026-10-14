@@ -69,7 +69,7 @@ Two persistent stores with different retention:
 
 `StorageManager.rollUpYesterday(doses, now)` is idempotent and runs from both `initializeManagers()` and `onStop()`. It uses `lastRolledYmd` to avoid re-rolling completed days. `DayDetailView` for today reads live doses from `CaffeineModel`; for older days it reads from `dailyTotals` (and shows "Details expired after 14 days" if the dose-level data is gone).
 
-**`ymd` arithmetic is NOT calendar-safe.** `computeRollup` iterates by epoch-day (`dayEpoch += 86400`) and derives `ymd` from each epoch — never `ymd + 1`, which breaks at month/year boundaries.
+**`ymd` arithmetic is NOT calendar-safe.** `computeRollup` hops from local midnight to local midnight (`Util.midnightEpochFor(dayStart + 129600)`) and derives `ymd` from each epoch — never `ymd + 1`, which breaks at month/year boundaries, and never `+ 86400`, which repeats or skips a day when the clocks change. A day that already has a row is replaced, not appended. `rollUpYesterday` re-rolls the last marked day once (Storage flag `localDayFix`) because pre-1.4.0 builds cut days at 00:00 UTC.
 
 ### Phone companion protocol
 
@@ -95,6 +95,7 @@ Linear swipe chain of four views, plus one modal drilldown:
 - `CaffeineModel.pruneExpiredDoses` removes doses once they decay below 1mg — must only be called with the real current time (never a projected future time), or non-expired doses will be dropped. Distinct from `StorageManager.pruneOldDoses`, which trims by the 14-day retention window (no decay math).
 - `getMinutesToSafe` binary-searches over the next 24h in 1-minute steps; returns 0 if already below threshold.
 - Bedtime logic in `Util.getBedtimeEpoch` rolls forward a day if today's bedtime has passed.
+- **Local times are built with `Util.localTimeOnDay` / `Util.midnightEpochFor`, never by feeding `Gregorian.info` fields into `Gregorian.moment`.** `info` returns local fields, `moment` reads its fields as UTC; mixing them put "midnight" at 02:00 in UTC+2 and hid drinks logged before that from today's total and log (fixed in v1.4.0).
 
 ## Conventions
 

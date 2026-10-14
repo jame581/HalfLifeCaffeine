@@ -104,3 +104,58 @@ function testRollupCrossesMonthBoundary(logger) {
     var row = result[0];
     return (row[0] == 20260531) && (row[1] == 120) && (row[2] == 1);
 }
+
+// A day that already has a row is replaced, not listed twice (the one-time
+// re-roll in v1.4.0 and a 25 h clock-change day both revisit a rolled day).
+(:test)
+function testRollupReplacesExistingRowForSameDay(logger) {
+    var sm = new StorageManager();
+    var y = Gregorian.moment({
+        :year => 2026, :month => 4, :day => 23,
+        :hour => 10, :minute => 0, :second => 0
+    }).value();
+    var doses = [{:mg => 80.0, :time => y, :name => "RedBull"}];
+    var existing = [[20260422, 200, 3], [20260423, 999, 9]];
+    var result = sm.computeRollup(doses, existing, 20260422, 20260424);
+    if (result.size() != 2) { return false; }
+    return (result[0][0] == 20260422) && (result[0][1] == 200)
+        && (result[1][0] == 20260423) && (result[1][1] == 80) && (result[1][2] == 1);
+}
+
+// Rolling several days at once gives one row per day, each with its own doses.
+(:test)
+function testRollupSeveralDaysGivesOneRowPerDay(logger) {
+    var sm = new StorageManager();
+    var doses = [];
+    for (var d = 20; d <= 23; d++) {
+        var t = Gregorian.moment({
+            :year => 2026, :month => 4, :day => d,
+            :hour => 10, :minute => 0, :second => 0
+        }).value();
+        doses.add({:mg => d.toFloat(), :time => t, :name => "Coffee"});
+    }
+    var result = sm.computeRollup(doses, [], 20260419, 20260424);
+    if (result.size() != 4) { return false; }
+    for (var i = 0; i < 4; i++) {
+        if (result[i][0] != 20260420 + i || result[i][1] != 20 + i || result[i][2] != 1) { return false; }
+    }
+    return true;
+}
+
+// Regression: a day runs from local midnight to local midnight.
+(:test)
+function testDosesForDayUsesLocalMidnight(logger) {
+    var sm = new StorageManager();
+    // Midnight worked out here, not by the code under test (an hour off on a
+    // clock-change day, which the margins below absorb).
+    var now = Time.now().value();
+    var info = Gregorian.info(new Time.Moment(now), Time.FORMAT_SHORT);
+    var midnight = now - (info.hour * 3600 + info.min * 60 + info.sec);
+    var doses = [
+        {:mg => 100.0, :time => midnight - 7200, :name => "LateYesterday"},
+        {:mg => 63.0, :time => midnight + 5400, :name => "EarlyToday"},
+        {:mg => 80.0, :time => midnight + 79200, :name => "LateToday"}
+    ];
+    var today = sm.getDosesForDay(doses, Util.ymdFromEpoch(now));
+    return today.size() == 2 && today[0][:mg] == 63.0 && today[1][:mg] == 80.0;
+}

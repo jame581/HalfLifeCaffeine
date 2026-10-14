@@ -74,20 +74,15 @@ module Util {
         var hour = Application.Properties.getValue("bedtimeHour");
         var minute = Application.Properties.getValue("bedtimeMinute");
 
-        var moment = new Time.Moment(nowEpoch);
-        var info = Gregorian.info(moment, Time.FORMAT_SHORT);
-        var bedtime = Gregorian.moment({
-            :year => info.year,
-            :month => info.month,
-            :day => info.day,
-            :hour => hour,
-            :minute => minute,
-            :second => 0
-        });
-        var bedtimeEpoch = bedtime.value();
+        // A value synced from the phone can be missing or a Float.
+        if (hour == null) { hour = 22; }
+        if (minute == null) { minute = 30; }
+        var secondsOfDay = hour.toNumber() * 3600 + minute.toNumber() * 60;
+        var bedtimeEpoch = localTimeOnDay(nowEpoch, secondsOfDay);
         // If bedtime is already past (e.g. after-midnight bedtime called in evening), roll to next day
         if (bedtimeEpoch <= nowEpoch) {
-            bedtimeEpoch += 86400; // Add 24 hours
+            // Midnight + 36 h is around noon tomorrow, whatever the clock change.
+            bedtimeEpoch = localTimeOnDay(midnightEpochFor(nowEpoch) + 129600, secondsOfDay);
         }
         return bedtimeEpoch;
     }
@@ -103,16 +98,25 @@ module Util {
 
     // Midnight epoch for the local day containing the given epoch
     function midnightEpochFor(epochSeconds) {
-        var moment = new Time.Moment(epochSeconds);
-        var info = Gregorian.info(moment, Time.FORMAT_SHORT);
-        var midnight = Gregorian.moment({
-            :year => info.year,
-            :month => info.month,
-            :day => info.day,
-            :hour => 0,
-            :minute => 0,
-            :second => 0
-        });
-        return midnight.value();
+        return localTimeOnDay(epochSeconds, 0);
+    }
+
+    // Seconds since local midnight on the local clock at the given epoch
+    function secondsIntoLocalDay(epochSeconds) {
+        var info = Gregorian.info(new Time.Moment(epochSeconds), Time.FORMAT_SHORT);
+        return info.hour * 3600 + info.min * 60 + info.sec;
+    }
+
+    // Epoch at which the local clock reads secondsOfDay on the local day
+    // containing the given epoch. Gregorian.info returns local fields but
+    // Gregorian.moment reads its fields as UTC, so building a local time out of
+    // the two lands off by the UTC offset. Shift by the local time of day
+    // instead; the correction absorbs a daylight-saving change within the day.
+    function localTimeOnDay(epochSeconds, secondsOfDay) {
+        var t = epochSeconds - secondsIntoLocalDay(epochSeconds) + secondsOfDay;
+        var off = secondsIntoLocalDay(t) - secondsOfDay;
+        if (off > 43200) { off -= 86400; }
+        if (off < -43200) { off += 86400; }
+        return t - off;
     }
 }

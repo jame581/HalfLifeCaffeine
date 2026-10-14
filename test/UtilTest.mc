@@ -1,4 +1,5 @@
 import Toybox.Test;
+import Toybox.Application;
 import Toybox.Time;
 import Toybox.Time.Gregorian;
 
@@ -15,18 +16,11 @@ function testYmdFromEpochConvertsCorrectly(logger) {
 
 (:test)
 function testYmdFromEpochIsDateOnly(logger) {
-    // Two different times on the same day should give the same ymd
-    var morning = Gregorian.moment({
-        :year => 2026, :month => 1, :day => 15,
-        :hour => 3, :minute => 0, :second => 0
-    });
-    var evening = Gregorian.moment({
-        :year => 2026, :month => 1, :day => 15,
-        :hour => 23, :minute => 59, :second => 0
-    });
-    var ymd1 = Util.ymdFromEpoch(morning.value());
-    var ymd2 = Util.ymdFromEpoch(evening.value());
-    return (ymd1 == ymd2) && (ymd1 == 20260115);
+    // Two different local times on the same day should give the same ymd
+    var now = Time.now().value();
+    var ymd1 = Util.ymdFromEpoch(Util.localTimeOnDay(now, 3 * 3600));
+    var ymd2 = Util.ymdFromEpoch(Util.localTimeOnDay(now, 23 * 3600 + 59 * 60));
+    return (ymd1 == ymd2) && (ymd1 == Util.ymdFromEpoch(now));
 }
 
 (:test)
@@ -93,4 +87,36 @@ function testFormatYmdSurvivesOutOfRangeYearAndDay(logger) {
     return Util.formatYmd(101, "$2$|$3$").equals("1|0")
         && Util.formatYmd(20260231, "$2$|$3$").equals("31|2026")
         && !Util.formatYmd(20260231, "$1$").equals("?");
+}
+
+// Regression: Gregorian.moment reads its fields as UTC while Gregorian.info
+// returns local ones, so "local midnight" used to land off by the UTC offset
+// (02:00 in UTC+2) and drinks logged before that were missing from today.
+(:test)
+function testMidnightEpochForIsLocalMidnight(logger) {
+    var now = Time.now().value();
+    var midnight = Util.midnightEpochFor(now);
+    var info = Gregorian.info(new Time.Moment(midnight), Time.FORMAT_SHORT);
+    return info.hour == 0 && info.min == 0 && info.sec == 0
+        && midnight <= now && now - midnight < 90000
+        && Util.ymdFromEpoch(midnight) == Util.ymdFromEpoch(now);
+}
+
+(:test)
+function testLocalTimeOnDayReadsRequestedClockTime(logger) {
+    var now = Time.now().value();
+    var t = Util.localTimeOnDay(now, 13 * 3600 + 45 * 60);
+    var info = Gregorian.info(new Time.Moment(t), Time.FORMAT_SHORT);
+    return info.hour == 13 && info.min == 45
+        && Util.ymdFromEpoch(t) == Util.ymdFromEpoch(now);
+}
+
+(:test)
+function testBedtimeEpochIsNextLocalBedtime(logger) {
+    var now = Time.now().value();
+    var bedtime = Util.getBedtimeEpoch(now);
+    var info = Gregorian.info(new Time.Moment(bedtime), Time.FORMAT_SHORT);
+    return info.hour == Application.Properties.getValue("bedtimeHour")
+        && info.min == Application.Properties.getValue("bedtimeMinute")
+        && bedtime > now && bedtime - now <= 90000;
 }

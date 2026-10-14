@@ -1,6 +1,4 @@
 import Toybox.Math;
-import Toybox.Time;
-import Toybox.Time.Gregorian;
 
 (:glance)
 class CaffeineModel {
@@ -200,16 +198,6 @@ class CaffeineModel {
 
     // Get epoch seconds for midnight today (local time)
     private function getMidnightEpoch(nowEpoch) {
-        var moment = new Time.Moment(nowEpoch);
-        var info = Gregorian.info(moment, Time.FORMAT_SHORT);
-        var midnight = Gregorian.moment({
-            :year => info.year,
-            :month => info.month,
-            :day => info.day,
-            :hour => 0,
-            :minute => 0,
-            :second => 0
-        });
-        return midnight.value();
+        return Util.midnightEpochFor(nowEpoch);
     }
 }

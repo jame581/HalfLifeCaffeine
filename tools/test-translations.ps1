@@ -144,6 +144,11 @@ $r = New-Fixture $good
 $b = Invoke-Build $r
 Check 'English text is measured filled in too' ($b.Code -eq 1 -and $b.Out -match 'en: SafeIn: 25 chars when filled in \("Safe and sound in 23h 59m"\), max 15')
 
+$r = New-Fixture ($good + "`nMonth1,watch,month,5,Jan,,tammik,`nDate,watch,date,8,`$1`$ `$2`$,,`$2`$. `$1`$,")
+(Get-Content "$r/translations/en.csv" -Raw) + "`nMonth1,watch,month,6,,Jan`nDate,watch,date,8,{month}|30,`$1`$ `$2`$" | Set-Content "$r/translations/en.csv" -Encoding utf8BOM
+$b = Invoke-Build $r
+Check '{month} uses the language''s longest month' ($b.Code -eq 1 -and $b.Out -match 'fi: Date: 10 chars when filled in \("30\. tammik"\), max 8')
+
 # 15. Samples in en.csv
 $r = New-Fixture $good
 (Get-Content "$r/translations/en.csv" -Raw) -replace '\{duration\}', '' | Set-Content "$r/translations/en.csv" -Encoding utf8BOM

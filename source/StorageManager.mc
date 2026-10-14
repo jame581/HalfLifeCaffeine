@@ -117,8 +117,9 @@ class StorageManager {
     private function hasRow(rows, dose) {
         for (var i = 0; i < rows.size(); i++) {
             var row = rows[i];
-            if (row instanceof Array && row.size() >= 2
-                    && row[1] == dose[:time] && row[0] == dose[:mg]) {
+            if (row instanceof Array && row.size() >= 3
+                    && row[1] == dose[:time] && row[0] == dose[:mg]
+                    && row[2].equals(toStorable(dose)[2])) {
                 return true;
             }
         }

@@ -55,9 +55,10 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         storageManager.rollUpYesterday(savedDoses, now);
         // Keep yesterday and today (phone sync of an edit across midnight) and
         // the decay tail of the timeline's 4 past hours (TimelineView.PAST_HOURS)
-        // in memory; older doses move to the archive.
+        // in memory; older doses move to the archive. The tail is taken at the
+        // longest half-life so raising the setting later finds every dose.
         var since = storageManager.recentWindowStart(now,
-            caffeineModel.getOldestCountedTime(now - 4 * 3600));
+            caffeineModel.getOldestCountedTimeAnyHalfLife(now - 4 * 3600));
         savedDoses = storageManager.archiveOldDoses(savedDoses, since, now);
         caffeineModel.setDoses(savedDoses);
     }

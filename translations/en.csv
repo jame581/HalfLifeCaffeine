@@ -15,9 +15,9 @@ NoDrinksToday,watch,Shown when nothing was logged today.,22,,No drinks today
 TitleHistory,watch,Title of the history screen.,20,,History
 NoHistoryYet,watch,Shown when there is no history.,22,,No history yet
 DetailsExpired,watch,"Day detail, when the per-drink data is older than 14 days.",30,,Details expired after 14 days
-DateShort,watch,"Date in the history list. $1$ = month abbreviation, $2$ = day. Reorder as your language needs.",10,Sep|30,$1$ $2$
-DateLong,watch,"Date heading of one day. $1$ = month abbreviation, $2$ = day, $3$ = year.",14,Sep|30|2026,"$1$ $2$, $3$"
-Month1,watch,"January, short form, as $1$ in DateShort and DateLong. A number such as 1. is fine if dates in your language are numeric.",5,,Jan
+DateShort,watch,"Date in the history list. $1$ = month (the Month rows), $2$ = day. Reorder as your language needs; the separators here must suit your Month rows.",10,{month}|30,$1$ $2$
+DateLong,watch,"Date heading of one day. $1$ = month (the Month rows), $2$ = day, $3$ = year. The separators here must suit your Month rows.",14,{month}|30|2026,"$1$ $2$, $3$"
+Month1,watch,"January, short form, as $1$ in DateShort and DateLong. A number such as 1. is fine if dates in your language are numeric; then DateShort and DateLong supply no separator after the month (Finnish: $2$.$1$$3$ gives 14.10.2026).",5,,Jan
 Month2,watch,"February, short form.",5,,Feb
 Month3,watch,"March, short form.",5,,Mar
 Month4,watch,"April, short form.",5,,Apr

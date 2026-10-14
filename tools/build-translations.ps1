@@ -45,11 +45,14 @@ function Get-PlaceholderNumbers([string]$s) {
     @([regex]::Matches($s, '\$(\d)\$') | ForEach-Object { [int]$_.Groups[1].Value } | Sort-Object -Unique)
 }
 # The text as it appears on screen: placeholders replaced by the worst-case sample
-# parts. {duration} becomes 23 + hour unit + space + 59 + minute unit. Assumes the
-# sample was validated (one part per distinct placeholder, numbered from 1).
-function Get-Filled([string]$text, [string]$sample, [string]$unitHour, [string]$unitMinute) {
+# parts. {duration} becomes 23 + hour unit + space + 59 + minute unit; {month} the
+# language's longest month name. Assumes the sample was validated (one part per
+# distinct placeholder, numbered from 1).
+function Get-Filled([string]$text, [string]$sample, [string]$unitHour, [string]$unitMinute, [string]$month) {
     if (-not $sample) { return $text }
-    $parts = @($sample -split '\|' | ForEach-Object { $_.Replace('{duration}', "23$unitHour 59$unitMinute") })
+    $parts = @($sample -split '\|' | ForEach-Object {
+        $_.Replace('{duration}', "23$unitHour 59$unitMinute").Replace('{month}', $month)
+    })
     [regex]::Replace($text, '\$(\d)\$', [System.Text.RegularExpressions.MatchEvaluator] {
         param($m) $parts[[int]$m.Groups[1].Value - 1]
     })
@@ -66,10 +69,15 @@ function Write-Text([string]$path, [string]$text) {
 $en = Read-Sheet (Join-Path $tDir 'en.csv')
 $known = @{}
 $hasSample = @{}
-$enUnitHour = 'h'; $enUnitMinute = 'm'
+$enUnitHour = 'h'; $enUnitMinute = 'm'; $enMonth = 'Sep'
+$enMonths = @{}
 foreach ($r in $en) {
     if ($r.key -eq 'UnitHour' -and $r.text) { $enUnitHour = $r.text }
     if ($r.key -eq 'UnitMinute' -and $r.text) { $enUnitMinute = $r.text }
+    if ($r.key -match '^Month\d+$' -and $r.text) { $enMonths[$r.key] = $r.text }
+}
+if ($enMonths.Count -gt 0) {
+    $enMonth = $enMonths.Values | Sort-Object Length -Descending | Select-Object -First 1
 }
 foreach ($lang in $Require) {
     if ($lang -notin $LangMap.Keys) {
@@ -101,7 +109,7 @@ foreach ($r in $en) {
     }
     $hasSample[$r.key] = $sampleOk -and [bool]$sample
     if ($sampleOk -and $r.max) {
-        $filled = Get-Filled $r.text $sample $enUnitHour $enUnitMinute
+        $filled = Get-Filled $r.text $sample $enUnitHour $enUnitMinute $enMonth
         if ($filled.Length -gt [int]$r.max) {
             if ($sample) { $errors.Add("en: $($r.key): $($filled.Length) chars when filled in (`"$filled`"), max $($r.max)") }
             else { $errors.Add("en: $($r.key): $($filled.Length) chars, max $($r.max)") }
@@ -137,7 +145,7 @@ if ($Sync) {
             $status = if ($o) { "$($o.status)" } else { '' }
             if ($o -and $translation -and "$($o.english)" -ne $r.text) { $status = 'changed' }
             # Informational only (never read back): the English text as it appears on screen.
-            $example = if ($hasSample[$r.key]) { Get-Filled $r.text "$($r.sample)" $enUnitHour $enUnitMinute } else { '' }
+            $example = if ($hasSample[$r.key]) { Get-Filled $r.text "$($r.sample)" $enUnitHour $enUnitMinute $enMonth } else { '' }
             [pscustomobject][ordered]@{
                 key = $r.key; where = $r.where; context = $r.context; max = $r.max
                 english = $r.text; example = $example; translation = $translation; status = $status
@@ -166,6 +174,13 @@ foreach ($lang in $LangMap.Keys) {
     # {duration} in a sample uses this language's own units, English where untranslated.
     $uh = "$($map['UnitHour'].translation)".Trim(); if (-not $uh) { $uh = $enUnitHour }
     $um = "$($map['UnitMinute'].translation)".Trim(); if (-not $um) { $um = $enUnitMinute }
+    # {month} is this language's longest month name, English where untranslated.
+    $mo = $enMonth
+    if ($enMonths.Count -gt 0) {
+        $mo = $enMonths.Keys | ForEach-Object {
+            $t = "$($map[$_].translation)".Trim(); if ($t) { $t } else { $enMonths[$_] }
+        } | Sort-Object Length -Descending | Select-Object -First 1
+    }
     foreach ($r in $en) {
         $row = $map[$r.key]
         if (-not $row) { $errors.Add("${lang}: missing key $($r.key)"); continue }
@@ -183,7 +198,7 @@ foreach ($lang in $LangMap.Keys) {
         # Skipped when English has no usable sample (already an error) or placeholders differ.
         if ($r.max -and $samePlaceholders -and ($hasSample[$r.key] -or -not (Get-PlaceholderNumbers $r.text))) {
             $sample = "$($r.sample)"
-            $filled = Get-Filled $tr $sample $uh $um
+            $filled = Get-Filled $tr $sample $uh $um $mo
             if ($filled.Length -gt [int]$r.max) {
                 if ($sample) { $errors.Add("${lang}: $($r.key): $($filled.Length) chars when filled in (`"$filled`"), max $($r.max)") }
                 else { $errors.Add("${lang}: $($r.key): $($filled.Length) chars, max $($r.max)") }

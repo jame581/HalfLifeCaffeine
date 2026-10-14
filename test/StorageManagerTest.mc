@@ -356,8 +356,9 @@ function testArchiveTwiceDoesNotDouble(logger) {
 function checkRollUpThenArchiveKeepsDay() {
     var sm = new StorageManager();
     var now = Time.now().value();
-    var day3 = noonDaysAgo(now, 4); // well outside the recent window, even just after midnight
-    sm.saveLastRolledYmd(Util.ymdFromEpoch(noonDaysAgo(now, 5)));
+    // Outside the recent window (up to 104 h at the 10 h maximum), even just after midnight.
+    var day3 = noonDaysAgo(now, 6);
+    sm.saveLastRolledYmd(Util.ymdFromEpoch(noonDaysAgo(now, 7)));
     Application.Storage.setValue("localDayFix", true);
     var doses = [
         {:mg => 80.0, :time => day3, :name => "Old"},
@@ -365,7 +366,7 @@ function checkRollUpThenArchiveKeepsDay() {
     ];
     sm.rollUpYesterday(doses, now);
     var model = new CaffeineModel();
-    var since = sm.recentWindowStart(now, model.getOldestCountedTime(now - 4 * 3600));
+    var since = sm.recentWindowStart(now, model.getOldestCountedTimeAnyHalfLife(now - 4 * 3600));
     var recent = sm.archiveOldDoses(doses, since, now);
     var ymd3 = Util.ymdFromEpoch(day3);
     var rows = sm.loadDailyTotals();
@@ -396,4 +397,34 @@ function testRecentWindowCoversYesterday(logger) {
     var longCutoff = longHl.getOldestCountedTime(now - 4 * 3600);
     return sm.recentWindowStart(now, shortHl.getOldestCountedTime(now - 4 * 3600)) == yesterdayStart
         && sm.recentWindowStart(now, longCutoff) == longCutoff;
+}
+
+// Archiving at a 3 h half-life must keep what a later 10 h setting counts.
+(:test)
+function testRecentWindowCoversLongestHalfLife(logger) {
+    var sm = new StorageManager();
+    var now = Time.now().value();
+    var shortHl = new CaffeineModel();
+    shortHl.setHalfLifeSeconds(3 * 3600);
+    var longHl = new CaffeineModel();
+    longHl.setHalfLifeSeconds(10 * 3600);
+    var since = sm.recentWindowStart(now, shortHl.getOldestCountedTimeAnyHalfLife(now - 4 * 3600));
+    return since <= longHl.getOldestCountedTime(now - 4 * 3600);
+}
+
+// Two drinks with the same mg and second but different names are both kept.
+function checkArchiveKeepsSameTimeDifferentDrinks() {
+    var sm = new StorageManager();
+    var now = Time.now().value();
+    var day3 = noonDaysAgo(now, 3);
+    sm.archiveOldDoses([
+        {:mg => 80.0, :time => day3, :name => "Coffee"},
+        {:mg => 80.0, :time => day3, :name => "Tea"}
+    ], now - 2 * 86400, now);
+    return sm.loadArchivedDosesForDay(Util.ymdFromEpoch(day3)).size() == 2;
+}
+
+(:test)
+function testArchiveKeepsSameTimeDifferentDrinks(logger) {
+    return withCleanRollupStorage(new Lang.Method($, :checkArchiveKeepsSameTimeDifferentDrinks));
 }

@@ -27,9 +27,18 @@ class CaffeineModel {
         _halfLifeSeconds = seconds;
     }
 
+    // Longest half-life the setting allows (Util.getHalfLifeSeconds clamps to 10 h).
+    private const MAX_HALF_LIFE_SECONDS = 36000;
+
     // Earliest dose time that still adds to the level at epoch.
     function getOldestCountedTime(epoch) {
         return epoch - SKIP_HALF_LIVES * _halfLifeSeconds;
+    }
+
+    // The same at the longest allowed half-life: what the level math may need
+    // after the user raises the half-life, whatever it is now.
+    function getOldestCountedTimeAnyHalfLife(epoch) {
+        return epoch - SKIP_HALF_LIVES * MAX_HALF_LIFE_SECONDS;
     }
 
     // Add a new caffeine dose

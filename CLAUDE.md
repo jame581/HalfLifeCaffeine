@@ -113,7 +113,7 @@ Linear swipe chain of four views, plus one modal drilldown:
 - `max` in the sheets is measured on the filled-in text: rows with `$1$` placeholders carry a `sample` in `en.csv` (`{duration}` expands to a worst-case duration in that language's units).
 - **Anything the glance draws needs `glance` in its `where` column** (emits `scope="glance"`). Unscoped strings do not exist in the glance process.
 - Sentences with values use `Lang.format` templates (`$1$`), never string concatenation; word order differs per language.
-- Sheet codes `fi`/`cs`/`de`/`fr` map to resource qualifiers `fin`/`ces`/`deu`/`fre`. A language goes into `manifest.xml` only when its sheet is complete. Currently `manifest.xml` declares `fin` (native-speaker translation), `deu` and `fre` (unreviewed drafts); the `cs` sheet exists but is empty and is skipped by the generator.
+- Sheet codes `fi`/`cs`/`de`/`fr` map to resource qualifiers `fin`/`ces`/`deu`/`fre`. A language goes into `manifest.xml` only when its sheet is complete. Currently `manifest.xml` declares `fin` (native-speaker translation), `ces`, `deu` and `fre` (unreviewed drafts).
 - Default drink names are read from resources **only when seeding an empty preset list**; stored names are plain text and are never re-translated.
 - The build warning `String resource '…' specifies the 'glance' resource scope, but app type 'widget' does not support glances` on `vivoactive4`/`vivoactive4s` is expected and accepted: those watches have no glance, the scope is ignored there, and the strings stay available to the full view.
 

@@ -70,7 +70,7 @@ Requires Connect IQ API 3.2+ (for glance views). See `manifest.xml` for the auth
 
 ## Languages
 
-English, Finnish, German and French. Finnish was translated by a native speaker. German and French are drafts that no native speaker has reviewed yet; corrections are welcome. Czech is in progress and not yet included.
+English, Czech, Finnish, German and French. Finnish was translated by a native speaker. Czech, German and French are drafts that no native speaker has reviewed yet; corrections are welcome.
 
 To add or fix a translation, see [`translations/README.md`](translations/README.md).
 

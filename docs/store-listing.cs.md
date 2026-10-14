@@ -1,43 +1,46 @@
 > Store listing for Czech. Translate the text under each heading; keep headings, emoji and **bold** markers. Tagline limit: 50 characters.
 
+## App Name
+HalfLife Caffeine – Sledování kofeinu
+
 ## Tagline (50 chars max)
-Track caffeine and see when you're safe to sleep.
+Sleduj kofein a zjisti, kdy můžeš jít spát.
 
 ## Short Description (~250 chars)
-Free caffeine tracker with pharmacokinetic decay modeling. Log drinks from a menu, see your current caffeine level at a glance, edit or delete mistakes, and know exactly when you'll be safe to sleep. Coffee, tea, energy drinks, and more.
+Bezplatný tracker kofeinu s farmakokinetickým modelem odbourávání. Přidávej nápoje z nabídky, sleduj aktuální hladinu kofeinu na první pohled, oprav nebo smaž chybné záznamy a zjisti přesně, kdy můžeš jít spát. Káva, čaj, energetické nápoje a další.
 
 ## Full Description
 
-**Know your caffeine. Sleep better.**
+**Znej svůj kofein. Spi lépe.**
 
-HalfLife Caffeine is a free, science-based caffeine tracker for your Garmin watch. It models how caffeine decays in your bloodstream using a pharmacokinetic half-life — 5.7 hours by default, and adjustable to your own metabolism — so you always know how much is still active, and when you'll be safe to sleep.
+HalfLife Caffeine je bezplatný tracker kofeinu pro tvé hodinky Garmin, postavený na vědeckých základech. Pomocí farmakokinetického poločasu modeluje, jak se kofein odbourává v krvi – výchozí hodnota je 5,7 hodiny a můžeš ji přizpůsobit svému metabolismu. Vždy tak víš, kolik kofeinu ještě působí a kdy můžeš jít spát.
 
-**Features**
+**Funkce**
 
-☕ **At-a-glance tracking** — See current caffeine level and time to sleep-safe right in the widget loop.
+☕ **Přehled na první pohled** — Aktuální hladinu kofeinu a čas do bezpečného spánku vidíš přímo ve smyčce widgetů.
 
-📊 **Full-screen detail views**
-- Summary: current level, daily intake vs. limit, time to sleep-safe
-- Timeline: 12-hour graph showing the last 4 hours of history and the next 8 hours of projected decay, with dose markers
-- Today's drinks: interactive log with edit-time and delete on each entry — fix a mis-tap or a forgot-to-log-promptly in seconds
-- History: 14-day bar chart with day-list drill-down (per-drink detail for recent days, daily totals going back 90 days)
+📊 **Podrobné obrazovky**
+- Souhrn: aktuální hladina, dnešní příjem vůči limitu, čas do bezpečného spánku
+- Průběh kofeinu: 12hodinový graf s posledními 4 hodinami a předpokládaným odbouráváním na dalších 8 hodin, se značkami jednotlivých dávek
+- Dnešní nápoje: interaktivní seznam, u každého záznamu lze upravit čas nebo ho smazat – překlep nebo pozdě zapsaný nápoj opravíš během pár sekund
+- Historie: sloupcový graf za 14 dní se seznamem dnů a detailem (jednotlivé nápoje za poslední dny, denní součty až 90 dní zpět)
 
-⚗️ **Personalize the model** — Set your own caffeine half-life (3–10 hours). Smoking, genetics, pregnancy, and some medications all change how fast you clear caffeine — tune the decay to match you.
+⚗️ **Přizpůsob si model** — Nastav si vlastní poločas kofeinu (3–10 hodin). Kouření, genetika, těhotenství a některé léky mění, jak rychle se kofein odbourává – nastav odbourávání podle sebe.
 
-🎨 **Choose your look** — Navy or Black background theme. Black is sharper on non-AMOLED (MIP) watches and easier on the battery on AMOLED displays.
+🎨 **Vyber si vzhled** — Tmavě modré nebo černé pozadí. Černé je ostřejší na hodinkách bez AMOLED displeje (MIP) a na AMOLED displejích šetří baterii.
 
-🥤 **12 drink presets included** — Espresso, Americano, Drip Coffee (S/L), Latte, Green Tea, Black Tea, Red Bull, Monster, Cola, Dark Chocolate, Pre-Workout. Add, rename, and remove from the phone companion.
+🥤 **12 předvoleb nápojů** — Espresso, Americano, překapávaná káva (M/V), Latte, zelený čaj, černý čaj, Red Bull, Monster, Cola, hořká čokoláda, Pre-Workout. Přidávej, přejmenovávej a odebírej je v aplikaci v telefonu.
 
-🔔 **Smart alerts**
-- Warning at 80% of your daily limit
-- Alert when you hit your limit
-- Notification when caffeine drops low enough for sleep (within 2 hours of bedtime)
+🔔 **Chytrá upozornění**
+- Varování při 80 % denního limitu
+- Upozornění při dosažení limitu
+- Oznámení, když kofein klesne natolik, že můžeš jít spát (do 2 hodin před časem spánku)
 
-📱 **Phone companion** — Manage drink presets, adjust limits, view history, see weekly trends, and track your peak caffeine hours — all inside the Garmin Connect app. Watch-side edits and deletes sync automatically.
+📱 **Aplikace v telefonu** — Spravuj předvolby nápojů, upravuj limity, prohlížej historii, týdenní trendy a hodiny s nejvyšším příjmem kofeinu – vše v aplikaci Garmin Connect. Úpravy a mazání na hodinkách se synchronizují automaticky.
 
-💾 **Your data stays with you** — Everything is stored on your watch and phone. No accounts, no cloud, no tracking.
+💾 **Tvoje data zůstávají u tebe** — Vše se ukládá v hodinkách a telefonu. Žádné účty, žádný cloud, žádné sledování.
 
-**100% free. No ads. No in-app purchases.**
+**100 % zdarma. Bez reklam. Bez nákupů v aplikaci.**
 
 ## Keywords (for search)
-caffeine, coffee, tea, sleep, tracker, health, drink, energy, half-life
+kofein, káva, čaj, spánek, tracker, zdraví, nápoj, energie, poločas

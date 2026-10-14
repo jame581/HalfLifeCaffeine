@@ -198,7 +198,6 @@ class HistoryView extends WatchUi.View {
         }
     }
 
-    // Called by HistoryDelegate on UP/DOWN input.
     // Row index (into dayRows) under a tap at x, y on a width x height screen,
     // from a list row or a chart bar; -1 when the tap hits neither.
     function indexAt(x, y, width, height) {
@@ -236,6 +235,7 @@ class HistoryView extends WatchUi.View {
         return (selectedIndex >= visibleCount) ? selectedIndex - visibleCount + 1 : 0;
     }
 
+    // Called by HistoryDelegate on UP/DOWN input.
     function moveSelection(delta) {
         var newIndex = selectedIndex + delta;
         if (newIndex < 0) { newIndex = 0; }

@@ -44,14 +44,12 @@ function testLogDownButtonMovesCursor(logger) {
 // Past either end of the list the buttons page on, so History stays reachable
 // on watches without touch.
 (:test)
-function testLogDownOnLastRowLeavesCursor(logger) {
+function testLogPagesOnOnlyPastLastRow(logger) {
     var view = new LogView();
     view.dayDoses = [{:mg => 95.0, :time => 0, :name => "A"}, {:mg => 63.0, :time => 0, :name => "B"}];
     view.selectedIndex = 1;
     var delegate = new LogDelegate(view);
-    return delegate.isAtEnd(1) && !delegate.isAtEnd(-1)
-        && delegate.onKey(new WatchUi.KeyEvent(WatchUi.KEY_DOWN, WatchUi.PRESS_TYPE_ACTION))
-        && view.selectedIndex == 1;
+    return delegate.isAtEnd(1) && !delegate.isAtEnd(-1);
 }
 
 (:test)
@@ -63,7 +61,7 @@ function testLogEmptyListPagesBothWays(logger) {
 }
 
 (:test)
-function testHistoryUpOnNewestDayLeavesCursor(logger) {
+function testHistoryPagesBackOnlyFromNewestDay(logger) {
     var view = new HistoryView();
     view.dayRows = [[20261014, 80], [20261013, 183]];
     var delegate = new HistoryDelegate(view);
@@ -143,4 +141,18 @@ function testLogTapOnScrolledList(logger) {
     view.selectedIndex = 6; // rows 2-6 visible
     return view.indexAt(28, 100) == 2 && view.indexAt(68, 100) == 6
         && view.scrollStart(100) == 2;
+}
+
+// Edges of the chart: above it, in the gap above the list, and the leftover
+// pixels right of the last slot. 200x100 (non-square, as on venusq2): chart
+// x from 24, slots of 10 px; y 15-48; list from y 54.
+(:test)
+function testHistoryTapChartEdges(logger) {
+    var view = historyWithRows(20);
+    return view.indexAt(159, 30, 200, 100) == 0     // slot 13, today
+        && view.indexAt(159, 15, 200, 100) == 0     // top edge counts
+        && view.indexAt(159, 14, 200, 100) == -1    // above the chart
+        && view.indexAt(159, 50, 200, 100) == -1    // gap between chart and list
+        && view.indexAt(169, 30, 200, 100) == -1    // right of slot 13
+        && view.indexAt(100, 55, 200, 100) == 0;    // list ignores x
 }

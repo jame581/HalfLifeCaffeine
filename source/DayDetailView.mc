@@ -9,6 +9,7 @@ class DayDetailView extends WatchUi.View {
     private var _sNoDrinks;
     private var _sExpired;
     private var _tplDateLong;
+    private var _monthNames;
 
     function initialize(ymd) {
         View.initialize();
@@ -16,6 +17,7 @@ class DayDetailView extends WatchUi.View {
         _sNoDrinks = WatchUi.loadResource(Rez.Strings.NoDrinksToday);
         _sExpired = WatchUi.loadResource(Rez.Strings.DetailsExpired);
         _tplDateLong = WatchUi.loadResource(Rez.Strings.DateLong);
+        _monthNames = MonthNames.load();
     }
 
     function onUpdate(dc) {
@@ -28,7 +30,7 @@ class DayDetailView extends WatchUi.View {
 
         if (app.caffeineModel == null || app.storageManager == null) { return; }
 
-        var headerStr = Util.formatYmd(_ymd, _tplDateLong);
+        var headerStr = Util.formatYmd(_ymd, _tplDateLong, _monthNames);
         dc.setColor(Colors.TEXT_SECONDARY, Graphics.COLOR_TRANSPARENT);
         dc.drawText(width / 2, height * 12 / 100, Graphics.FONT_XTINY,
             headerStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);

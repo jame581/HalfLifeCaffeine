@@ -15,6 +15,7 @@ class HistoryView extends WatchUi.View {
     private var _sTitle;
     private var _sEmpty;
     private var _tplDateShort;
+    private var _monthNames;
 
     function initialize() {
         View.initialize();
@@ -23,6 +24,7 @@ class HistoryView extends WatchUi.View {
         _sTitle = WatchUi.loadResource(Rez.Strings.TitleHistory);
         _sEmpty = WatchUi.loadResource(Rez.Strings.NoHistoryYet);
         _tplDateShort = WatchUi.loadResource(Rez.Strings.DateShort);
+        _monthNames = MonthNames.load();
     }
 
     function onUpdate(dc) {
@@ -174,7 +176,7 @@ class HistoryView extends WatchUi.View {
                 dc.fillRectangle(listLeftInset, rowY, listWidth, rowHeight - 2);
             }
 
-            var dateStr = Util.formatYmd(row[0], _tplDateShort);
+            var dateStr = Util.formatYmd(row[0], _tplDateShort, _monthNames);
             var mgStr = Util.formatMg(row[1]) + " mg";
 
             // Color the mg text by proportion of daily limit.

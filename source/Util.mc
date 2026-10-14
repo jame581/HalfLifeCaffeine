@@ -23,23 +23,19 @@ module Util {
         }
     }
 
-    // Format a ymd int (20260424) with a template: $1$ = month abbreviation in
-    // the watch language, $2$ = day, $3$ = year. Only the month name comes from
-    // the system, so the lookup uses a fixed, always-valid date (the 15th of
-    // that month in 2024, UTC on both sides) and the caller's year and day never
-    // reach Gregorian.moment, which throws on anything that is not a real date.
+    // Format a ymd int (20260424) with a template: $1$ = month name, $2$ = day,
+    // $3$ = year. monthNames holds the 12 names from the translation sheets
+    // (MonthNames.load()); the system's month names are not used because some
+    // languages come back mis-decoded (Czech "Říjen" as "Å˜Ã­jen"). Nothing here
+    // goes through Gregorian.moment, so invalid dates format without throwing.
     // A month outside 1-12 yields "?".
-    function formatYmd(ymd, template) {
+    function formatYmd(ymd, template, monthNames) {
         var year = (ymd / 10000).toNumber();
         var month = ((ymd / 100) % 100).toNumber();
         var day = (ymd % 100).toNumber();
         var monthStr = "?";
         if (month >= 1 && month <= 12) {
-            var moment = Gregorian.moment({
-                :year => 2024, :month => month, :day => 15,
-                :hour => 12, :minute => 0, :second => 0
-            });
-            monthStr = Gregorian.utcInfo(moment, Time.FORMAT_MEDIUM).month;
+            monthStr = monthNames[month - 1];
         }
         return Lang.format(template, [monthStr, day.toString(), year.toString()]);
     }

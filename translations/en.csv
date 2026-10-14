@@ -17,6 +17,18 @@ NoHistoryYet,watch,Shown when there is no history.,22,,No history yet
 DetailsExpired,watch,"Day detail, when the per-drink data is older than 14 days.",30,,Details expired after 14 days
 DateShort,watch,"Date in the history list. $1$ = month abbreviation, $2$ = day. Reorder as your language needs.",10,Sep|30,$1$ $2$
 DateLong,watch,"Date heading of one day. $1$ = month abbreviation, $2$ = day, $3$ = year.",14,Sep|30|2026,"$1$ $2$, $3$"
+Month1,watch,"January, short form, as $1$ in DateShort and DateLong. A number such as 1. is fine if dates in your language are numeric.",5,,Jan
+Month2,watch,"February, short form.",5,,Feb
+Month3,watch,"March, short form.",5,,Mar
+Month4,watch,"April, short form.",5,,Apr
+Month5,watch,"May, short form.",5,,May
+Month6,watch,"June, short form.",5,,Jun
+Month7,watch,"July, short form.",5,,Jul
+Month8,watch,"August, short form.",5,,Aug
+Month9,watch,"September, short form.",5,,Sep
+Month10,watch,"October, short form.",5,,Oct
+Month11,watch,"November, short form.",5,,Nov
+Month12,watch,"December, short form.",5,,Dec
 MenuAddDrink,watch,Menu title.,20,,Add Drink
 MenuEditDrink,watch,Menu title.,20,,Edit Drink
 MenuEditTime,watch,Menu title.,20,,Edit Time

@@ -63,30 +63,35 @@ function testFormatDurationUsesGivenUnits(logger) {
     return Util.formatDuration(200, "t", "min").equals("3t 20min");
 }
 
+const TEST_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
 (:test)
 function testFormatYmdPutsDayAndYearWhereTemplateSays(logger) {
-    return Util.formatYmd(20260424, "$2$|$3$").equals("24|2026");
+    return Util.formatYmd(20260424, "$2$|$3$", TEST_MONTHS).equals("24|2026");
 }
 
 (:test)
-function testFormatYmdMonthIsNotEmpty(logger) {
-    var month = Util.formatYmd(20260424, "$1$");
-    return month.length() > 0 && !month.equals("?");
+function testFormatYmdTakesMonthFromGivenNames(logger) {
+    return Util.formatYmd(20260101, "$1$", TEST_MONTHS).equals("Jan")
+        && Util.formatYmd(20261014, "$2$. $1$ $3$", ["1.", "2.", "3.", "4.", "5.", "6.",
+            "7.", "8.", "9.", "10.", "11.", "12."]).equals("14. 10. 2026")
+        && Util.formatYmd(20261231, "$1$", TEST_MONTHS).equals("Dec");
 }
 
 (:test)
 function testFormatYmdSurvivesInvalidDate(logger) {
-    // Day 00 makes Gregorian.moment throw "Invalid Value"; the formatter must not.
-    return Util.formatYmd(0, "$1$ $2$").equals("? 0")
-        && Util.formatYmd(20260600, "$2$|$3$").equals("0|2026");
+    // Day 00 and month 00 are not real dates; the formatter must not throw.
+    return Util.formatYmd(0, "$1$ $2$", TEST_MONTHS).equals("? 0")
+        && Util.formatYmd(20260600, "$2$|$3$", TEST_MONTHS).equals("0|2026")
+        && Util.formatYmd(20261300, "$1$", TEST_MONTHS).equals("?");
 }
 
 (:test)
 function testFormatYmdSurvivesOutOfRangeYearAndDay(logger) {
     // Year 0 and Feb 31 are not valid dates either; only the month is looked up.
-    return Util.formatYmd(101, "$2$|$3$").equals("1|0")
-        && Util.formatYmd(20260231, "$2$|$3$").equals("31|2026")
-        && !Util.formatYmd(20260231, "$1$").equals("?");
+    return Util.formatYmd(101, "$2$|$3$", TEST_MONTHS).equals("1|0")
+        && Util.formatYmd(20260231, "$2$|$1$", TEST_MONTHS).equals("31|Feb");
 }
 
 // Regression: Gregorian.moment reads its fields as UTC while Gregorian.info

@@ -99,6 +99,17 @@ class LogView extends WatchUi.View {
             dc.drawText(width / 2, y, Graphics.FONT_XTINY,
                 line, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }
+
+        // There is no room above the first row, so while the list is scrolled
+        // the scroll-up arrow takes the title's place.
+        if (first > 0) {
+            dc.setColor(Colors.BG, Colors.BG);
+            dc.fillRectangle(0, 0, width, listTop - lineHeight / 2);
+            ListArrows.draw(dc, width / 2, height * 18 / 100, height, true);
+        }
+        if (first + maxVisible < dayDoses.size()) {
+            ListArrows.draw(dc, width / 2, listTop + maxVisible * lineHeight, height, false);
+        }
     }
 
     // Row index (into dayDoses) under a tap at y on a screen height pixels
@@ -110,6 +121,34 @@ class LogView extends WatchUi.View {
         var slot = (y - top) / lineHeight;
         var idx = scrollStart(height) + slot;
         return (slot < visibleRows(height) && idx < dayDoses.size()) ? idx : -1;
+    }
+
+    // -1 / 1 when a tap at y hits the scroll-up arrow (above the rows, in the
+    // title's place) or the scroll-down arrow (below the rows), each only while
+    // rows are hidden that way; 0 otherwise.
+    function arrowAt(y, height) {
+        var lineHeight = height * ROW_HEIGHT_PCT / 100;
+        var top = height * LIST_TOP_PCT / 100 - lineHeight / 2;
+        var visible = visibleRows(height);
+        var first = scrollStart(height);
+        if (y < top) { return (first > 0) ? -1 : 0; }
+        if (y >= top + visible * lineHeight) { return (first + visible < dayDoses.size()) ? 1 : 0; }
+        return 0;
+    }
+
+    // Scroll a page (direction -1 up, 1 down) and leave the cursor on the
+    // last row shown, so the list window follows it.
+    function scrollPage(direction, height) {
+        var visible = visibleRows(height);
+        var count = dayDoses.size();
+        var start = scrollStart(height) + direction * visible;
+        if (start > count - visible) { start = count - visible; }
+        if (start < 0) { start = 0; }
+        var sel = start + visible - 1;
+        if (sel > count - 1) { sel = count - 1; }
+        if (sel < 0) { sel = 0; }
+        selectedIndex = sel;
+        WatchUi.requestUpdate();
     }
 
     // First row shown, so that selectedIndex is visible.

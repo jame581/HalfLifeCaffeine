@@ -44,10 +44,15 @@ class HistoryDelegate extends WatchUi.BehaviorDelegate {
         return false;
     }
 
-    // Tap a list row or a chart bar → open that day.
+    // Tap a list row or a chart bar → open that day; tap an arrow → scroll.
     function onTap(clickEvent) {
         var xy = clickEvent.getCoordinates();
         var settings = System.getDeviceSettings();
+        var dir = _view.arrowAt(xy[0], xy[1], settings.screenWidth, settings.screenHeight);
+        if (dir != 0) {
+            _view.scrollPage(dir, settings.screenHeight);
+            return true;
+        }
         var idx = _view.indexAt(xy[0], xy[1], settings.screenWidth, settings.screenHeight);
         if (idx >= 0) {
             _view.selectedIndex = idx;

@@ -18,7 +18,7 @@ class HistoryView extends WatchUi.View {
     private const CHART_INSET_PCT = 12;
     private const MAX_BARS = 14;
     private const LIST_TOP_PCT = 54;
-    private const LIST_BOTTOM_PCT = 94;
+    private const LIST_BOTTOM_PCT = 84; // three rows, then the scroll-down arrow
     private const ROW_HEIGHT_PCT = 10;
 
     private var _sTitle;
@@ -196,6 +196,13 @@ class HistoryView extends WatchUi.View {
                 Graphics.FONT_XTINY, mgStr,
                 Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
         }
+
+        if (scrollStart > 0) {
+            ListArrows.draw(dc, width / 2, (height * CHART_BOTTOM_PCT / 100 + listTop) / 2, height, true);
+        }
+        if (scrollStart + visibleCount < rows.size()) {
+            ListArrows.draw(dc, width / 2, listTop + visibleCount * rowHeight + rowHeight * 4 / 10, height, false);
+        }
     }
 
     // Row index (into dayRows) under a tap at x, y on a width x height screen,
@@ -222,6 +229,37 @@ class HistoryView extends WatchUi.View {
         var barSlot = (x - chartLeft) / slotWidth;
         var dayIdx = MAX_BARS - 1 - barSlot; // newest on the right
         return (barSlot < MAX_BARS && dayIdx < count) ? dayIdx : -1;
+    }
+
+    // -1 / 1 when a tap at x, y hits the scroll-up arrow (between the chart and
+    // the list) or the scroll-down arrow (below the list), each only while rows
+    // are hidden that way; 0 otherwise.
+    function arrowAt(x, y, width, height) {
+        var listTop = height * LIST_TOP_PCT / 100;
+        var visible = visibleRows(height);
+        var first = scrollStartFor(visible);
+        if (y > height * CHART_BOTTOM_PCT / 100 && y < listTop) {
+            return (first > 0) ? -1 : 0;
+        }
+        if (y >= listTop + visible * (height * ROW_HEIGHT_PCT / 100)) {
+            return (first + visible < dayRows.size()) ? 1 : 0;
+        }
+        return 0;
+    }
+
+    // Scroll a page (direction -1 up, 1 down) and leave the cursor on the
+    // last row shown, so the list window follows it.
+    function scrollPage(direction, height) {
+        var visible = visibleRows(height);
+        var count = dayRows.size();
+        var start = scrollStartFor(visible) + direction * visible;
+        if (start > count - visible) { start = count - visible; }
+        if (start < 0) { start = 0; }
+        var sel = start + visible - 1;
+        if (sel > count - 1) { sel = count - 1; }
+        if (sel < 0) { sel = 0; }
+        selectedIndex = sel;
+        WatchUi.requestUpdate();
     }
 
     private function visibleRows(height) {

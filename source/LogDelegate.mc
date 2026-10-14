@@ -44,9 +44,16 @@ class LogDelegate extends WatchUi.BehaviorDelegate {
         return false;
     }
 
-    // Tap a drink → its action menu.
+    // Tap a drink → its action menu; tap an arrow → scroll.
     function onTap(clickEvent) {
-        var idx = _view.indexAt(clickEvent.getCoordinates()[1], System.getDeviceSettings().screenHeight);
+        var y = clickEvent.getCoordinates()[1];
+        var height = System.getDeviceSettings().screenHeight;
+        var dir = _view.arrowAt(y, height);
+        if (dir != 0) {
+            _view.scrollPage(dir, height);
+            return true;
+        }
+        var idx = _view.indexAt(y, height);
         if (idx >= 0) {
             _view.selectedIndex = idx;
             openSelected();

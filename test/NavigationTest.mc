@@ -87,22 +87,22 @@ function historyWithRows(count) {
     return view;
 }
 
-// 100x100 screen: list rows of 10 px from y 54 (4 visible), chart y 15-48,
+// 100x100 screen: list rows of 10 px from y 54 (3 visible), chart y 15-48,
 // 14 bar slots of 5 px from x 12, newest on the right.
 (:test)
 function testHistoryTapOnListRow(logger) {
     var view = historyWithRows(20);
     return view.indexAt(50, 55, 100, 100) == 0
         && view.indexAt(50, 65, 100, 100) == 1
-        && view.indexAt(50, 93, 100, 100) == 3
-        && view.indexAt(50, 95, 100, 100) == -1;
+        && view.indexAt(50, 83, 100, 100) == 2
+        && view.indexAt(50, 85, 100, 100) == -1;  // the scroll-down arrow
 }
 
 (:test)
 function testHistoryTapOnScrolledList(logger) {
     var view = historyWithRows(20);
-    view.selectedIndex = 6; // rows 3-6 visible
-    return view.indexAt(50, 55, 100, 100) == 3 && view.indexAt(50, 85, 100, 100) == 6;
+    view.selectedIndex = 6; // rows 4-6 visible
+    return view.indexAt(50, 55, 100, 100) == 4 && view.indexAt(50, 75, 100, 100) == 6;
 }
 
 (:test)
@@ -155,4 +155,41 @@ function testHistoryTapChartEdges(logger) {
         && view.indexAt(159, 50, 200, 100) == -1    // gap between chart and list
         && view.indexAt(169, 30, 200, 100) == -1    // right of slot 13
         && view.indexAt(100, 55, 200, 100) == 0;    // list ignores x
+}
+
+// Scroll arrows: shown, and tappable, only where rows are hidden. A tap
+// scrolls a page and leaves the cursor on the last row shown.
+(:test)
+function testHistoryArrowsScrollByPage(logger) {
+    var view = historyWithRows(20); // 3 rows visible; arrows at y 48-54 and 84+
+    if (view.arrowAt(50, 50, 100, 100) != 0 || view.arrowAt(50, 90, 100, 100) != 1) { return false; }
+    view.scrollPage(1, 100);
+    if (view.selectedIndex != 5 || view.arrowAt(50, 50, 100, 100) != -1) { return false; }
+    for (var i = 0; i < 10; i++) { view.scrollPage(1, 100); }
+    if (view.selectedIndex != 19 || view.arrowAt(50, 90, 100, 100) != 0) { return false; }
+    view.scrollPage(-1, 100); // rows 14-16
+    return view.selectedIndex == 16 && view.indexAt(50, 55, 100, 100) == 14;
+}
+
+(:test)
+function testHistoryNoArrowsWhenAllRowsFit(logger) {
+    var view = historyWithRows(3);
+    return view.arrowAt(50, 50, 100, 100) == 0 && view.arrowAt(50, 90, 100, 100) == 0;
+}
+
+(:test)
+function testLogArrowsScrollByPage(logger) {
+    var view = logWithDoses(8); // 5 rows visible (y 23-73); arrows above 23 and from 73
+    if (view.arrowAt(10, 100) != 0 || view.arrowAt(80, 100) != 1) { return false; }
+    view.scrollPage(1, 100); // rows 3-7
+    if (view.selectedIndex != 7 || view.scrollStart(100) != 3
+            || view.arrowAt(10, 100) != -1 || view.arrowAt(80, 100) != 0) { return false; }
+    view.scrollPage(-1, 100); // rows 0-4
+    return view.selectedIndex == 4 && view.scrollStart(100) == 0;
+}
+
+(:test)
+function testLogNoArrowsWhenAllRowsFit(logger) {
+    var view = logWithDoses(3);
+    return view.arrowAt(10, 100) == 0 && view.arrowAt(80, 100) == 0;
 }

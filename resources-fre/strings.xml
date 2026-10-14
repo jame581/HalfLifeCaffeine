@@ -18,7 +18,7 @@
   <string id="DetailsExpired">Détails expirés après 14 j</string>
   <string id="DateShort">$2$ $1$</string>
   <string id="DateLong">$2$ $1$ $3$</string>
-  <string id="MenuAddDrink">Ajouter une boisson</string>
+  <string id="MenuAddDrink">Boissons</string>
   <string id="MenuEditDrink">Modifier la boisson</string>
   <string id="MenuEditTime">Modifier l'heure</string>
   <string id="ItemEditTime">Modifier l'heure</string>

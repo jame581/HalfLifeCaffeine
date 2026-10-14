@@ -17,7 +17,7 @@
 "DetailsExpired","watch","Day detail, when the per-drink data is older than 14 days.","30","Details expired after 14 days","","Details nach 14 Tagen gelöscht",""
 "DateShort","watch","Date in the history list. $1$ = month abbreviation, $2$ = day. Reorder as your language needs.","10","$1$ $2$","Sep 30","$2$. $1$",""
 "DateLong","watch","Date heading of one day. $1$ = month abbreviation, $2$ = day, $3$ = year.","14","$1$ $2$, $3$","Sep 30, 2026","$2$. $1$ $3$",""
-"MenuAddDrink","watch","Menu title.","20","Add Drink","","Getränk hinzufügen",""
+"MenuAddDrink","watch","Menu title.","20","Add Drink","","Getränke",""
 "MenuEditDrink","watch","Menu title.","20","Edit Drink","","Getränk bearbeiten",""
 "MenuEditTime","watch","Menu title.","20","Edit Time","","Zeit ändern",""
 "ItemEditTime","watch","Menu item.","20","Edit time","","Zeit ändern",""

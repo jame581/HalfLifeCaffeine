@@ -50,7 +50,14 @@ $out = @(Receive-Job $job | ForEach-Object { "$_" })
 Remove-Job $job -Force
 
 $results = $out | Where-Object { $_ -match '^\w+\s+(PASS|FAIL|ERROR)$' }
-$results | Where-Object { $_ -notmatch 'PASS$' } | Write-Host
+# Each test prints "Executing test <name>...", what went wrong, then PASS/FAIL/ERROR.
+for ($i = 0; $i -lt $out.Count; $i++) {
+    if ($out[$i] -match '^(FAIL|ERROR)$') {
+        $from = $i
+        while ($from -gt 0 -and $out[$from] -notmatch '^Executing test') { $from-- }
+        $out[$from..($i - 1)] | Where-Object { $_.Trim() } | Write-Host
+    }
+}
 $summary = $out | Where-Object { $_ -match '^(PASSED|FAILED) \(' } | Select-Object -Last 1
 if ($timedOut) { Write-Host "timed out after $TimeoutSeconds s"; $out | Select-Object -Last 20 | Write-Host; exit 1 }
 if (-not $summary) { Write-Host 'no test results; runner output:'; $out | Select-Object -Last 20 | Write-Host; exit 1 }

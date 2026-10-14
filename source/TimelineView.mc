@@ -18,6 +18,7 @@ class TimelineView extends WatchUi.View {
     private var _graphWidth;
     private var _graphHeight;
     private var _maxMg;
+    private var _levelY;
 
     private var _sTitle;
     private var _sNow;
@@ -52,6 +53,16 @@ class TimelineView extends WatchUi.View {
         _graphRight = width * 82 / 100;
         _graphTop = height * 28 / 100;
         _graphBottom = height * 74 / 100;
+
+        // Below the graph sit the axis labels and then the current-level line.
+        // Where the font is tall for the screen (small MIP watches) the two
+        // collide, so lift the graph just enough to stack them.
+        var fontH = dc.getFontHeight(Graphics.FONT_XTINY);
+        _levelY = height * 83 / 100;
+        if (_levelY + fontH > height * 95 / 100) { _levelY = height * 95 / 100 - fontH; }
+        var maxBottom = _levelY - fontH * 9 / 10 - 8;
+        if (_graphBottom > maxBottom) { _graphBottom = maxBottom; }
+
         _graphWidth = _graphRight - _graphLeft;
         _graphHeight = _graphBottom - _graphTop;
 
@@ -192,7 +203,7 @@ class TimelineView extends WatchUi.View {
             }
         }
         dc.setColor(Colors.TEXT_PRIMARY, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(width / 2, height * 83 / 100, Graphics.FONT_XTINY,
+        dc.drawText(width / 2, _levelY, Graphics.FONT_XTINY,
             Lang.format(_tplNowLevel, [Util.formatMg(currentMg)]), Graphics.TEXT_JUSTIFY_CENTER);
     }
 

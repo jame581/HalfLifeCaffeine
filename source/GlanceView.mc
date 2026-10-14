@@ -58,9 +58,14 @@ class GlanceView extends WatchUi.GlanceView {
         dc.drawText(numWidth + 4, numY, Graphics.FONT_GLANCE,
             "mg", Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        // Status line
+        // Status line. Long durations in the longer languages run past the
+        // edge of the glance; step down a font size when they do.
+        var statusFont = Graphics.FONT_GLANCE;
+        if (dc.getTextWidthInPixels(statusText, statusFont) > dc.getWidth()) {
+            statusFont = Graphics.FONT_XTINY;
+        }
         dc.setColor(Colors.TEXT_SECONDARY, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(0, h * 72 / 100, Graphics.FONT_GLANCE,
+        dc.drawText(0, h * 72 / 100, statusFont,
             statusText, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 }

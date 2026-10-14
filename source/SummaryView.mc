@@ -86,8 +86,11 @@ class SummaryView extends WatchUi.View {
             sleepText = Lang.format(_tplSleepSafe,
                 [Util.formatDuration(minutesToSafe, _unitHour, _unitMinute)]);
         }
+        // Long durations and long translations overflow FONT_SMALL; step down until it fits.
+        var sleepFont = fitFont(dc, sleepText,
+            [Graphics.FONT_SMALL, Graphics.FONT_TINY, Graphics.FONT_XTINY], width * 92 / 100);
         dc.setColor(Colors.TEXT_PRIMARY, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(centerX, (height * 55 / 100), Graphics.FONT_SMALL,
+        dc.drawText(centerX, (height * 55 / 100), sleepFont,
             sleepText, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         // Daily intake vs limit
@@ -103,5 +106,14 @@ class SummaryView extends WatchUi.View {
         dc.setColor(Colors.TEXT_DIM, Graphics.COLOR_TRANSPARENT);
         dc.drawText(centerX, (height * 88 / 100), Graphics.FONT_XTINY,
             _sHint, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    }
+
+    // First of the given fonts (largest first) in which the text fits maxWidth;
+    // the last one if none does.
+    private function fitFont(dc, text, fonts, maxWidth) {
+        for (var i = 0; i < fonts.size() - 1; i++) {
+            if (dc.getTextWidthInPixels(text, fonts[i]) <= maxWidth) { return fonts[i]; }
+        }
+        return fonts[fonts.size() - 1];
     }
 }

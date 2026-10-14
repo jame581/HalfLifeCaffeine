@@ -5,6 +5,16 @@ import Toybox.Time;
 
 class DayDetailView extends WatchUi.View {
 
+    // First drink shown; DayDetailDelegate scrolls it a page at a time.
+    var firstRow;
+    // Drinks on this day, as of the last onUpdate.
+    var doseCount;
+
+    // Layout, in percent of the screen; drawing and arrowAt share it.
+    private const LIST_TOP_PCT = 32;
+    private const LIST_BOTTOM_PCT = 88;
+    private const ROW_HEIGHT_PCT = 9;
+
     private var _ymd;
     private var _sNoDrinks;
     private var _sExpired;
@@ -15,6 +25,8 @@ class DayDetailView extends WatchUi.View {
 
     function initialize(ymd) {
         View.initialize();
+        firstRow = 0;
+        doseCount = 0;
         _ymd = ymd;
         _sNoDrinks = WatchUi.loadResource(Rez.Strings.NoDrinksToday);
         _sExpired = WatchUi.loadResource(Rez.Strings.DetailsExpired);
@@ -35,11 +47,6 @@ class DayDetailView extends WatchUi.View {
 
         if (app.caffeineModel == null || app.storageManager == null) { return; }
 
-        var headerStr = Util.formatYmd(_ymd, _tplDateLong, _monthNames);
-        dc.setColor(Colors.TEXT_SECONDARY, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(width / 2, height * 12 / 100, Graphics.FONT_XTINY,
-            headerStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-
         // Doses for this day: the archived ones (older), then those still in
         // the model. A day can straddle the boundary between the two.
         var dayDoses = [];
@@ -56,6 +63,21 @@ class DayDetailView extends WatchUi.View {
                 j--;
             }
             dayDoses[j + 1] = d;
+        }
+        doseCount = dayDoses.size();
+        var visible = visibleRows(height);
+        if (firstRow > doseCount - visible) { firstRow = doseCount - visible; }
+        if (firstRow < 0) { firstRow = 0; }
+
+        // There is no room above the first drink, so while the list is
+        // scrolled the scroll-up arrow takes the date's place.
+        if (firstRow > 0) {
+            ListArrows.draw(dc, width / 2, height * 12 / 100, height, true);
+        } else {
+            var headerStr = Util.formatYmd(_ymd, _tplDateLong, _monthNames);
+            dc.setColor(Colors.TEXT_SECONDARY, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(width / 2, height * 12 / 100, Graphics.FONT_XTINY,
+                headerStr, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }
 
         // Resolve daily total from daily-totals store (covers days older than 14 days).
@@ -91,14 +113,11 @@ class DayDetailView extends WatchUi.View {
             return;
         }
 
-        var listTop = height * 32 / 100;
-        var listBottom = height * 88 / 100;
-        var listHeight = listBottom - listTop;
-        var lineHeight = height * 9 / 100;
-        var maxVisible = listHeight / lineHeight;
+        var listTop = height * LIST_TOP_PCT / 100;
+        var lineHeight = height * ROW_HEIGHT_PCT / 100;
 
-        for (var i = 0; i < dayDoses.size() && i < maxVisible; i++) {
-            var dose = dayDoses[i];
+        for (var i = 0; firstRow + i < dayDoses.size() && i < visible; i++) {
+            var dose = dayDoses[firstRow + i];
             var timeStr = Util.formatTime(dose[:time]);
             var name = dose.hasKey(:name) && !dose[:name].equals("")
                 ? dose[:name] : (Util.formatMg(dose[:mg]) + "mg");
@@ -110,5 +129,36 @@ class DayDetailView extends WatchUi.View {
             dc.drawText(width / 2, y, Graphics.FONT_XTINY,
                 line, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }
+        if (firstRow + visible < doseCount) {
+            ListArrows.draw(dc, width / 2, listTop + visible * lineHeight, height, false);
+        }
+    }
+
+    // -1 / 1 when a tap at y hits the scroll-up arrow (above the drinks, in the
+    // date's place) or the scroll-down arrow (below them), each only while
+    // drinks are hidden that way; 0 otherwise.
+    function arrowAt(y, height) {
+        var lineHeight = height * ROW_HEIGHT_PCT / 100;
+        var top = height * LIST_TOP_PCT / 100 - lineHeight / 2; // rows are centred on their y
+        var visible = visibleRows(height);
+        if (y < top) { return (firstRow > 0) ? -1 : 0; }
+        if (y >= top + visible * lineHeight) { return (firstRow + visible < doseCount) ? 1 : 0; }
+        return 0;
+    }
+
+    // Scroll a page of drinks (direction -1 up, 1 down).
+    function scrollPage(direction, height) {
+        var visible = visibleRows(height);
+        var start = firstRow + direction * visible;
+        if (start > doseCount - visible) { start = doseCount - visible; }
+        if (start < 0) { start = 0; }
+        firstRow = start;
+        WatchUi.requestUpdate();
+    }
+
+    private function visibleRows(height) {
+        var lineHeight = height * ROW_HEIGHT_PCT / 100;
+        var n = (lineHeight > 0) ? (height * (LIST_BOTTOM_PCT - LIST_TOP_PCT) / 100) / lineHeight : 1;
+        return (n < 1) ? 1 : n;
     }
 }

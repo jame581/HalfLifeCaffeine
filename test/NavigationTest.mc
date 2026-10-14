@@ -1,5 +1,6 @@
 import Toybox.Test;
 import Toybox.WatchUi;
+import Toybox.System;
 
 // Watches whose UP/DOWN buttons carry the previousPage/nextPage behaviors
 // (fr255s, fenix 7, ...) call onPreviousPage/onNextPage first and pass the
@@ -192,4 +193,34 @@ function testLogArrowsScrollByPage(logger) {
 function testLogNoArrowsWhenAllRowsFit(logger) {
     var view = logWithDoses(3);
     return view.arrowAt(10, 100) == 0 && view.arrowAt(80, 100) == 0;
+}
+
+// Day detail: 100x100 screen, 6 rows of 9 px centred from y 32 (rows from
+// 27.5); scrolling by page, arrows only where drinks are hidden.
+(:test)
+function testDayDetailArrowsScrollByPage(logger) {
+    var view = new DayDetailView(20261014);
+    view.doseCount = 10;
+    if (view.arrowAt(10, 100) != 0 || view.arrowAt(90, 100) != 1) { return false; }
+    view.scrollPage(1, 100); // rows 4-9
+    if (view.firstRow != 4 || view.arrowAt(10, 100) != -1 || view.arrowAt(90, 100) != 0) { return false; }
+    view.scrollPage(-1, 100);
+    return view.firstRow == 0;
+}
+
+(:test)
+function testDayDetailNoArrowsWhenAllFit(logger) {
+    var view = new DayDetailView(20261014);
+    view.doseCount = 6;
+    return view.arrowAt(10, 100) == 0 && view.arrowAt(90, 100) == 0;
+}
+
+// Buttons and swipes scroll the drinks: the page behaviors are handled here.
+(:test)
+function testDayDetailPageBehaviorsScroll(logger) {
+    var view = new DayDetailView(20261014);
+    view.doseCount = 20;
+    var delegate = new DayDetailDelegate(view);
+    return delegate.onNextPage() && view.firstRow > 0
+        && delegate.onPreviousPage() && view.firstRow == 0;
 }

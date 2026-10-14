@@ -114,6 +114,9 @@ class StorageManager {
         return (days != null && days instanceof Array) ? days : [];
     }
 
+    // True when the day's archive already holds this dose (same mg, second and
+    // name). Two such doses would be indistinguishable anyway; the check is
+    // what makes re-archiving after a crash harmless.
     private function hasRow(rows, dose) {
         for (var i = 0; i < rows.size(); i++) {
             var row = rows[i];

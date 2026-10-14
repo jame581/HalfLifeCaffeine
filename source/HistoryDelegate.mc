@@ -79,6 +79,7 @@ class HistoryDelegate extends WatchUi.BehaviorDelegate {
     private function openSelected() {
         var ymd = _view.getSelectedYmd();
         if (ymd <= 0) { return; }
-        WatchUi.pushView(new DayDetailView(ymd), new DayDetailDelegate(), WatchUi.SLIDE_LEFT);
+        var view = new DayDetailView(ymd);
+        WatchUi.pushView(view, new DayDetailDelegate(view), WatchUi.SLIDE_LEFT);
     }
 }

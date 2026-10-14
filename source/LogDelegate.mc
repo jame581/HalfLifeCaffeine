@@ -1,4 +1,5 @@
 import Toybox.WatchUi;
+import Toybox.System;
 
 class LogDelegate extends WatchUi.BehaviorDelegate {
 
@@ -36,7 +37,21 @@ class LogDelegate extends WatchUi.BehaviorDelegate {
             if (isAtEnd(1)) { showHistory(); } else { _view.moveSelection(1); }
             return true;
         }
+        if (key == WatchUi.KEY_ENTER) {
+            openSelected();
+            return true;
+        }
         return false;
+    }
+
+    // Tap a drink → its action menu.
+    function onTap(clickEvent) {
+        var idx = _view.indexAt(clickEvent.getCoordinates()[1], System.getDeviceSettings().screenHeight);
+        if (idx >= 0) {
+            _view.selectedIndex = idx;
+            openSelected();
+        }
+        return true;
     }
 
     // True when the cursor cannot move further in direction (-1 up, 1 down).
@@ -55,15 +70,19 @@ class LogDelegate extends WatchUi.BehaviorDelegate {
         WatchUi.switchToView(view, new HistoryDelegate(view), WatchUi.SLIDE_UP);
     }
 
-    // SELECT → open action menu for the highlighted drink.
-    function onSelect() {
+    // A tap on a touch screen and the START button both reach onSelect first;
+    // declining passes the tap to onTap (with its position) and START to
+    // onKey as KEY_ENTER.
+    function onSelect() { return false; }
+
+    // Open the action menu for the highlighted drink.
+    private function openSelected() {
         var doseIndex = _view.getSelectedDoseIndex();
-        if (doseIndex < 0) { return true; } // empty list — no-op
+        if (doseIndex < 0) { return; } // empty list — no-op
 
         var menu = new WatchUi.Menu2({:title => WatchUi.loadResource(Rez.Strings.MenuEditDrink)});
         menu.addItem(new WatchUi.MenuItem(WatchUi.loadResource(Rez.Strings.ItemEditTime), null, "edit_time", {}));
         menu.addItem(new WatchUi.MenuItem(WatchUi.loadResource(Rez.Strings.ItemDelete), null, "delete", {}));
         WatchUi.pushView(menu, new EditDrinkMenuDelegate(doseIndex), WatchUi.SLIDE_UP);
-        return true;
     }
 }

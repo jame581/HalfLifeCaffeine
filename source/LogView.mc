@@ -15,6 +15,11 @@ class LogView extends WatchUi.View {
     // Cached array of dose dicts in rendered (newest-first) order, parallel to dayIndices.
     var dayDoses;
 
+    // Layout, in percent of the screen; drawing and indexAt share it.
+    private const LIST_TOP_PCT = 28;
+    private const LIST_BOTTOM_PCT = 82;
+    private const ROW_HEIGHT_PCT = 10;
+
     private var _sTitle;
     private var _sEmpty;
 
@@ -66,20 +71,19 @@ class LogView extends WatchUi.View {
         }
         if (selectedIndex < 0) { selectedIndex = 0; }
 
-        var listTop = height * 28 / 100;
-        var listBottom = height * 82 / 100;
-        var listHeight = listBottom - listTop;
-        var lineHeight = height * 10 / 100;
-        var maxVisible = listHeight / lineHeight;
+        var listTop = height * LIST_TOP_PCT / 100;
+        var lineHeight = height * ROW_HEIGHT_PCT / 100;
+        var maxVisible = visibleRows(height);
+        var first = scrollStart(height);
 
         var rowInsetLeft = width * 10 / 100;
         var rowInsetRight = width * 10 / 100;
         var rowWidth = width - rowInsetLeft - rowInsetRight;
 
-        for (var i = 0; i < dayDoses.size() && i < maxVisible; i++) {
-            var dose = dayDoses[i];
+        for (var i = 0; first + i < dayDoses.size() && i < maxVisible; i++) {
+            var dose = dayDoses[first + i];
             var y = listTop + (i * lineHeight);
-            var isSelected = (i == selectedIndex);
+            var isSelected = (first + i == selectedIndex);
 
             if (isSelected) {
                 dc.setColor(Colors.TRACK, Colors.BG);
@@ -95,6 +99,29 @@ class LogView extends WatchUi.View {
             dc.drawText(width / 2, y, Graphics.FONT_XTINY,
                 line, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         }
+    }
+
+    // Row index (into dayDoses) under a tap at y on a screen height pixels
+    // tall; -1 when the tap is above, below or past the end of the list.
+    function indexAt(y, height) {
+        var lineHeight = height * ROW_HEIGHT_PCT / 100;
+        var top = height * LIST_TOP_PCT / 100 - lineHeight / 2; // rows are centred on their y
+        if (y < top || lineHeight <= 0) { return -1; }
+        var slot = (y - top) / lineHeight;
+        var idx = scrollStart(height) + slot;
+        return (slot < visibleRows(height) && idx < dayDoses.size()) ? idx : -1;
+    }
+
+    // First row shown, so that selectedIndex is visible.
+    function scrollStart(height) {
+        var visible = visibleRows(height);
+        return (selectedIndex >= visible) ? selectedIndex - visible + 1 : 0;
+    }
+
+    private function visibleRows(height) {
+        var lineHeight = height * ROW_HEIGHT_PCT / 100;
+        var n = (lineHeight > 0) ? (height * (LIST_BOTTOM_PCT - LIST_TOP_PCT) / 100) / lineHeight : 1;
+        return (n < 1) ? 1 : n;
     }
 
     // Move the cursor by delta rows (clamped). Called by LogDelegate on UP/DOWN.

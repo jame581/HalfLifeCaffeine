@@ -1,4 +1,5 @@
 import Toybox.WatchUi;
+import Toybox.System;
 
 class HistoryDelegate extends WatchUi.BehaviorDelegate {
 
@@ -36,7 +37,23 @@ class HistoryDelegate extends WatchUi.BehaviorDelegate {
             _view.moveSelection(1);
             return true;
         }
+        if (key == WatchUi.KEY_ENTER) {
+            openSelected();
+            return true;
+        }
         return false;
+    }
+
+    // Tap a list row or a chart bar → open that day.
+    function onTap(clickEvent) {
+        var xy = clickEvent.getCoordinates();
+        var settings = System.getDeviceSettings();
+        var idx = _view.indexAt(xy[0], xy[1], settings.screenWidth, settings.screenHeight);
+        if (idx >= 0) {
+            _view.selectedIndex = idx;
+            openSelected();
+        }
+        return true;
     }
 
     function isAtTop() {
@@ -48,11 +65,15 @@ class HistoryDelegate extends WatchUi.BehaviorDelegate {
         WatchUi.switchToView(view, new LogDelegate(view), WatchUi.SLIDE_DOWN);
     }
 
-    // SELECT → drill into selected day
-    function onSelect() {
+    // A tap on a touch screen and the START button both reach onSelect first;
+    // declining passes the tap to onTap (with its position) and START to
+    // onKey as KEY_ENTER.
+    function onSelect() { return false; }
+
+    // Drill into the selected day.
+    private function openSelected() {
         var ymd = _view.getSelectedYmd();
-        if (ymd <= 0) { return true; }
+        if (ymd <= 0) { return; }
         WatchUi.pushView(new DayDetailView(ymd), new DayDetailDelegate(), WatchUi.SLIDE_LEFT);
-        return true;
     }
 }

@@ -12,6 +12,15 @@ class HistoryView extends WatchUi.View {
     // Built in onUpdate from dailyTotals + today's live dose sum.
     var dayRows;
 
+    // Layout, in percent of the screen; drawing and indexAt share it.
+    private const CHART_TOP_PCT = 15;
+    private const CHART_BOTTOM_PCT = 48;
+    private const CHART_INSET_PCT = 12;
+    private const MAX_BARS = 14;
+    private const LIST_TOP_PCT = 54;
+    private const LIST_BOTTOM_PCT = 94;
+    private const ROW_HEIGHT_PCT = 10;
+
     private var _sTitle;
     private var _sEmpty;
     private var _tplDateShort;
@@ -77,19 +86,18 @@ class HistoryView extends WatchUi.View {
     // Top ~37% of screen height: 14-bar chart with daily-limit reference line.
     // Screen layout: title 0-15%, chart 15-50%, day list 50-95%.
     private function drawBarChart(dc, width, height, rows, dailyLimit) {
-        var chartTop = height * 15 / 100;
-        var chartBottom = height * 48 / 100;
+        var chartTop = height * CHART_TOP_PCT / 100;
+        var chartBottom = height * CHART_BOTTOM_PCT / 100;
         var chartHeight = chartBottom - chartTop;
-        var chartLeftInset = width * 12 / 100;
-        var chartRightInset = width * 12 / 100;
-        var chartWidth = width - chartLeftInset - chartRightInset;
+        var chartLeftInset = width * CHART_INSET_PCT / 100;
+        var chartWidth = width - 2 * chartLeftInset;
 
         if (rows.size() == 0) { return; }
 
         // Always reserve 14 slots so bar width stays consistent regardless of
         // history length. Slots are filled right-to-left (newest on the right);
         // unfilled slots render as empty space.
-        var maxBars = 14;
+        var maxBars = MAX_BARS;
         var filledCount = rows.size() < maxBars ? rows.size() : maxBars;
 
         // Compute scale from the filled rows only.
@@ -141,12 +149,10 @@ class HistoryView extends WatchUi.View {
 
     // Bottom region of screen: scrollable list of days, selected row highlighted.
     private function drawDayList(dc, width, height, rows, dailyLimit) {
-        var listTop = height * 54 / 100;
-        var listBottom = height * 94 / 100;
-        var listHeight = listBottom - listTop;
-        var rowHeight = height * 10 / 100;
-        var visibleCount = listHeight / rowHeight;
-        if (visibleCount < 1) { visibleCount = 1; }
+        var listTop = height * LIST_TOP_PCT / 100;
+        var listBottom = height * LIST_BOTTOM_PCT / 100;
+        var rowHeight = height * ROW_HEIGHT_PCT / 100;
+        var visibleCount = visibleRows(height);
 
         if (rows.size() == 0) {
             dc.setColor(Colors.TEXT_DIM, Graphics.COLOR_TRANSPARENT);
@@ -155,11 +161,7 @@ class HistoryView extends WatchUi.View {
             return;
         }
 
-        // Compute scroll window so selectedIndex is visible.
-        var scrollStart = 0;
-        if (selectedIndex >= visibleCount) {
-            scrollStart = selectedIndex - visibleCount + 1;
-        }
+        var scrollStart = scrollStartFor(visibleCount);
 
         var listLeftInset = width * 10 / 100;
         var listRightInset = width * 10 / 100;
@@ -197,6 +199,43 @@ class HistoryView extends WatchUi.View {
     }
 
     // Called by HistoryDelegate on UP/DOWN input.
+    // Row index (into dayRows) under a tap at x, y on a width x height screen,
+    // from a list row or a chart bar; -1 when the tap hits neither.
+    function indexAt(x, y, width, height) {
+        var count = dayRows.size();
+        if (count == 0) { return -1; }
+
+        var listTop = height * LIST_TOP_PCT / 100;
+        var rowHeight = height * ROW_HEIGHT_PCT / 100;
+        var visibleCount = visibleRows(height);
+        if (y >= listTop && rowHeight > 0) {
+            var slot = (y - listTop) / rowHeight;
+            var idx = scrollStartFor(visibleCount) + slot;
+            return (slot < visibleCount && idx < count) ? idx : -1;
+        }
+
+        var chartLeft = width * CHART_INSET_PCT / 100;
+        var slotWidth = (width - 2 * chartLeft) / MAX_BARS;
+        if (y < height * CHART_TOP_PCT / 100 || y > height * CHART_BOTTOM_PCT / 100
+                || x < chartLeft || slotWidth <= 0) {
+            return -1;
+        }
+        var barSlot = (x - chartLeft) / slotWidth;
+        var dayIdx = MAX_BARS - 1 - barSlot; // newest on the right
+        return (barSlot < MAX_BARS && dayIdx < count) ? dayIdx : -1;
+    }
+
+    private function visibleRows(height) {
+        var rowHeight = height * ROW_HEIGHT_PCT / 100;
+        var n = (rowHeight > 0) ? (height * (LIST_BOTTOM_PCT - LIST_TOP_PCT) / 100) / rowHeight : 1;
+        return (n < 1) ? 1 : n;
+    }
+
+    // First row shown, so that selectedIndex is visible.
+    private function scrollStartFor(visibleCount) {
+        return (selectedIndex >= visibleCount) ? selectedIndex - visibleCount + 1 : 0;
+    }
+
     function moveSelection(delta) {
         var newIndex = selectedIndex + delta;
         if (newIndex < 0) { newIndex = 0; }

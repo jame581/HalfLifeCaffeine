@@ -366,7 +366,7 @@ function checkRollUpThenArchiveKeepsDay() {
     ];
     sm.rollUpYesterday(doses, now);
     var model = new CaffeineModel();
-    var since = sm.recentWindowStart(now, model.getOldestCountedTimeAnyHalfLife(now - 4 * 3600));
+    var since = sm.recentWindowStart(now, model.getArchiveCutoff(now - 4 * 3600));
     var recent = sm.archiveOldDoses(doses, since, now);
     var ymd3 = Util.ymdFromEpoch(day3);
     var rows = sm.loadDailyTotals();
@@ -399,17 +399,22 @@ function testRecentWindowCoversYesterday(logger) {
         && sm.recentWindowStart(now, longCutoff) == longCutoff;
 }
 
-// Archiving at a 3 h half-life must keep what a later 10 h setting counts.
+// Memory on small watches: the archive boundary is 7 half-lives at the
+// current setting (under 1 mg left of a 128 mg dose), or yesterday's
+// midnight when that is earlier.
 (:test)
-function testRecentWindowCoversLongestHalfLife(logger) {
+function testArchiveCutoffIsSevenHalfLives(logger) {
     var sm = new StorageManager();
     var now = Time.now().value();
+    var yesterdayStart = Util.midnightEpochFor(noonDaysAgo(now, 1));
     var shortHl = new CaffeineModel();
     shortHl.setHalfLifeSeconds(3 * 3600);
     var longHl = new CaffeineModel();
     longHl.setHalfLifeSeconds(10 * 3600);
-    var since = sm.recentWindowStart(now, shortHl.getOldestCountedTimeAnyHalfLife(now - 4 * 3600));
-    return since <= longHl.getOldestCountedTime(now - 4 * 3600);
+    var longCutoff = now - 4 * 3600 - 7 * 36000;
+    return longHl.getArchiveCutoff(now - 4 * 3600) == longCutoff
+        && sm.recentWindowStart(now, longHl.getArchiveCutoff(now - 4 * 3600)) == longCutoff
+        && sm.recentWindowStart(now, shortHl.getArchiveCutoff(now - 4 * 3600)) == yesterdayStart;
 }
 
 // Two drinks with the same mg and second but different names are both kept.

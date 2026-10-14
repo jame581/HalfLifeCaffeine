@@ -22,9 +22,9 @@ Monkey C projects are built through the VS Code Monkey C extension, not a CLI ta
 
 Developer key lives at `D:/Garmin/Key/developer_key` (DER, not in repo, not regenerable without re-registering with the store).
 
-Single-device (for simulator/sideload):
+Single-device (for simulator/sideload; `-r` is a release build, which uses ~8 KB less memory than a debug build on fenix6 — always use it for a `.prg` handed to users):
 ```
-monkeyc -f monkey.jungle -d vivoactive5_sim -y D:/Garmin/Key/developer_key -o bin/CoffeTracker.prg -w
+monkeyc -f monkey.jungle -d vivoactive5_sim -y D:/Garmin/Key/developer_key -o bin/CoffeTracker.prg -w -r
 ```
 
 Multi-device release `.iq` (all devices in `manifest.xml`):
@@ -66,7 +66,7 @@ When adding a class that must be reachable from the glance, annotate the class w
 
 Two persistent stores with different retention:
 
-- **Doses** — full dose records in two keys. `doses` holds the recent ones (from yesterday's local midnight or the timeline's decay tail at the 10 h maximum half-life, whichever is earlier — `StorageManager.recentWindowStart` with `CaffeineModel.getOldestCountedTimeAnyHalfLife`, so raising the half-life never needs an archived dose; yesterday must stay whole because an edit across midnight syncs it to the phone as replace-day): the glance and `CaffeineModel` read only this key. Older doses live one key per local day (`"arch" + ymd`, index in `archDays`), kept 14 days and read only by `DayDetailView`. `StorageManager.archiveOldDoses` moves doses across in `initializeManagers()`, after the roll-up (which reads only `doses`); it skips rows already archived, so a crash between its two writes doubles nothing. The split keeps memory flat on small watches: 14 days of dose records would cost up to ~15 KB on fenix6.
+- **Doses** — full dose records in two keys. `doses` holds the recent ones (from yesterday's local midnight or the timeline's decay tail cut at 7 half-lives of the current setting, whichever is earlier — `StorageManager.recentWindowStart` with `CaffeineModel.getArchiveCutoff`; raising the half-life later ignores archived tails, under 1 mg per dose; yesterday must stay whole because an edit across midnight syncs it to the phone as replace-day): the glance and `CaffeineModel` read only this key. Older doses live one key per local day (`"arch" + ymd`, index in `archDays`), kept 14 days and read only by `DayDetailView`. `StorageManager.archiveOldDoses` moves doses across in `initializeManagers()`, after the roll-up (which reads only `doses`); it skips rows already archived, so a crash between its two writes doubles nothing. The split keeps memory flat on small watches: a dose record in memory costs ~160 B, and fenix6's full view has ~12 KB free with 24 doses in a release build (~4.5 KB in a debug build, where 60 doses ran out of memory). v1.4.0's code costs ~8 KB more than v1.3.1 there, so keep the window small; build sideload `.prg` files with `-r`.
 - **Daily totals** (`dailyTotals` key, 90-day retention) — rolled-up `[ymd, totalMg, doseCount]` rows, oldest-first. Drives the `HistoryView` bar chart and day list.
 
 `StorageManager.rollUpYesterday(doses, now)` is idempotent and runs from both `initializeManagers()` and `onStop()`. It uses `lastRolledYmd` to avoid re-rolling completed days. `DayDetailView` lists a day's doses from the archive plus the model (a day can straddle the two) and takes the total from `dailyTotals` (live for today); it shows "Details expired after 14 days" when no doses are left.

@@ -27,18 +27,19 @@ class CaffeineModel {
         _halfLifeSeconds = seconds;
     }
 
-    // Longest half-life the setting allows (Util.getHalfLifeSeconds clamps to 10 h).
-    private const MAX_HALF_LIFE_SECONDS = 36000;
+    // Doses older than this many half-lives at epoch may leave memory for the
+    // archive: under 1 mg is left of a 128 mg dose, the tolerance the decay
+    // prune had before v1.4.0. Memory is tight on small watches (fenix 6).
+    private const ARCHIVE_HALF_LIVES = 7;
 
     // Earliest dose time that still adds to the level at epoch.
     function getOldestCountedTime(epoch) {
         return epoch - SKIP_HALF_LIVES * _halfLifeSeconds;
     }
 
-    // The same at the longest allowed half-life: what the level math may need
-    // after the user raises the half-life, whatever it is now.
-    function getOldestCountedTimeAnyHalfLife(epoch) {
-        return epoch - SKIP_HALF_LIVES * MAX_HALF_LIFE_SECONDS;
+    // Earliest dose time worth keeping in memory for the level at epoch.
+    function getArchiveCutoff(epoch) {
+        return epoch - ARCHIVE_HALF_LIVES * _halfLifeSeconds;
     }
 
     // Add a new caffeine dose

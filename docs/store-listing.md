@@ -2,12 +2,49 @@
 
 > Reference copy mirroring the current store listing. Reflects v1.4.0 state (2026-10-14). Update on every release.
 
-## What's New (v1.4.0)
-- Now in Finnish, Czech, German and French. The app follows your watch language.
-- Tap a drink, a day or a chart bar to open it. Lists and day details scroll.
-- Days now start at local midnight, not 00:00 UTC.
-- Per-drink history is kept for 14 days.
-- UP/DOWN buttons move the cursor in the log and History on button watches.
+## What's New (Optional, max 4000 characters)
+
+Paste as-is; newest release first.
+
+```
+v1.4.0
+
+- Now in Finnish, Czech, German and French: on the watch, in the phone settings and on the companion page. The app follows your watch language. Czech, German and French are drafts; corrections are welcome on GitHub.
+- Touch: tap a drink in Today's Drinks, or a day or chart bar in History, to open it. Lists show arrows when there is more to scroll.
+- Day details scroll when a day has many drinks.
+- UP/DOWN now move the selection in Today's Drinks and History on button watches (Forerunner, Fenix and others), and page on to the next screen at either end of the list.
+- Fixed: days now start at local midnight. Before, drinks logged just after midnight could be missing from today's total and log.
+- Fixed: per-drink details are kept for 14 days, as promised. Before, they disappeared after about two days.
+- Long status lines now fit on small and round screens.
+
+--------------------
+
+v1.3.1
+
+- Now supports 94 watches (was 42).
+- New: Fenix 9 and Fenix 9 Pro (all sizes, incl. Solar), Forerunner 70, 170, 245, 570, 745, 945 and 970, Venu 4, Vivoactive 4S, Fenix 6S Pro, Enduro, Instinct 3 AMOLED, Approach S50/S70/S72, Descent, D2 and MARQ.
+- No other changes.
+
+--------------------
+
+v1.3.0
+
+- Configurable caffeine half-life: tune the decay model to your own metabolism (3–10 hours; default 5.7). Settings → Caffeine half-life.
+- Background theme: choose Navy (default) or Black. Black looks sharper on non-AMOLED watches and saves battery on AMOLED.
+- Fixed a rare crash when opening the widget for the first time on the 1st of a month.
+
+--------------------
+
+v1.2.0
+
+Edit time and delete logged drinks:
+
+On the "Today's Drinks" screen, use UP/DOWN to pick a drink, then SELECT to open an action menu.
+
+- Edit time: adjust by preset offsets (-15 min through -3 hours, or +15/+30 min for fine-tuning). Useful when you forget to log a drink promptly.
+- Delete: remove a mis-tapped drink instantly.
+- Edits and deletes sync to the phone companion's History and Trends tabs.
+```
 
 ## App Name
 HalfLife Caffeine

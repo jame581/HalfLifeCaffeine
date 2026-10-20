@@ -32,6 +32,8 @@ class GlanceView extends WatchUi.GlanceView {
         model.setDoses(storage.loadDosesSince(model.getOldestCountedTime(now)));
 
         var level = model.getCurrentLevel(now);
+        var intake = model.getDailyIntake(now);
+        var limit = Util.getDailyLimit();
         var numText = Util.formatMg(level);
 
         var statusText = _sClear;
@@ -64,8 +66,26 @@ class GlanceView extends WatchUi.GlanceView {
         if (dc.getTextWidthInPixels(statusText, statusFont) > dc.getWidth()) {
             statusFont = Graphics.FONT_XTINY;
         }
+        var statusY = h * 72 / 100;
+
+        // Today's intake against the daily limit, in the gap between the
+        // number and the status line (same colours as the Summary bar).
+        var barH = (h < 60) ? 2 : 3;
+        var numBottom = numY + dc.getFontHeight(Graphics.FONT_GLANCE_NUMBER) / 2;
+        var statusTop = statusY - dc.getFontHeight(statusFont) / 2;
+        var barY = (numBottom + statusTop) / 2 - barH / 2;
+        var barW = dc.getWidth();
+        dc.setColor(Colors.TRACK, Graphics.COLOR_TRANSPARENT);
+        dc.fillRectangle(0, barY, barW, barH);
+        var fillW = barW * intake / limit;
+        if (fillW > barW) { fillW = barW; }
+        if (fillW > 0) {
+            dc.setColor(Util.intakeColor(intake, limit), Graphics.COLOR_TRANSPARENT);
+            dc.fillRectangle(0, barY, fillW, barH);
+        }
+
         dc.setColor(Colors.TEXT_SECONDARY, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(0, h * 72 / 100, statusFont,
+        dc.drawText(0, statusY, statusFont,
             statusText, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 }

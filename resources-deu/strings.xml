@@ -31,6 +31,7 @@
   <string id="Month11">Nov.</string>
   <string id="Month12">Dez.</string>
   <string id="MenuAddDrink">Getränke</string>
+  <string id="MenuBedPreview">$1$ mg · Bett $2$ mg</string>
   <string id="MenuEditDrink">Getränk bearbeiten</string>
   <string id="MenuEditTime">Zeit ändern</string>
   <string id="ItemEditTime">Zeit ändern</string>

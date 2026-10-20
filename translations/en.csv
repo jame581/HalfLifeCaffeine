@@ -30,6 +30,7 @@ Month10,watch,"October, short form.",5,,Oct
 Month11,watch,"November, short form.",5,,Nov
 Month12,watch,"December, short form.",5,,Dec
 MenuAddDrink,watch,Menu title.,20,,Add Drink
+MenuBedPreview,watch,"Add Drink menu, under each drink name. $1$ = the drink's caffeine, $2$ = total caffeine expected at bedtime if you have it now.",20,999|999,$1$ mg · bed $2$ mg
 MenuEditDrink,watch,Menu title.,20,,Edit Drink
 MenuEditTime,watch,Menu title.,20,,Edit Time
 ItemEditTime,watch,Menu item.,20,,Edit time

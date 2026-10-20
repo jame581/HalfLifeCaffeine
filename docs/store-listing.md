@@ -1,12 +1,20 @@
 # Connect IQ Store Listing
 
-> Reference copy mirroring the current store listing. Reflects v1.4.0 state (2026-10-14). Update on every release.
+> Reference copy mirroring the current store listing. Reflects v1.5.0 state (2026-10-20). Update on every release.
 
 ## What's New (Optional, max 4000 characters)
 
 Paste as-is; newest release first.
 
 ```
+v1.5.0
+
+- Add Drink shows, under each drink, how much caffeine you would have at bedtime if you drank it now.
+- Caffeine Timeline: press START (or tap) to switch the graph between 4, 8 and 12 hours.
+- The glance shows today's intake against your daily limit as a bar.
+
+--------------------
+
 v1.4.0
 
 - Now in Finnish, Czech, German and French: on the watch, in the phone settings and on the companion page. The app follows your watch language. Czech, German and French are drafts; corrections are welcome on GitHub.

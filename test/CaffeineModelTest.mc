@@ -258,3 +258,57 @@ function testDailyIntakeStartsAtLocalMidnight(logger) {
     return model.getDailyIntake(now) == 63
         && indices.size() == 1 && indices[0] == 1;
 }
+
+(:test)
+function testLevelWithDoseNoExistingDoses(logger) {
+    var model = new CaffeineModel();
+    var now = Time.now().value();
+    // One default half-life (20520 s) later, 100 mg has decayed to 50 mg.
+    var level = model.getLevelWithDose(now + 20520, 100, now);
+    return (level >= 49 && level <= 51);
+}
+
+(:test)
+function testLevelWithDoseAddsToExisting(logger) {
+    var model = new CaffeineModel();
+    var now = Time.now().value();
+    model.addDose(100, now, "Test");
+    var level = model.getLevelWithDose(now + 20520, 100, now);
+    return (level >= 99 && level <= 101);
+}
+
+(:test)
+function testLevelWithDoseAtDoseTimeIsFullMg(logger) {
+    var model = new CaffeineModel();
+    var now = Time.now().value();
+    var level = model.getLevelWithDose(now, 64, now);
+    return (level >= 63.9 && level <= 64.1);
+}
+
+(:test)
+function testLevelWithDoseAfterAtEpochIgnored(logger) {
+    var model = new CaffeineModel();
+    var now = Time.now().value();
+    model.addDose(100, now - 20520, "Test");
+    // Asking about a moment before the hypothetical dose: only the existing dose counts.
+    var level = model.getLevelWithDose(now, 200, now + 600);
+    return (level >= 49 && level <= 51);
+}
+
+(:test)
+function testLevelWithDoseLongBeforeAtEpochIsSmall(logger) {
+    // Bedtime already passed tonight: bedtime rolls to tomorrow, ~23 h away.
+    var model = new CaffeineModel();
+    var now = Time.now().value();
+    var level = model.getLevelWithDose(now + 23 * 3600, 64, now);
+    return (level >= 0 && level < 64 * 0.1);
+}
+
+(:test)
+function testLevelWithDoseDoesNotAddDose(logger) {
+    var model = new CaffeineModel();
+    var now = Time.now().value();
+    model.addDose(100, now, "Test");
+    model.getLevelWithDose(now + 3600, 64, now);
+    return (model.getDoses().size() == 1);
+}

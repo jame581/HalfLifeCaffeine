@@ -61,6 +61,16 @@ class CaffeineModel {
         return total;
     }
 
+    // Level at atEpoch if one more dose of mg were taken at doseEpoch.
+    // Pure: _doses is not changed. Used by the Add Drink menu's bedtime preview.
+    function getLevelWithDose(atEpoch, mg, doseEpoch) {
+        var level = getCurrentLevel(atEpoch);
+        if (doseEpoch <= atEpoch) {
+            level += decayedAmount(mg, doseEpoch, atEpoch);
+        }
+        return level;
+    }
+
     // Get total caffeine consumed today (sum of original doses, not decayed)
     function getDailyIntake(nowEpoch) {
         var todayStart = getMidnightEpoch(nowEpoch);

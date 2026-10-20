@@ -34,3 +34,19 @@ function testSeedingKeepsExistingPresets(logger) {
     Application.Properties.setValue("presets", []);
     return ok;
 }
+
+// A preset whose mg is not a positive number would crash the Add Drink
+// menu's bedtime preview; it is skipped like any other malformed entry.
+(:test)
+function testPresetWithBadMgIsSkipped(logger) {
+    Application.Properties.setValue("presets", [
+        {"name" => "Bad", "mg" => "abc"},
+        {"name" => "Zero", "mg" => 0},
+        {"name" => "Good", "mg" => 85}
+    ]);
+    var presets = new DrinkPresets();
+    var ok = presets.getPresetCount() == 1
+        && presets.getPresetAt(0)[:name].equals("Good");
+    Application.Properties.setValue("presets", []);
+    return ok;
+}

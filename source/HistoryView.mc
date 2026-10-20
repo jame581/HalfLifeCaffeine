@@ -54,7 +54,7 @@ class HistoryView extends WatchUi.View {
         var now = Time.now().value();
         dayRows = buildDayRows(app, now);
 
-        var dailyLimit = Application.Properties.getValue("dailyLimit");
+        var dailyLimit = Util.getDailyLimit();
 
         drawTitle(dc, width, height);
         drawBarChart(dc, width, height, dayRows, dailyLimit);

@@ -1,5 +1,6 @@
 import Toybox.Communications;
 import Toybox.Application;
+import Toybox.Lang;
 import Toybox.System;
 import Toybox.Time;
 import Toybox.WatchUi;
@@ -43,8 +44,12 @@ class SyncManager {
         if (data == null) { return; }
 
         if (data.hasKey("type") && data["type"].equals("settings")) {
+            // The page can send 0, a negative number or null (NaN); keep the stored limit then.
             if (data.hasKey("dailyLimit")) {
-                Application.Properties.setValue("dailyLimit", data["dailyLimit"]);
+                var limit = data["dailyLimit"];
+                if ((limit instanceof Lang.Number || limit instanceof Lang.Float) && limit > 0) {
+                    Application.Properties.setValue("dailyLimit", limit.toNumber());
+                }
             }
             if (data.hasKey("bedtimeHour")) {
                 Application.Properties.setValue("bedtimeHour", data["bedtimeHour"]);

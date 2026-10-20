@@ -75,7 +75,10 @@ class DrinkPresets {
                 if (dict.hasKey("name") && dict.hasKey("mg")) {
                     var nameStr = dict["name"].toString();
                     var mgNum = dict["mg"].toNumber();
-                    result.add({:name => nameStr, :mg => mgNum});
+                    // A non-numeric or non-positive mg would crash the menu's bedtime preview.
+                    if (mgNum != null && mgNum > 0) {
+                        result.add({:name => nameStr, :mg => mgNum});
+                    }
                 }
             }
         }

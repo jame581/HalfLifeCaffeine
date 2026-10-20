@@ -95,7 +95,7 @@ class DayDetailView extends WatchUi.View {
             totalMg = app.caffeineModel.getDailyIntake(Time.now().value());
         }
 
-        var dailyLimit = Application.Properties.getValue("dailyLimit");
+        var dailyLimit = Util.getDailyLimit();
         var mgColor = Colors.ACCENT;
         if (totalMg > dailyLimit) { mgColor = Colors.DANGER; }
         else if (totalMg > dailyLimit * 80 / 100) { mgColor = Colors.WARNING; }

@@ -23,7 +23,7 @@ class AlertManager {
     // Check and fire alerts based on current state
     // Returns a status string for the UI: "ok", "warning", or "over"
     function checkAlerts(dailyIntake, currentLevel, nowEpoch) {
-        var dailyLimit = Application.Properties.getValue("dailyLimit");
+        var dailyLimit = Util.getDailyLimit();
         var today = getUniqueDay(nowEpoch);
         var status = "ok";
 

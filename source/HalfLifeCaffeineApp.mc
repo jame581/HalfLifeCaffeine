@@ -54,13 +54,13 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         var now = Time.now().value();
         storageManager.rollUpYesterday(savedDoses, now);
         // Keep yesterday and today (phone sync of an edit across midnight) and
-        // the decay tail of the timeline's 4 past hours (TimelineView.PAST_HOURS)
+        // the decay tail of the timeline's longest past window (6 h, TimelineView.RANGES)
         // in memory; older doses move to the archive. Each dose in memory costs
         // ~160 B and fenix 6 has little to spare, so the tail is cut at 7
         // half-lives of the current setting; raising the half-life later
         // ignores the archived tails (under 1 % of each dose).
         var since = storageManager.recentWindowStart(now,
-            caffeineModel.getArchiveCutoff(now - 4 * 3600));
+            caffeineModel.getArchiveCutoff(now - 6 * 3600));
         savedDoses = storageManager.archiveOldDoses(savedDoses, since, now);
         caffeineModel.setDoses(savedDoses);
     }

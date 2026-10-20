@@ -2,8 +2,17 @@ import Toybox.WatchUi;
 
 class TimelineDelegate extends WatchUi.BehaviorDelegate {
 
-    function initialize() {
+    private var _view;
+
+    function initialize(view) {
         BehaviorDelegate.initialize();
+        _view = view;
+    }
+
+    // START, or a tap on touch watches: cycle the graph window 4h → 8h → 12h.
+    function onSelect() {
+        _view.cycleRange();
+        return true;
     }
 
     // Swipe down (touch) OR DOWN button (non-touch) → log view

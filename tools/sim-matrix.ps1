@@ -210,6 +210,15 @@ foreach ($Device in $Devices) {
         # Without glances the widget is a page of the widget loop and paging leaves it.
         if ($hasGlance) {
             PressNext; Shot '3-timeline'
+            # SELECT cycles the graph window 8h → 12h → 4h → 8h. Not through Press:
+            # with a flat curve only the axis labels change, which can fall under
+            # Press's same-screen threshold and send a second press (wrong range,
+            # and the range is remembered for the next language's walk).
+            foreach ($rangeShot in '3b-timeline-12h', '3c-timeline-4h', $null) {
+                if ($hasKey['enter']) { Send-SimButton $Device enter } else { Send-SimTap $Device 50 50 }
+                Start-Sleep -Milliseconds 1500
+                if ($rangeShot) { Shot $rangeShot }
+            }
             PressNext; Shot '4-log'
             PressSelect; Shot '5-edit-menu'
             PressMenuItem; Shot '6-edit-time'

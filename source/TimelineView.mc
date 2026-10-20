@@ -26,9 +26,6 @@ class TimelineView extends WatchUi.View {
         return (index + 1) % RANGES.size();
     }
 
-    private const PAST_HOURS = 4;
-    private const FUTURE_HOURS = 8;
-    private const SAMPLE_INTERVAL_MIN = 15;
 
     // Graph geometry, set in onUpdate
     private var _graphLeft;
@@ -45,12 +42,32 @@ class TimelineView extends WatchUi.View {
     private var _tplNowLevel;
     private var _unitHour;
 
+    private var _rangeIndex;
+    private var _pastHours;
+    private var _futureHours;
+    private var _stepMin;
+
     function initialize() {
         View.initialize();
         _sTitle = WatchUi.loadResource(Rez.Strings.TitleTimeline);
         _sNow = WatchUi.loadResource(Rez.Strings.TimelineNow);
         _tplNowLevel = WatchUi.loadResource(Rez.Strings.TimelineNowLevel);
         _unitHour = WatchUi.loadResource(Rez.Strings.UnitHour);
+        applyRange(rangeIndex(Application.Storage.getValue(RANGE_KEY)));
+    }
+
+    private function applyRange(index) {
+        _rangeIndex = index;
+        _pastHours = RANGES[index][0];
+        _futureHours = RANGES[index][1];
+        _stepMin = RANGES[index][2];
+    }
+
+    // SELECT on the timeline: next window, remembered for next time.
+    function cycleRange() {
+        applyRange(nextRange(_rangeIndex));
+        Application.Storage.setValue(RANGE_KEY, _rangeIndex);
+        WatchUi.requestUpdate();
     }
 
     function onUpdate(dc) {
@@ -86,10 +103,10 @@ class TimelineView extends WatchUi.View {
         _graphWidth = _graphRight - _graphLeft;
         _graphHeight = _graphBottom - _graphTop;
 
-        // Build curve: past PAST_HOURS + future FUTURE_HOURS, sampled every SAMPLE_INTERVAL_MIN
+        // Build curve over the current window (_pastHours back, _futureHours ahead), every _stepMin minutes
         var curve = [];
-        var totalMinutes = (PAST_HOURS + FUTURE_HOURS) * 60;
-        for (var m = -PAST_HOURS * 60; m <= FUTURE_HOURS * 60; m += SAMPLE_INTERVAL_MIN) {
+        var totalMinutes = (_pastHours + _futureHours) * 60;
+        for (var m = -_pastHours * 60; m <= _futureHours * 60; m += _stepMin) {
             var epoch = now + (m * 60);
             var mg = app.caffeineModel.getCurrentLevel(epoch);
             curve.add({:minutes => m, :mg => mg});
@@ -132,8 +149,8 @@ class TimelineView extends WatchUi.View {
     private function drawBedtimeMarker(dc, now) {
         var bedtimeEpoch = Util.getBedtimeEpoch(now);
         var minutesUntilBed = (bedtimeEpoch - now) / 60;
-        if (minutesUntilBed <= 0 || minutesUntilBed > FUTURE_HOURS * 60) { return; }
-        var bedX = minutesToX(minutesUntilBed, (PAST_HOURS + FUTURE_HOURS) * 60);
+        if (minutesUntilBed <= 0 || minutesUntilBed > _futureHours * 60) { return; }
+        var bedX = minutesToX(minutesUntilBed, (_pastHours + _futureHours) * 60);
         dc.setColor(Colors.BEDTIME, Graphics.COLOR_TRANSPARENT);
         for (var y = _graphTop; y < _graphBottom; y += 5) {
             dc.drawLine(bedX, y, bedX, y + 3);
@@ -141,7 +158,7 @@ class TimelineView extends WatchUi.View {
     }
 
     private function drawNowMarker(dc) {
-        var nowX = minutesToX(0, (PAST_HOURS + FUTURE_HOURS) * 60);
+        var nowX = minutesToX(0, (_pastHours + _futureHours) * 60);
         dc.setColor(Colors.TEXT_PRIMARY, Graphics.COLOR_TRANSPARENT);
         // Vertical line — 2px wide for prominence
         dc.drawLine(nowX, _graphTop, nowX, _graphBottom);
@@ -189,7 +206,7 @@ class TimelineView extends WatchUi.View {
         for (var i = 0; i < log.size(); i++) {
             var dose = log[i];
             var doseMinutesFromNow = (dose[:time] - now) / 60;
-            if (doseMinutesFromNow < -PAST_HOURS * 60 || doseMinutesFromNow > 0) { continue; }
+            if (doseMinutesFromNow < -_pastHours * 60 || doseMinutesFromNow > 0) { continue; }
             var doseMg = model.getCurrentLevel(dose[:time]);
             var dx = minutesToX(doseMinutesFromNow, totalMinutes);
             var dy = mgToY(doseMg);
@@ -201,10 +218,10 @@ class TimelineView extends WatchUi.View {
         dc.setColor(Colors.TEXT_DIM, Graphics.COLOR_TRANSPARENT);
         var labelY = _graphBottom + 8;
         var labels = [
-            [-PAST_HOURS * 60, "-" + PAST_HOURS + _unitHour],
+            [-_pastHours * 60, "-" + _pastHours + _unitHour],
             [0, _sNow],
-            [FUTURE_HOURS * 60 / 2, "+" + (FUTURE_HOURS / 2) + _unitHour],
-            [FUTURE_HOURS * 60, "+" + FUTURE_HOURS + _unitHour]
+            [_futureHours * 60 / 2, "+" + (_futureHours / 2) + _unitHour],
+            [_futureHours * 60, "+" + _futureHours + _unitHour]
         ];
         for (var i = 0; i < labels.size(); i++) {
             var lx = minutesToX(labels[i][0], totalMinutes);
@@ -227,10 +244,10 @@ class TimelineView extends WatchUi.View {
             Lang.format(_tplNowLevel, [Util.formatMg(currentMg)]), Graphics.TEXT_JUSTIFY_CENTER);
     }
 
-    // minutes: -240 to +480 (past and future offset from now)
-    // totalMinutes: full window (720 for 4h past + 8h future)
+    // minutes: offset from now, -_pastHours*60 .. +_futureHours*60
+    // totalMinutes: the whole window, (_pastHours + _futureHours) * 60
     private function minutesToX(minutes, totalMinutes) {
-        return _graphLeft + (((minutes + PAST_HOURS * 60).toFloat() / totalMinutes) * _graphWidth).toNumber();
+        return _graphLeft + (((minutes + _pastHours * 60).toFloat() / totalMinutes) * _graphWidth).toNumber();
     }
 
     private function mgToY(mg) {

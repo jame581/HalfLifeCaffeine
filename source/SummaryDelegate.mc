@@ -32,7 +32,8 @@ class SummaryDelegate extends WatchUi.BehaviorDelegate {
 
     // Swipe down (touch) OR DOWN button (non-touch) → timeline view
     function onNextPage() {
-        WatchUi.switchToView(new TimelineView(), new TimelineDelegate(), WatchUi.SLIDE_UP);
+        var view = new TimelineView();
+        WatchUi.switchToView(view, new TimelineDelegate(view), WatchUi.SLIDE_UP);
         return true;
     }
 

@@ -69,7 +69,8 @@ class LogDelegate extends WatchUi.BehaviorDelegate {
     }
 
     private function showTimeline() {
-        WatchUi.switchToView(new TimelineView(), new TimelineDelegate(), WatchUi.SLIDE_DOWN);
+        var view = new TimelineView();
+        WatchUi.switchToView(view, new TimelineDelegate(view), WatchUi.SLIDE_DOWN);
     }
 
     private function showHistory() {

@@ -116,3 +116,23 @@ function testBedtimeEpochIsNextLocalBedtime(logger) {
         && info.min == Application.Properties.getValue("bedtimeMinute")
         && bedtime > now && bedtime - now <= 90000;
 }
+
+(:test)
+function testSanitizeDailyLimit(logger) {
+    return Util.sanitizeDailyLimit(null) == 400
+        && Util.sanitizeDailyLimit(0) == 400
+        && Util.sanitizeDailyLimit(-50) == 400
+        && Util.sanitizeDailyLimit("abc") == 400
+        && Util.sanitizeDailyLimit(300) == 300
+        && Util.sanitizeDailyLimit(350.7) == 350;
+}
+
+(:test)
+function testIntakeColorThresholds(logger) {
+    return Util.intakeColor(0, 400) == Colors.ACCENT
+        && Util.intakeColor(319, 400) == Colors.ACCENT
+        && Util.intakeColor(320, 400) == Colors.WARNING
+        && Util.intakeColor(399, 400) == Colors.WARNING
+        && Util.intakeColor(400, 400) == Colors.DANGER
+        && Util.intakeColor(900, 400) == Colors.DANGER;
+}

@@ -6,6 +6,26 @@ import Toybox.Time;
 
 class TimelineView extends WatchUi.View {
 
+    // Graph windows: hours past, hours future, sample step in minutes.
+    // The step grows with the window so a redraw costs about the same.
+    // static var, not const: a class const is not reachable from a static
+    // function or as TimelineView.RANGES (Symbol Not Found at runtime).
+    static var RANGES = [[2, 4, 10], [4, 8, 15], [6, 12, 20]];
+    static var DEFAULT_RANGE = 1;
+    static var RANGE_KEY = "timelineRange";
+
+    // Index into RANGES from a stored value; anything unexpected means the default.
+    static function rangeIndex(stored) {
+        if (stored instanceof Lang.Number && stored >= 0 && stored < RANGES.size()) {
+            return stored;
+        }
+        return DEFAULT_RANGE;
+    }
+
+    static function nextRange(index) {
+        return (index + 1) % RANGES.size();
+    }
+
     private const PAST_HOURS = 4;
     private const FUTURE_HOURS = 8;
     private const SAMPLE_INTERVAL_MIN = 15;

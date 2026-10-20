@@ -65,6 +65,27 @@ module Util {
         return (hours * 3600).toNumber();
     }
 
+    // Daily limit in mg. A value synced from the phone can be missing, a Float,
+    // or nonsense; anything that is not a positive number means the default 400.
+    function sanitizeDailyLimit(value) {
+        if (value instanceof Lang.Number || value instanceof Lang.Float) {
+            var n = value.toNumber();
+            if (n > 0) { return n; }
+        }
+        return 400;
+    }
+
+    function getDailyLimit() {
+        return sanitizeDailyLimit(Application.Properties.getValue("dailyLimit"));
+    }
+
+    // Colour for today's intake against the limit; same thresholds as AlertManager.
+    function intakeColor(intake, limit) {
+        if (intake >= limit) { return Colors.DANGER; }
+        if (intake >= (limit * 0.8).toNumber()) { return Colors.WARNING; }
+        return Colors.ACCENT;
+    }
+
     // Get bedtime as epoch seconds for today
     function getBedtimeEpoch(nowEpoch) {
         var hour = Application.Properties.getValue("bedtimeHour");

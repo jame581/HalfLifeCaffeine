@@ -38,7 +38,7 @@ class SummaryView extends WatchUi.View {
         var dailyIntake = 0;
         var minutesToSafe = 0;
         var alertStatus = "ok";
-        var dailyLimit = 400;
+        var dailyLimit = Util.getDailyLimit();
 
         if (app.caffeineModel != null) {
             level = app.caffeineModel.getCurrentLevel(now);
@@ -46,8 +46,6 @@ class SummaryView extends WatchUi.View {
             minutesToSafe = app.caffeineModel.getMinutesToSafe(now, 50);
         }
 
-        var limitProp = Application.Properties.getValue("dailyLimit");
-        if (limitProp != null) { dailyLimit = limitProp; }
 
         if (app.alertManager != null) {
             alertStatus = app.alertManager.getStatus(dailyIntake, dailyLimit);

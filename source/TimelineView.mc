@@ -26,6 +26,18 @@ class TimelineView extends WatchUi.View {
         return (index + 1) % RANGES.size();
     }
 
+    // Levels from -pastHours to +futureHours every stepMin minutes, as a flat
+    // list of Floats: sample i is at minute -pastHours*60 + i*stepMin. A list of
+    // {:minutes, :mg} dictionaries cost ~6.7 KB on fenix 6, which a debug build
+    // could not afford.
+    static function buildCurve(model, now, pastHours, futureHours, stepMin) {
+        var curve = [];
+        for (var m = -pastHours * 60; m <= futureHours * 60; m += stepMin) {
+            curve.add(model.getCurrentLevel(now + m * 60).toFloat());
+        }
+        return curve;
+    }
+
 
     // Graph geometry, set in onUpdate
     private var _graphLeft;
@@ -103,20 +115,13 @@ class TimelineView extends WatchUi.View {
         _graphWidth = _graphRight - _graphLeft;
         _graphHeight = _graphBottom - _graphTop;
 
-        // Build curve over the current window (_pastHours back, _futureHours ahead), every _stepMin minutes
-        var curve = [];
+        var curve = buildCurve(app.caffeineModel, now, _pastHours, _futureHours, _stepMin);
         var totalMinutes = (_pastHours + _futureHours) * 60;
-        for (var m = -_pastHours * 60; m <= _futureHours * 60; m += _stepMin) {
-            var epoch = now + (m * 60);
-            var mg = app.caffeineModel.getCurrentLevel(epoch);
-            curve.add({:minutes => m, :mg => mg});
-        }
 
         // Y-axis scale (headroom above max)
         _maxMg = 50.0;
         for (var i = 0; i < curve.size(); i++) {
-            var mg = curve[i][:mg];
-            if (mg > _maxMg) { _maxMg = mg; }
+            if (curve[i] > _maxMg) { _maxMg = curve[i]; }
         }
         _maxMg = _maxMg * 1.15;
 
@@ -176,12 +181,11 @@ class TimelineView extends WatchUi.View {
         // Fill area under curve with darker shade of accent for depth
         var poly = [];
         for (var i = 0; i < curve.size(); i++) {
-            var p = curve[i];
-            poly.add([minutesToX(p[:minutes], totalMinutes), mgToY(p[:mg])]);
+            poly.add([minutesToX(sampleMinute(i), totalMinutes), mgToY(curve[i])]);
         }
         // Close the polygon along the baseline
-        poly.add([minutesToX(curve[curve.size() - 1][:minutes], totalMinutes), _graphBottom]);
-        poly.add([minutesToX(curve[0][:minutes], totalMinutes), _graphBottom]);
+        poly.add([minutesToX(sampleMinute(curve.size() - 1), totalMinutes), _graphBottom]);
+        poly.add([minutesToX(sampleMinute(0), totalMinutes), _graphBottom]);
         dc.setColor(0x1B4D3E, Colors.BG); // dim accent shadow under curve
         dc.fillPolygon(poly);
     }
@@ -190,11 +194,9 @@ class TimelineView extends WatchUi.View {
         dc.setColor(Colors.ACCENT, Graphics.COLOR_TRANSPARENT);
         dc.setAntiAlias(true);
         for (var i = 1; i < curve.size(); i++) {
-            var prev = curve[i - 1];
-            var curr = curve[i];
             dc.drawLine(
-                minutesToX(prev[:minutes], totalMinutes), mgToY(prev[:mg]),
-                minutesToX(curr[:minutes], totalMinutes), mgToY(curr[:mg])
+                minutesToX(sampleMinute(i - 1), totalMinutes), mgToY(curve[i - 1]),
+                minutesToX(sampleMinute(i), totalMinutes), mgToY(curve[i])
             );
         }
         dc.setAntiAlias(false);
@@ -231,17 +233,16 @@ class TimelineView extends WatchUi.View {
     }
 
     private function drawCurrentLevel(dc, width, height, curve) {
-        // Find the sample closest to minutes=0 (current)
-        var currentMg = 0.0;
-        for (var i = 0; i < curve.size(); i++) {
-            if (curve[i][:minutes] == 0) {
-                currentMg = curve[i][:mg];
-                break;
-            }
-        }
+        // The "now" sample: every step divides the past window evenly.
+        var currentMg = curve[_pastHours * 60 / _stepMin];
         dc.setColor(Colors.TEXT_PRIMARY, Graphics.COLOR_TRANSPARENT);
         dc.drawText(width / 2, _levelY, Graphics.FONT_XTINY,
             Lang.format(_tplNowLevel, [Util.formatMg(currentMg)]), Graphics.TEXT_JUSTIFY_CENTER);
+    }
+
+    // Minute offset from now of curve sample i.
+    private function sampleMinute(i) {
+        return -_pastHours * 60 + i * _stepMin;
     }
 
     // minutes: offset from now, -_pastHours*60 .. +_futureHours*60

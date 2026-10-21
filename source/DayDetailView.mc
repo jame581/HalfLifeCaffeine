@@ -96,9 +96,7 @@ class DayDetailView extends WatchUi.View {
         }
 
         var dailyLimit = Util.getDailyLimit();
-        var mgColor = Colors.ACCENT;
-        if (totalMg > dailyLimit) { mgColor = Colors.DANGER; }
-        else if (totalMg > dailyLimit * 80 / 100) { mgColor = Colors.WARNING; }
+        var mgColor = Util.intakeColor(totalMg, dailyLimit);
 
         dc.setColor(mgColor, Graphics.COLOR_TRANSPARENT);
         dc.drawText(width / 2, height * 22 / 100, Graphics.FONT_SMALL,

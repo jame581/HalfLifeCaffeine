@@ -123,9 +123,7 @@ class HistoryView extends WatchUi.View {
             var bx = chartLeftInset + (slotIdx * barSlotWidth) + barGap;
             var by = chartBottom - barPixelHeight;
 
-            var color = Colors.ACCENT;
-            if (total > dailyLimit) { color = Colors.DANGER; }
-            else if (total > dailyLimit * 80 / 100) { color = Colors.WARNING; }
+            var color = Util.intakeColor(total, dailyLimit);
 
             dc.setColor(color, Colors.BG);
             dc.fillRectangle(bx, by, barInnerWidth, barPixelHeight);
@@ -182,9 +180,7 @@ class HistoryView extends WatchUi.View {
             var mgStr = Util.formatMg(row[1]) + " mg";
 
             // Color the mg text by proportion of daily limit.
-            var mgColor = Colors.ACCENT;
-            if (row[1] > dailyLimit) { mgColor = Colors.DANGER; }
-            else if (row[1] > dailyLimit * 80 / 100) { mgColor = Colors.WARNING; }
+            var mgColor = Util.intakeColor(row[1], dailyLimit);
 
             dc.setColor(Colors.TEXT_PRIMARY, Graphics.COLOR_TRANSPARENT);
             dc.drawText(listLeftInset + 6, rowY + rowHeight / 2,

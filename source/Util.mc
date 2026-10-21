@@ -79,7 +79,8 @@ module Util {
         return sanitizeDailyLimit(Application.Properties.getValue("dailyLimit"));
     }
 
-    // Colour for today's intake against the limit; same thresholds as AlertManager.
+    // Colour for a day's intake against the limit; same thresholds as AlertManager.
+    // Used by every screen that colours an intake, so they agree at the limit.
     function intakeColor(intake, limit) {
         if (intake >= limit) { return Colors.DANGER; }
         if (intake >= (limit * 0.8).toNumber()) { return Colors.WARNING; }

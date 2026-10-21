@@ -366,7 +366,7 @@ function checkRollUpThenArchiveKeepsDay() {
     ];
     sm.rollUpYesterday(doses, now);
     var model = new CaffeineModel();
-    var since = sm.recentWindowStart(now, model.getArchiveCutoff(now - 4 * 3600));
+    var since = sm.recentWindowStart(now, model.getArchiveCutoff(now - 6 * 3600));
     var recent = sm.archiveOldDoses(doses, since, now);
     var oldYmd = Util.ymdFromEpoch(oldDay);
     var rows = sm.loadDailyTotals();
@@ -388,14 +388,16 @@ function testRollUpThenArchiveKeepsDay(logger) {
 (:test)
 function testRecentWindowCoversYesterday(logger) {
     var sm = new StorageManager();
-    var now = Time.now().value();
+    // 23:00 today: every cutoff below lands on a fixed side of yesterday's
+    // midnight whatever the time the tests run.
+    var now = Util.localTimeOnDay(Time.now().value(), 23 * 3600);
     var yesterdayStart = Util.midnightEpochFor(noonDaysAgo(now, 1));
     var shortHl = new CaffeineModel();
     shortHl.setHalfLifeSeconds(3 * 3600);
     var longHl = new CaffeineModel();
     longHl.setHalfLifeSeconds(10 * 3600);
-    var longCutoff = longHl.getOldestCountedTime(now - 4 * 3600);
-    return sm.recentWindowStart(now, shortHl.getOldestCountedTime(now - 4 * 3600)) == yesterdayStart
+    var longCutoff = longHl.getOldestCountedTime(now - 6 * 3600);
+    return sm.recentWindowStart(now, shortHl.getOldestCountedTime(now - 6 * 3600)) == yesterdayStart
         && sm.recentWindowStart(now, longCutoff) == longCutoff;
 }
 
@@ -405,16 +407,18 @@ function testRecentWindowCoversYesterday(logger) {
 (:test)
 function testArchiveCutoffIsSevenHalfLives(logger) {
     var sm = new StorageManager();
-    var now = Time.now().value();
+    // 23:00 today: every cutoff below lands on a fixed side of yesterday's
+    // midnight whatever the time the tests run.
+    var now = Util.localTimeOnDay(Time.now().value(), 23 * 3600);
     var yesterdayStart = Util.midnightEpochFor(noonDaysAgo(now, 1));
     var shortHl = new CaffeineModel();
     shortHl.setHalfLifeSeconds(3 * 3600);
     var longHl = new CaffeineModel();
     longHl.setHalfLifeSeconds(10 * 3600);
-    var longCutoff = now - 4 * 3600 - 7 * 36000;
-    return longHl.getArchiveCutoff(now - 4 * 3600) == longCutoff
-        && sm.recentWindowStart(now, longHl.getArchiveCutoff(now - 4 * 3600)) == longCutoff
-        && sm.recentWindowStart(now, shortHl.getArchiveCutoff(now - 4 * 3600)) == yesterdayStart;
+    var longCutoff = now - 6 * 3600 - 7 * 36000;
+    return longHl.getArchiveCutoff(now - 6 * 3600) == longCutoff
+        && sm.recentWindowStart(now, longHl.getArchiveCutoff(now - 6 * 3600)) == longCutoff
+        && sm.recentWindowStart(now, shortHl.getArchiveCutoff(now - 6 * 3600)) == yesterdayStart;
 }
 
 // Two drinks with the same mg and second but different names are both kept.

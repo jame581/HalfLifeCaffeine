@@ -47,8 +47,9 @@ class SyncManager {
             // The page can send 0, a negative number or null (NaN); keep the stored limit then.
             if (data.hasKey("dailyLimit")) {
                 var limit = data["dailyLimit"];
-                if ((limit instanceof Lang.Number || limit instanceof Lang.Float) && limit > 0) {
-                    Application.Properties.setValue("dailyLimit", limit.toNumber());
+                if (limit instanceof Lang.Number || limit instanceof Lang.Float) {
+                    limit = limit.toNumber();
+                    if (limit > 0) { Application.Properties.setValue("dailyLimit", limit); }
                 }
             }
             if (data.hasKey("bedtimeHour")) {

@@ -74,8 +74,14 @@ class DrinkPresets {
                 var dict = entry as Dictionary;
                 if (dict.hasKey("name") && dict.hasKey("mg")) {
                     var nameStr = dict["name"].toString();
-                    var mgNum = dict["mg"].toNumber();
-                    // A non-numeric or non-positive mg would crash the menu's bedtime preview.
+                    // mg can arrive as a Number, Float or numeric String; an empty field
+                    // is null. Anything else, or not positive, would crash the menu's
+                    // bedtime preview, so the entry is skipped.
+                    var mg = dict["mg"];
+                    var mgNum = null;
+                    if (mg instanceof Lang.Number || mg instanceof Lang.Float || mg instanceof Lang.String) {
+                        mgNum = mg.toNumber();
+                    }
                     if (mgNum != null && mgNum > 0) {
                         result.add({:name => nameStr, :mg => mgNum});
                     }

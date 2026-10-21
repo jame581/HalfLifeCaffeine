@@ -50,3 +50,20 @@ function testPresetWithBadMgIsSkipped(logger) {
     Application.Properties.setValue("presets", []);
     return ok;
 }
+
+// An empty mg field can arrive as null; a numeric string or a Float is fine.
+(:test)
+function testPresetMgTypes(logger) {
+    Application.Properties.setValue("presets", [
+        {"name" => "Null", "mg" => null},
+        {"name" => "Bool", "mg" => true},
+        {"name" => "Text", "mg" => "85"},
+        {"name" => "Float", "mg" => 85.7}
+    ]);
+    var presets = new DrinkPresets();
+    var ok = presets.getPresetCount() == 2
+        && presets.getPresetAt(0)[:name].equals("Text") && presets.getPresetAt(0)[:mg] == 85
+        && presets.getPresetAt(1)[:name].equals("Float") && presets.getPresetAt(1)[:mg] == 85;
+    Application.Properties.setValue("presets", []);
+    return ok;
+}

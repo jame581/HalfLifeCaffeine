@@ -49,3 +49,14 @@ function testTimelineBuildCurveSamples(logger) {
         && curve[curve.size() - 1] < curve[nowIdx]
         && curve[nowIdx] instanceof Lang.Float;
 }
+
+// Every step must divide both windows: the "now" sample, the polygon's
+// edges and the axis labels assume sample minutes land on whole steps.
+(:test)
+function testTimelineRangesDivideEvenly(logger) {
+    var r = TimelineView.RANGES;
+    for (var i = 0; i < r.size(); i++) {
+        if ((r[i][0] * 60) % r[i][2] != 0 || (r[i][1] * 60) % r[i][2] != 0) { return false; }
+    }
+    return true;
+}

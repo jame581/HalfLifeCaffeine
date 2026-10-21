@@ -19,3 +19,17 @@ function testPhoneDailyLimitRejectsBadValues(logger) {
     Application.Properties.setValue("dailyLimit", old);
     return ok;
 }
+
+// A Float limit is stored as a whole number; one that rounds down to 0 is ignored.
+(:test)
+function testPhoneDailyLimitFloat(logger) {
+    var old = Application.Properties.getValue("dailyLimit");
+    var sync = new SyncManager();
+    Application.Properties.setValue("dailyLimit", 300);
+    sync.handlePhoneMessage({"type" => "settings", "dailyLimit" => 0.5});
+    var ok = Application.Properties.getValue("dailyLimit") == 300;
+    sync.handlePhoneMessage({"type" => "settings", "dailyLimit" => 450.0});
+    ok = ok && Application.Properties.getValue("dailyLimit") == 450;
+    Application.Properties.setValue("dailyLimit", old);
+    return ok;
+}

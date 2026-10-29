@@ -4,3 +4,4 @@ project.manifest = manifest.xml
 
 base.sourcePath = source;test
 base.resourcePath = resources
+base.excludeAnnotations = demo

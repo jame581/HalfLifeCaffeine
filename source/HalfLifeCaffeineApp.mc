@@ -50,8 +50,9 @@ class HalfLifeCaffeineApp extends Application.AppBase {
         Communications.registerForPhoneAppMessages(method(:onPhoneMessage));
 
         caffeineModel.setHalfLifeSeconds(Util.getHalfLifeSeconds());
-        var savedDoses = storageManager.loadDoses();
         var now = Time.now().value();
+        seedDemoData(now);
+        var savedDoses = storageManager.loadDoses();
         storageManager.rollUpYesterday(savedDoses, now);
         // Keep yesterday and today (phone sync of an edit across midnight) and
         // the decay tail of the timeline's longest past window (6 h, TimelineView.RANGES)
@@ -63,6 +64,17 @@ class HalfLifeCaffeineApp extends Application.AppBase {
             caffeineModel.getArchiveCutoff(now - 6 * 3600));
         savedDoses = storageManager.archiveOldDoses(savedDoses, since, now);
         caffeineModel.setDoses(savedDoses);
+    }
+
+    // Store screenshots: store.jungle compiles demo/ and the (:demo) version;
+    // every other build gets the empty one.
+    (:demo)
+    function seedDemoData(now) {
+        DemoData.seed(storageManager, now);
+    }
+
+    (:nodemo)
+    function seedDemoData(now) {
     }
 
     function onSettingsChanged() as Void {

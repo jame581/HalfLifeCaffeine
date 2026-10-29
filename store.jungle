@@ -1,0 +1,7 @@
+# Store-screenshot build, used by tools/sim-matrix.ps1 -Demo.
+# Adds demo/ (DemoData) and the (:demo) seed hook; never ship a build from this file.
+project.manifest = manifest.xml
+
+base.sourcePath = source;demo
+base.resourcePath = resources
+base.excludeAnnotations = test;nodemo

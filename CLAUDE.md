@@ -16,7 +16,7 @@ Monkey C projects are built through the VS Code Monkey C extension, not a CLI ta
 
 `monkey.jungle` compiles only `source/` and excludes the `test` annotation, so its builds — including **Run Tests** in VS Code — contain no tests. Run the tests with `pwsh tools/run-tests.ps1` (builds with `test.jungle`, which adds `test/`, then runs them in the simulator; no mouse input; exit code 0 when all pass). Test functions must be tagged `(:test)`. Tests that use "now" can fail when run in the first hour after local midnight.
 
-`pwsh tools/sim-matrix.ps1` walks every screen in the simulator per device and language and writes contact sheets to `bin/sim-matrix/`. It takes over the mouse while it runs (the simulator ignores synthetic input).
+`pwsh tools/sim-matrix.ps1` walks every screen in the simulator per device and language and writes contact sheets to `bin/sim-matrix/`. It takes over the mouse while it runs (the simulator ignores synthetic input). With `-Demo` it builds `store.jungle` instead, which adds `demo/DemoData.mc` (two weeks of believable drinks, seeded once into empty storage through the `(:demo)` `seedDemoData` hook; `monkey.jungle` and `test.jungle` exclude `demo` and get the empty `(:nodemo)` one), and also writes each screen cropped to the display to `bin/sim-matrix/store/` for the store listing (`pwsh tools/sim-matrix.ps1 -Devices vivoactive5 -Langs en,cs,fi -Demo`).
 
 ### CLI builds
 

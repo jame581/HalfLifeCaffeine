@@ -16,6 +16,12 @@ device and language.
 Test builds use a 1000 mg default daily limit so that the intake line shows its
 widest value; resources/properties.xml is restored afterwards.
 
+-Demo builds with store.jungle instead (demo/DemoData.mc: two weeks of
+believable drinks, the 400 mg default limit), clears the app data before each
+language so the drinks are named in that language, and also saves every screen
+cropped to the display, round screens with transparent corners, under
+<OutDir>\store\<device>-<lang>\ for the store listing.
+
 Known limits: watches without glances (vivoactive4) show the widget as a page of
 the widget loop, where paging leaves it, so only the summary and the add menu
 are captured there. A press that changes nothing on screen is repeated once; if
@@ -23,6 +29,9 @@ a sheet still ends up out of step, rerun that device.
 
 .EXAMPLE
 pwsh tools/sim-matrix.ps1 -Devices fr255s,fenix9pro51mm -Langs en,de,fr,fi -Seed
+
+.EXAMPLE
+pwsh tools/sim-matrix.ps1 -Devices vivoactive5 -Langs en,cs,fi -Demo
 #>
 param(
     # Keep vivoactive4 last: the next device loaded after it throws the app and its data away.
@@ -34,6 +43,8 @@ param(
     # on the first device. The simulator keeps one data file for the app, so the
     # other devices see the same drinks; put a watch with an UP button first.
     [switch]$Seed,
+    # Store screenshots: demo data instead of worst-case drinks (see .DESCRIPTION).
+    [switch]$Demo,
     # Reuse the binaries from a previous run.
     [switch]$NoBuild
 )
@@ -51,6 +62,7 @@ New-Item -ItemType Directory -Force $OutDir, $binDir | Out-Null
 $OutDir = (Resolve-Path $OutDir).Path
 $langMenu = @{ en = 'English (eng)'; de = 'German (deu)'; fr = 'French (fre)'; fi = 'Finnish (fin)'; cs = 'Czech (ces)' }
 $unknown = $Langs | Where-Object { -not $langMenu.ContainsKey($_) }
+if ($Demo -and $Seed) { throw '-Demo brings its own drinks; leave out -Seed' }
 if ($unknown) { throw "unknown language code: $($unknown -join ', ')" }
 
 if (-not $NoBuild) {
@@ -62,12 +74,28 @@ if (-not $NoBuild) {
     $limit = '<property id="dailyLimit" type="number">400</property>'
     if (-not $orig.Contains($limit)) { throw 'dailyLimit default not found in resources/properties.xml' }
     try {
-        Set-Content $props $orig.Replace($limit, $limit.Replace('400', '1000')) -NoNewline
+        # Store screenshots keep the real 400 mg default.
+        if (-not $Demo) { Set-Content $props $orig.Replace($limit, $limit.Replace('400', '1000')) -NoNewline }
+        $jungle = Join-Path $root ($Demo ? 'store.jungle' : 'monkey.jungle')
         foreach ($d in $Devices) {
-            $o = & (Join-Path (Get-SimSdk) 'bin\monkeyc.bat') -f (Join-Path $root 'monkey.jungle') -d $d -y $Key -o (Join-Path $binDir "$d.prg") 2>&1
+            $o = & (Join-Path (Get-SimSdk) 'bin\monkeyc.bat') -f $jungle -d $d -y $Key -o (Join-Path $binDir "$d.prg") 2>&1
             if ($LASTEXITCODE -ne 0 -or -not ($o -match 'BUILD SUCCESSFUL')) { throw "build failed for ${d}: $($o | Select-Object -Last 3)" }
         }
     } finally { Set-Content $props $orig -NoNewline }
+}
+
+# The display alone, as the store wants it; outside a round display is transparent.
+function Save-DisplayCrop([string]$From, [string]$File, $Disp, [bool]$Round) {
+    $src = [System.Drawing.Image]::FromFile($From)
+    $out = New-Object System.Drawing.Bitmap $Disp.width, $Disp.height, ([System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+    $g = [System.Drawing.Graphics]::FromImage($out); $g.Clear([System.Drawing.Color]::Transparent)
+    if ($Round) {
+        $clip = New-Object System.Drawing.Drawing2D.GraphicsPath
+        $clip.AddEllipse(0, 0, $Disp.width, $Disp.height); $g.SetClip($clip)
+    }
+    $g.DrawImage($src, (New-Object System.Drawing.Rectangle 0, 0, $Disp.width, $Disp.height),
+                 (New-Object System.Drawing.Rectangle $Disp.x, $Disp.y, $Disp.width, $Disp.height), 'Pixel')
+    $g.Dispose(); $src.Dispose(); $out.Save($File, [System.Drawing.Imaging.ImageFormat]::Png); $out.Dispose()
 }
 
 function Save-Sheet([string]$File, [string]$Dir, [string[]]$Names, $Disp) {
@@ -160,6 +188,7 @@ foreach ($Device in $Devices) {
     function Shot([string]$Name) {
         Start-Sleep -Milliseconds 500; $null = Close-SimDialogs
         Save-SimShot "$script:dir\$Name.png"; $script:shots += $Name
+        if ($Demo) { Save-DisplayCrop "$script:dir\$Name.png" "$script:storeDir\$Name.png" $disp ($dev.display.shape -eq 'round') }
     }
     # Loads the device too, which the language list needs.
     function Launch([string]$Mode) {
@@ -193,6 +222,13 @@ foreach ($Device in $Devices) {
         $script:dir = "$OutDir\$Device-$lang"; New-Item -ItemType Directory -Force $dir | Out-Null; $script:shots = @()
         Restart-Sim; Launch 'Normal'
         Invoke-SimMenu "Settings > Language > $($langMenu[$lang])"
+        if ($Demo) {
+            # Start from empty data in this language: the full view seeds the demo
+            # drinks and presets with this language's names, then the walk begins.
+            $script:storeDir = "$OutDir\store\$Device-$lang"; New-Item -ItemType Directory -Force $storeDir | Out-Null
+            Invoke-SimMenu 'File > Kill App'; Start-Sleep 1; ClearAppData
+            Launch 'Normal'; Start-Sleep 2; $null = Close-SimDialogs
+        }
         if ($hasGlance -and $hasKey['down']) {
             # Started directly, the simulator treats a button watch's widget as a page of
             # the old widget loop and DOWN leaves it. Open it from the glance list instead,

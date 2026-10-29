@@ -1,4 +1,0 @@
-<!-- Strings that are never translated. Translatable strings live in translations/en.csv. -->
-<strings>
-  <string id="AppName" translatable="false">HalfLife Caffeine</string>
-</strings>

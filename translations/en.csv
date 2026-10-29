@@ -1,4 +1,5 @@
 ﻿key,where,context,max,sample,text
+AppName,watch,"App name in the watch app list and in Garmin Connect. A short, plain name for what the app does is fine; otherwise keep HalfLife Caffeine.",20,,HalfLife Caffeine
 Clear,glance,"Glance and main screen, when caffeine is low enough to sleep. Means 'all clear'.",12,,Clear
 GlanceSafeIn,glance,Glance status line. $1$ is a duration such as 3h 20m.,19,{duration},Safe in $1$
 UnitHour,glance,"Hour abbreviation in durations and on the graph axis (3h, +4h).",3,,h

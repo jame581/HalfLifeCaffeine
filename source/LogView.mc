@@ -93,7 +93,7 @@ class LogView extends WatchUi.View {
             var timeStr = Util.formatTime(dose[:time]);
             var mgStr = Util.formatMg(dose[:mg]) + "mg";
             var name = dose.hasKey(:name) && !dose[:name].equals("") ? dose[:name] : Util.formatMg(dose[:mg]) + "mg";
-            var line = timeStr + "  " + name + "  " + mgStr;
+            var line = RowFit.line(dc, Graphics.FONT_XTINY, timeStr, name, mgStr, y);
 
             dc.setColor(Colors.TEXT_PRIMARY, Graphics.COLOR_TRANSPARENT);
             dc.drawText(width / 2, y, Graphics.FONT_XTINY,

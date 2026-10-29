@@ -121,7 +121,7 @@ class DayDetailView extends WatchUi.View {
                 ? dose[:name] : (Util.formatMg(dose[:mg]) + "mg");
             var mgStr = Util.formatMg(dose[:mg]) + "mg";
             var y = listTop + (i * lineHeight);
-            var line = timeStr + "  " + name + "  " + mgStr;
+            var line = RowFit.line(dc, Graphics.FONT_XTINY, timeStr, name, mgStr, y);
 
             dc.setColor(Colors.TEXT_PRIMARY, Graphics.COLOR_TRANSPARENT);
             dc.drawText(width / 2, y, Graphics.FONT_XTINY,

@@ -12,6 +12,7 @@ v1.5.0
 - Kofeiiniaikajana: paina START (tai napauta) vaihtaaksesi kuvaajan 4, 8 ja 12 tunnin välillä.
 - Pikanäkymä näyttää tämän päivän saannin suhteessa päivärajaan palkkina.
 - Suomenkielisessä kellossa sovelluksen nimi on nyt Kofeiinilaskuri.
+- Pitkät juomien nimet eivät enää valu pyöreän näytön reunan yli juomalistassa ja päivän tiedoissa.
 ```
 
 ## Tagline (50 chars max)

@@ -20,7 +20,9 @@ widest value; resources/properties.xml is restored afterwards.
 believable drinks, the 400 mg default limit), clears the app data before each
 language so the drinks are named in that language, and also saves every screen
 cropped to the display, round screens with transparent corners, under
-<OutDir>\store\<device>-<lang>\ for the store listing.
+<OutDir>\store\<device>-<lang>\ for the store listing. On fenix6 the demo build
+takes the simulator down when it seeds (the release build runs fine there);
+use vivoactive5.
 
 Known limits: watches without glances (vivoactive4) show the widget as a page of
 the widget loop, where paging leaves it, so only the summary and the add menu

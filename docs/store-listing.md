@@ -13,6 +13,7 @@ v1.5.0
 - Caffeine Timeline: press START (or tap) to switch the graph between 4, 8 and 12 hours.
 - The glance shows today's intake against your daily limit as a bar.
 - On Finnish watches the app is now called Kofeiinilaskuri.
+- Long drink names no longer run off the edge of round screens in today's drinks and day detail.
 
 --------------------
 

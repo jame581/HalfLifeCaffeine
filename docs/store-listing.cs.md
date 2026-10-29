@@ -11,6 +11,7 @@ v1.5.0
 - V nabídce nápojů vidíš pod každým nápojem, kolik kofeinu budeš mít v čase spánku, když ho vypiješ teď.
 - Průběh kofeinu: stiskem START (nebo klepnutím) přepneš graf mezi 4, 8 a 12 hodinami.
 - Glance ukazuje dnešní příjem vůči dennímu limitu jako pruh.
+- Dlouhé názvy nápojů už na kulatých displejích nepřetékají přes okraj v Dnešních nápojích a v detailu dne.
 ```
 
 ## Tagline (50 chars max)

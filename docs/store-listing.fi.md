@@ -1,46 +1,59 @@
-> Store listing for Finnish. Translate the text under each heading; keep headings, emoji and **bold** markers. Tagline limit: 50 characters.
+> Store listing for Finnish. Draft translation, not yet reviewed by the translator. Keep headings, emoji and **bold** markers. Tagline limit: 50 characters.
 
 ## App Name
 HalfLife Caffeine – Kofeiinilaskuri
 
+## What's New
+
+```
+v1.5.0
+
+- Lisää juoma -valikko näyttää jokaisen juoman alla, paljonko kofeiinia sinulla olisi nukkumaanmenoaikaan, jos joisit sen nyt.
+- Kofeiiniaikajana: paina START (tai napauta) vaihtaaksesi kuvaajan 4, 8 ja 12 tunnin välillä.
+- Pikanäkymä näyttää tämän päivän saannin suhteessa päivärajaan palkkina.
+- Suomenkielisessä kellossa sovelluksen nimi on nyt Kofeiinilaskuri.
+```
+
 ## Tagline (50 chars max)
-Track caffeine and see when you're safe to sleep.
+Seuraa kofeiinia ja tiedä, milloin voit nukkua.
 
 ## Short Description (~250 chars)
-Free caffeine tracker with pharmacokinetic decay modeling. Log drinks from a menu, see your current caffeine level at a glance, edit or delete mistakes, and know exactly when you'll be safe to sleep. Coffee, tea, energy drinks, and more.
+Ilmainen kofeiinilaskuri, joka mallintaa kofeiinin poistumista elimistöstä. Kirjaa juomat valikosta, näe kofeiinitasosi yhdellä silmäyksellä, korjaa tai poista virheet ja tiedä tarkalleen, milloin voit mennä nukkumaan. Kahvi, tee, energiajuomat ja muut.
 
 ## Full Description
 
-**Know your caffeine. Sleep better.**
+**Tunne kofeiinisi. Nuku paremmin.**
 
-HalfLife Caffeine is a free, science-based caffeine tracker for your Garmin watch. It models how caffeine decays in your bloodstream using a pharmacokinetic half-life — 5.7 hours by default, and adjustable to your own metabolism — so you always know how much is still active, and when you'll be safe to sleep.
+Kofeiinilaskuri (HalfLife Caffeine) on ilmainen, tieteeseen perustuva kofeiinilaskuri Garmin-kelloosi. Se mallintaa kofeiinin poistumista verestä farmakokineettisen puoliintumisajan avulla – oletuksena 5,7 tuntia, ja voit säätää sen omaan aineenvaihduntaasi sopivaksi – joten tiedät aina, paljonko kofeiinia vielä vaikuttaa ja milloin voit mennä nukkumaan.
 
-**Features**
+**Ominaisuudet**
 
-☕ **At-a-glance tracking** — See current caffeine level and time to sleep-safe right in the widget loop.
+☕ **Yhdellä silmäyksellä** — Näe nykyinen kofeiinitaso, aika uniturvalliseen tasoon ja tämän päivän saanti suhteessa päivärajaan suoraan pikanäkymässä.
 
-📊 **Full-screen detail views**
-- Summary: current level, daily intake vs. limit, time to sleep-safe
-- Timeline: 12-hour graph showing the last 4 hours of history and the next 8 hours of projected decay, with dose markers
-- Today's drinks: interactive log with edit-time and delete on each entry — fix a mis-tap or a forgot-to-log-promptly in seconds
-- History: 14-day bar chart with day-list drill-down (per-drink detail for recent days, daily totals going back 90 days)
+📊 **Tarkemmat näkymät**
+- Yhteenveto: nykyinen taso, päivän saanti suhteessa rajaan, aika uniturvalliseen tasoon
+- Kofeiiniaikajana: kuvaaja viime tunneista ja ennustetusta laskusta annosmerkintöineen; START-painike tai napautus vaihtaa ennusteen 4, 8 tai 12 tuntiin
+- Tämän päivän juomat: muokkaa juoman aikaa tai poista se – korjaa väärä painallus tai myöhässä kirjattu juoma sekunneissa
+- Historia: 14 päivän pylväskaavio ja päiväkohtainen erittely (juomakohtaiset tiedot 14 päivältä, päivän kokonaismäärät 90 päivän ajalta)
 
-⚗️ **Personalize the model** — Set your own caffeine half-life (3–10 hours). Smoking, genetics, pregnancy, and some medications all change how fast you clear caffeine — tune the decay to match you.
+🛏️ **Ennuste nukkumaanmenoon** — Juomavalikko näyttää jokaisen juoman kohdalla, paljonko kofeiinia sinulla olisi nukkumaanmenoaikaan, jos joisit sen nyt.
 
-🎨 **Choose your look** — Navy or Black background theme. Black is sharper on non-AMOLED (MIP) watches and easier on the battery on AMOLED displays.
+⚗️ **Mukauta malli** — Aseta oma kofeiinin puoliintumisaikasi (3–10 tuntia). Tupakointi, perimä, raskaus ja jotkin lääkkeet vaikuttavat siihen, kuinka nopeasti kofeiini poistuu elimistöstä – säädä malli itsellesi sopivaksi.
 
-🥤 **12 drink presets included** — Espresso, Americano, Drip Coffee (S/L), Latte, Green Tea, Black Tea, Red Bull, Monster, Cola, Dark Chocolate, Pre-Workout. Add, rename, and remove from the phone companion.
+🎨 **Valitse ulkoasu** — Laivastonsininen tai musta tausta. Musta on terävämpi MIP-näytöillä ja säästää akkua AMOLED-näytöillä.
 
-🔔 **Smart alerts**
-- Warning at 80% of your daily limit
-- Alert when you hit your limit
-- Notification when caffeine drops low enough for sleep (within 2 hours of bedtime)
+🥤 **12 valmista juomaa** — Espresso, Americano, Suodatinkahvi (P/I), Latte, Vihreä tee, Musta tee, Red Bull, Monster, Cola, Tumma suklaa, Laturijuoma. Lisää, nimeä uudelleen ja poista juomia puhelimen asetuksista.
 
-📱 **Phone companion** — Manage drink presets, adjust limits, view history, see weekly trends, and track your peak caffeine hours — all inside the Garmin Connect app. Watch-side edits and deletes sync automatically.
+🔔 **Älykkäät hälytykset**
+- Varoitus, kun 80 % päivärajasta on täynnä
+- Hälytys, kun päiväraja saavutetaan
+- Ilmoitus, kun kofeiinitaso on laskenut uniturvalliseksi (2 tunnin sisällä nukkumaanmenoajasta)
 
-💾 **Your data stays with you** — Everything is stored on your watch and phone. No accounts, no cloud, no tracking.
+📱 **Puhelinsovellus** — Hallitse juomia, säädä rajoja, selaa historiaa, katso viikoittaiset trendit ja kofeiinin huipputunnit – kaikki Garmin Connect -sovelluksessa. Kellossa tehdyt muokkaukset ja poistot synkronoituvat automaattisesti.
 
-**100% free. No ads. No in-app purchases.**
+💾 **Tietosi pysyvät sinulla** — Kaikki tallennetaan kelloon ja puhelimeen. Ei tilejä, ei pilveä, ei seurantaa.
+
+**100 % ilmainen. Ei mainoksia. Ei sovelluksen sisäisiä ostoja.**
 
 ## Keywords (for search)
-caffeine, coffee, tea, sleep, tracker, health, drink, energy, half-life
+kofeiini, kahvi, tee, uni, laskuri, terveys, juoma, energia, puoliintumisaika

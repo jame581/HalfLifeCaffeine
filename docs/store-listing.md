@@ -72,13 +72,15 @@ HalfLife Caffeine is a free, science-based caffeine tracker for your Garmin watc
 
 **Features**
 
-☕ **At-a-glance tracking** — See current caffeine level and time to sleep-safe right in the widget loop.
+☕ **At-a-glance tracking** — See current caffeine level, time to sleep-safe and today's intake against your limit right in the glance.
 
 📊 **Full-screen detail views**
 - Summary: current level, daily intake vs. limit, time to sleep-safe
-- Timeline: 12-hour graph showing the last 4 hours of history and the next 8 hours of projected decay, with dose markers
+- Timeline: graph of the past hours and the projected decay, with dose markers; press START or tap to switch the forecast between 4, 8 and 12 hours
 - Today's drinks: interactive log with edit-time and delete on each entry — fix a mis-tap or a forgot-to-log-promptly in seconds
 - History: 14-day bar chart with day-list drill-down (per-drink detail for recent days, daily totals going back 90 days)
+
+🛏️ **Bedtime preview** — The drink menu shows, for each drink, how much caffeine you would have at bedtime if you drank it now.
 
 ⚗️ **Personalize the model** — Set your own caffeine half-life (3–10 hours). Smoking, genetics, pregnancy, and some medications all change how fast you clear caffeine — tune the decay to match you.
 

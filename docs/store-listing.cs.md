@@ -1,7 +1,17 @@
-> Store listing for Czech. Translate the text under each heading; keep headings, emoji and **bold** markers. Tagline limit: 50 characters.
+> Store listing for Czech. Draft, not reviewed by a native speaker. Keep headings, emoji and **bold** markers. Tagline limit: 50 characters.
 
 ## App Name
 HalfLife Caffeine – Sledování kofeinu
+
+## What's New
+
+```
+v1.5.0
+
+- V nabídce nápojů vidíš pod každým nápojem, kolik kofeinu budeš mít v čase spánku, když ho vypiješ teď.
+- Průběh kofeinu: stiskem START (nebo klepnutím) přepneš graf mezi 4, 8 a 12 hodinami.
+- Glance ukazuje dnešní příjem vůči dennímu limitu jako pruh.
+```
 
 ## Tagline (50 chars max)
 Sleduj kofein a zjisti, kdy můžeš jít spát.
@@ -17,13 +27,15 @@ HalfLife Caffeine je bezplatný tracker kofeinu pro tvé hodinky Garmin, postave
 
 **Funkce**
 
-☕ **Přehled na první pohled** — Aktuální hladinu kofeinu a čas do bezpečného spánku vidíš přímo ve smyčce widgetů.
+☕ **Přehled na první pohled** — Aktuální hladinu kofeinu, čas do bezpečného spánku a dnešní příjem vůči limitu vidíš přímo ve smyčce widgetů.
 
 📊 **Podrobné obrazovky**
 - Souhrn: aktuální hladina, dnešní příjem vůči limitu, čas do bezpečného spánku
-- Průběh kofeinu: 12hodinový graf s posledními 4 hodinami a předpokládaným odbouráváním na dalších 8 hodin, se značkami jednotlivých dávek
+- Průběh kofeinu: graf posledních hodin a předpokládaného odbourávání se značkami jednotlivých dávek; tlačítkem START nebo klepnutím přepneš výhled na 4, 8 nebo 12 hodin
 - Dnešní nápoje: interaktivní seznam, u každého záznamu lze upravit čas nebo ho smazat – překlep nebo pozdě zapsaný nápoj opravíš během pár sekund
 - Historie: sloupcový graf za 14 dní se seznamem dnů a detailem (jednotlivé nápoje za poslední dny, denní součty až 90 dní zpět)
+
+🛏️ **Výhled na noc** — V nabídce nápojů u každého vidíš, kolik kofeinu budeš mít v čase spánku, když ho vypiješ teď.
 
 ⚗️ **Přizpůsob si model** — Nastav si vlastní poločas kofeinu (3–10 hodin). Kouření, genetika, těhotenství a některé léky mění, jak rychle se kofein odbourává – nastav odbourávání podle sebe.
 

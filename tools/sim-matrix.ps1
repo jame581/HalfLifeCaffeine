@@ -172,6 +172,8 @@ foreach ($Device in $Devices) {
                 for ($x = $disp.x + $disp.width * 10 / 100; $x -lt $disp.x + $disp.width * 90 / 100; $x += 2) {
                     $c = $bmp.GetPixel([int]$x, [int]$y)
                     if ($c.G -gt 150 -and $c.G - $c.R -gt 80 -and $c.B -lt $c.G) { $n++ }
+                    # Amber or red bar: a day near or over the limit (after -Seed it is the only bar).
+                    elseif ($c.R -gt 180 -and $c.B -lt 100 -and $c.R - $c.B -gt 120) { $n++ }
                 }
             }
         } finally { $bmp.Dispose() }

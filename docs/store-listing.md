@@ -1,12 +1,20 @@
 # Connect IQ Store Listing
 
-> Reference copy mirroring the current store listing. Reflects v1.5.0 state (2026-10-20). Update on every release.
+> Reference copy mirroring the current store listing. Reflects v1.6.0 state (2026-11-23). Update on every release.
 
 ## What's New (Optional, max 4000 characters)
 
 Paste as-is; newest release first.
 
 ```
+v1.6.0
+
+- The main screen and the glance show when it is safe to sleep as a clock time ("Sleep safe at 22:07"). Prefer the countdown? Switch it back in the app settings.
+- New setting: the caffeine level below which it is safe to sleep (25–100 mg, default 50). The main screen, glance, timeline line and safe-to-sleep notification all follow it.
+- Watches set to 12-hour time now show times as 10:07 PM, also in today's drinks and day detail.
+
+--------------------
+
 v1.5.0
 
 - Add Drink shows, under each drink, how much caffeine you would have at bedtime if you drank it now.

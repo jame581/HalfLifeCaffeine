@@ -6,6 +6,12 @@ HalfLife Caffeine – Kofeiinilaskuri
 ## What's New
 
 ```
+v1.6.0 (TODO: translator — English placeholder)
+
+- The main screen and the glance show when it is safe to sleep as a clock time ("Sleep safe at 22:07"). Prefer the countdown? Switch it back in the app settings.
+- New setting: the caffeine level below which it is safe to sleep (25–100 mg, default 50). The main screen, glance, timeline line and safe-to-sleep notification all follow it.
+- Watches set to 12-hour time now show times as 10:07 PM, also in today's drinks and day detail.
+
 v1.5.0
 
 - Lisää juoma -valikko näyttää jokaisen juoman alla, paljonko kofeiinia sinulla olisi nukkumaanmenoaikaan, jos joisit sen nyt.

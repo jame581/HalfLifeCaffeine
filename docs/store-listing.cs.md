@@ -6,6 +6,12 @@ HalfLife Caffeine – Sledování kofeinu
 ## What's New
 
 ```
+v1.6.0
+
+- Hlavní obrazovka a glance ukazují, kdy můžeš jít spát, jako čas („Spát lze v 22:07“). Chceš raději odpočet? Přepneš ho v nastavení aplikace.
+- Nové nastavení: hladina kofeinu, pod kterou lze jít spát (25–100 mg, výchozí 50). Řídí se jí hlavní obrazovka, glance, čára v grafu i upozornění, že lze jít spát.
+- Hodinky nastavené na 12hodinový čas teď ukazují časy jako 10:07 PM, i v dnešních nápojích a v detailu dne.
+
 v1.5.0
 
 - V nabídce nápojů vidíš pod každým nápojem, kolik kofeinu budeš mít v čase spánku, když ho vypiješ teď.

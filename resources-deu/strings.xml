@@ -3,14 +3,14 @@
   <string id="AppName">HalfLife Caffeine</string>
   <string id="Clear" scope="glance">Alles klar</string>
   <string id="GlanceSafeIn" scope="glance">Bereit in $1$</string>
-  <string id="GlanceSafeAt" scope="glance">Safe at $1$</string>
+  <string id="GlanceSafeAt" scope="glance">Bereit um $1$</string>
   <string id="TimeAM" scope="glance">AM</string>
   <string id="TimePM" scope="glance">PM</string>
   <string id="UnitHour" scope="glance">h</string>
   <string id="UnitMinute" scope="glance">min</string>
   <string id="SummaryUnit">mg Koffein</string>
   <string id="SummarySleepSafeIn">Bereit in $1$</string>
-  <string id="SummarySleepSafeAt">Sleep safe at $1$</string>
+  <string id="SummarySleepSafeAt">Bereit um $1$</string>
   <string id="SummaryIntake">$1$ / $2$ mg heute</string>
   <string id="SummaryHint">Getränk hinzufügen</string>
   <string id="TitleTimeline">Koffeinverlauf</string>
@@ -70,10 +70,10 @@
   <string id="SettingThemeTitle" scope="settings">Hintergrund</string>
   <string id="ThemeNavy" scope="settings">Marineblau (Standard)</string>
   <string id="ThemeBlack" scope="settings">Schwarz</string>
-  <string id="SettingSleepFormat" scope="settings">Sleep time shown as</string>
-  <string id="SleepFormatClock" scope="settings">Clock time</string>
+  <string id="SettingSleepFormat" scope="settings">Schlafzeit anzeigen als</string>
+  <string id="SleepFormatClock" scope="settings">Uhrzeit</string>
   <string id="SleepFormatCountdown" scope="settings">Countdown</string>
-  <string id="SettingSleepSafeMg" scope="settings">Safe to sleep below (mg)</string>
+  <string id="SettingSleepSafeMg" scope="settings">Schlafbereit unter (mg)</string>
   <string id="SettingPresetsTitle" scope="settings">Getränkevorlagen</string>
   <string id="SettingPresetName" scope="settings">Name</string>
   <string id="SettingPresetMg" scope="settings">Koffein (mg)</string>

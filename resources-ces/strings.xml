@@ -3,14 +3,14 @@
   <string id="AppName">HalfLife Caffeine</string>
   <string id="Clear" scope="glance">Lze spát</string>
   <string id="GlanceSafeIn" scope="glance">Spát za $1$</string>
-  <string id="GlanceSafeAt" scope="glance">Safe at $1$</string>
-  <string id="TimeAM" scope="glance">AM</string>
-  <string id="TimePM" scope="glance">PM</string>
+  <string id="GlanceSafeAt" scope="glance">Spát v $1$</string>
+  <string id="TimeAM" scope="glance">dop.</string>
+  <string id="TimePM" scope="glance">odp.</string>
   <string id="UnitHour" scope="glance">h</string>
   <string id="UnitMinute" scope="glance">min</string>
   <string id="SummaryUnit">mg kofeinu</string>
   <string id="SummarySleepSafeIn">Spát lze za $1$</string>
-  <string id="SummarySleepSafeAt">Sleep safe at $1$</string>
+  <string id="SummarySleepSafeAt">Spát lze v $1$</string>
   <string id="SummaryIntake">$1$ / $2$ mg dnes</string>
   <string id="SummaryHint">Přidat nápoj</string>
   <string id="TitleTimeline">Průběh kofeinu</string>
@@ -70,10 +70,10 @@
   <string id="SettingThemeTitle" scope="settings">Pozadí</string>
   <string id="ThemeNavy" scope="settings">Tmavě modrá (výchozí)</string>
   <string id="ThemeBlack" scope="settings">Černá</string>
-  <string id="SettingSleepFormat" scope="settings">Sleep time shown as</string>
-  <string id="SleepFormatClock" scope="settings">Clock time</string>
-  <string id="SleepFormatCountdown" scope="settings">Countdown</string>
-  <string id="SettingSleepSafeMg" scope="settings">Safe to sleep below (mg)</string>
+  <string id="SettingSleepFormat" scope="settings">Čas spánku zobrazit jako</string>
+  <string id="SleepFormatClock" scope="settings">Čas</string>
+  <string id="SleepFormatCountdown" scope="settings">Odpočet</string>
+  <string id="SettingSleepSafeMg" scope="settings">Spát lze pod (mg)</string>
   <string id="SettingPresetsTitle" scope="settings">Předvolby nápojů</string>
   <string id="SettingPresetName" scope="settings">Název</string>
   <string id="SettingPresetMg" scope="settings">Kofein (mg)</string>

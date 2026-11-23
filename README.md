@@ -13,15 +13,17 @@ A free Garmin Connect IQ widget that tracks caffeine intake and models its decay
 
 ## Features
 
-- **Glance view** — current caffeine level, time-to-sleep-safe, and today's intake against your daily limit as a bar
-- **Summary screen** — large mg display, progress bar toward daily limit, intake vs. limit, time-to-safe
+- **Glance view** — current caffeine level, when it's safe to sleep, and today's intake against your daily limit as a bar
+- **Summary screen** — large mg display, progress bar toward daily limit, intake vs. limit, and the clock time when it's safe to sleep ("Sleep safe at 22:07"; a countdown if you prefer, in the app settings)
 - **Bedtime preview** — the Add Drink menu shows, under each drink, how much caffeine you'd still have at bedtime if you drank it now
 - **Timeline graph** — press START (or tap) to look 4, 8 or 12 hours ahead (with 2–6 hours of history), with dose markers, area fill, bedtime marker, and a prominent NOW indicator
 - **Today's drinks** — interactive log with cursor selection. SELECT to open an action menu: **edit time** by preset offset (−15 min through −3 hours, or +15/+30 min for fine-tuning) or **delete** a mis-tapped entry instantly
 - **History view** — 14-day caffeine bar chart with daily-limit reference line. Pick any day to see the drinks logged that day (per-drink detail for the last 14 days, daily-total-only for older days, going back 90 days)
 - **12 drink presets** — Espresso, Americano, Drip Coffee (S/L), Latte, Green Tea, Black Tea, Red Bull, Monster, Cola, Dark Chocolate, Pre-Workout. Add, rename, and remove from the phone companion.
 - **Daily limit alerts** — gentle vibration at 80%, stronger alert at 100%
-- **Safe-to-sleep notification** — fires when caffeine drops below 50 mg within 2 hours of your bedtime
+- **Safe-to-sleep level** — set the level below which it's safe to sleep (25–100 mg, default 50); the summary, glance, timeline line and notification follow it
+- **Safe-to-sleep notification** — fires when caffeine drops below that level within 2 hours of your bedtime
+- **12h or 24h** — times follow your watch's clock setting (22:07 or 10:07 PM)
 - **Phone companion** — manage presets, adjust limits and bedtime, view history and trends inside the Garmin Connect app
 - **Two-way sync** — drinks stream to the phone (full-day replace-day resync so edits and deletes stay consistent); settings and preset edits stream back to the watch
 - **Configurable half-life** — adjust caffeine half-life from 3 to 10 hours (default 5.7h) to match your own metabolism, via the phone companion
@@ -152,7 +154,7 @@ See [`CLAUDE.md`](CLAUDE.md) for deeper architecture notes (glance vs. full-view
 
 - **Half-life:** 5.7 hours by default (user-configurable 3–10h via phone companion)
 - **Formula:** `current_mg = dose_mg × 0.5^(elapsed_seconds / half_life_seconds)`
-- **Sleep-safe threshold:** 50 mg
+- **Sleep-safe threshold:** 50 mg by default (25–100 mg in the app settings)
 - **Default daily limit:** 400 mg (FDA guideline; user-configurable)
 - **Retention:** 14 days of per-dose detail + 90 days of daily totals (rolled up overnight, drives the History bar chart)
 

@@ -13,9 +13,10 @@ A free Garmin Connect IQ widget that tracks caffeine intake and models its decay
 
 ## Features
 
-- **Glance view** — current caffeine level and time-to-sleep-safe at a glance in the widget loop
+- **Glance view** — current caffeine level, time-to-sleep-safe, and today's intake against your daily limit as a bar
 - **Summary screen** — large mg display, progress bar toward daily limit, intake vs. limit, time-to-safe
-- **Timeline graph** — 12-hour window (4h past + 8h future) with dose markers, area fill, bedtime marker, and a prominent NOW indicator
+- **Bedtime preview** — the Add Drink menu shows, under each drink, how much caffeine you'd still have at bedtime if you drank it now
+- **Timeline graph** — press START (or tap) to look 4, 8 or 12 hours ahead (with 2–6 hours of history), with dose markers, area fill, bedtime marker, and a prominent NOW indicator
 - **Today's drinks** — interactive log with cursor selection. SELECT to open an action menu: **edit time** by preset offset (−15 min through −3 hours, or +15/+30 min for fine-tuning) or **delete** a mis-tapped entry instantly
 - **History view** — 14-day caffeine bar chart with daily-limit reference line. Pick any day to see the drinks logged that day (per-drink detail for the last 14 days, daily-total-only for older days, going back 90 days)
 - **12 drink presets** — Espresso, Americano, Drip Coffee (S/L), Latte, Green Tea, Black Tea, Red Bull, Monster, Cola, Dark Chocolate, Pre-Workout. Add, rename, and remove from the phone companion.
@@ -25,6 +26,8 @@ A free Garmin Connect IQ widget that tracks caffeine intake and models its decay
 - **Two-way sync** — drinks stream to the phone (full-day replace-day resync so edits and deletes stay consistent); settings and preset edits stream back to the watch
 - **Configurable half-life** — adjust caffeine half-life from 3 to 10 hours (default 5.7h) to match your own metabolism, via the phone companion
 - **Navy or Black theme** — choose a Navy (default) or Black background via the phone companion
+- **Touch or buttons** — every screen works with swipes and taps, or with the UP/DOWN/START buttons on watches without touch
+- **Five languages** — English, Czech, Finnish, German and French (see [Languages](#languages))
 - **100% free, no ads, no tracking, no accounts** — all data stays on your watch and phone
 
 ## Screens
@@ -86,8 +89,9 @@ VS Code: **Run → Run App** (select target device from the list).
 
 CLI:
 ```bash
-monkeyc -f monkey.jungle -d vivoactive5_sim -y path/to/developer_key -o bin/CoffeTracker.prg -w
+monkeyc -f monkey.jungle -d vivoactive5_sim -y path/to/developer_key -o bin/CoffeTracker.prg -w -r
 ```
+`-r` makes a release build, which needs ~8 KB less memory on small watches such as the fenix 6. Use it for any `.prg` you sideload.
 
 ### Release build (all devices)
 ```bash
@@ -117,22 +121,29 @@ source/            Monkey C source
 ├── DayDetailView.mc          Per-day drill-down
 ├── EditDrinkMenuDelegate.mc  Edit / delete action menu for a logged drink
 ├── EditTimeMenuDelegate.mc   Preset time-offset picker
+├── ListArrows.mc / RowFit.mc List scroll arrows; fitting rows to round screens
+├── MonthNames.mc             Translated month names for dates
 └── ...Delegate.mc            Other input handlers
 
 resources/
 ├── drawables/     Launcher icon (SVG) + drawables.xml
 ├── properties.xml User setting defaults
 ├── settings.xml   Garmin Connect settings UI
-└── strings.xml    Localizable strings
+└── strings.xml    English strings (generated from translations/)
+resources-<lang>/  Translated strings (fin, ces, deu, fre; generated)
+
+translations/      One CSV sheet per language — source of truth for all strings
 
 companion/
 └── settings/      HTML/JS phone companion (runs inside Garmin Connect)
 
-test/              Monkey C unit tests
+test/              Monkey C unit tests (built with test.jungle)
+demo/              Demo drinks for store screenshots (built with store.jungle)
+tools/             PowerShell: run-tests, build-translations, sim-matrix
 
 docs/
-├── superpowers/   Design spec and implementation plan
-└── store-listing.md  Draft store copy
+├── superpowers/   Design specs and implementation plans, one pair per release
+└── store-listing*.md  Store copy per language (mirrors the live listing)
 ```
 
 See [`CLAUDE.md`](CLAUDE.md) for deeper architecture notes (glance vs. full-view process split, persistence conventions, message protocol, domain invariants).

@@ -19,6 +19,8 @@ class DayDetailView extends WatchUi.View {
     private var _sNoDrinks;
     private var _sExpired;
     private var _tplDateLong;
+    private var _sAm;
+    private var _sPm;
     // Doses of this day that were moved to the archive; read once.
     private var _archived;
     private var _monthNames;
@@ -31,6 +33,8 @@ class DayDetailView extends WatchUi.View {
         _sNoDrinks = WatchUi.loadResource(Rez.Strings.NoDrinksToday);
         _sExpired = WatchUi.loadResource(Rez.Strings.DetailsExpired);
         _tplDateLong = WatchUi.loadResource(Rez.Strings.DateLong);
+        _sAm = WatchUi.loadResource(Rez.Strings.TimeAM);
+        _sPm = WatchUi.loadResource(Rez.Strings.TimePM);
         _monthNames = MonthNames.load();
         var app = Application.getApp();
         _archived = (app.storageManager != null)
@@ -116,7 +120,7 @@ class DayDetailView extends WatchUi.View {
 
         for (var i = 0; firstRow + i < dayDoses.size() && i < visible; i++) {
             var dose = dayDoses[firstRow + i];
-            var timeStr = Util.formatTime(dose[:time]);
+            var timeStr = Util.formatTime(dose[:time], _sAm, _sPm);
             var name = dose.hasKey(:name) && !dose[:name].equals("")
                 ? dose[:name] : (Util.formatMg(dose[:mg]) + "mg");
             var mgStr = Util.formatMg(dose[:mg]) + "mg";

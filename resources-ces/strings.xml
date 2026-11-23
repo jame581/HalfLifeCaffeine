@@ -3,6 +3,8 @@
   <string id="AppName">HalfLife Caffeine</string>
   <string id="Clear" scope="glance">Lze spát</string>
   <string id="GlanceSafeIn" scope="glance">Spát za $1$</string>
+  <string id="TimeAM" scope="glance">AM</string>
+  <string id="TimePM" scope="glance">PM</string>
   <string id="UnitHour" scope="glance">h</string>
   <string id="UnitMinute" scope="glance">min</string>
   <string id="SummaryUnit">mg kofeinu</string>

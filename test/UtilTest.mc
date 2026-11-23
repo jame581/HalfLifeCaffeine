@@ -164,3 +164,21 @@ function testSleepTimeFormatDefault(logger) {
     Application.Properties.setValue("sleepTimeFormat", old);
     return ok;
 }
+
+// 24-hour clock: two-digit hour and minute.
+(:test)
+function testFormatClock24h(logger) {
+    return Util.formatClock(22, 7, true, "AM", "PM").equals("22:07")
+        && Util.formatClock(0, 5, true, "AM", "PM").equals("00:05")
+        && Util.formatClock(9, 3, true, "AM", "PM").equals("09:03");
+}
+
+// 12-hour clock: no leading zero, 12 for midnight and noon, suffix as given.
+(:test)
+function testFormatClock12h(logger) {
+    return Util.formatClock(22, 7, false, "AM", "PM").equals("10:07 PM")
+        && Util.formatClock(0, 5, false, "AM", "PM").equals("12:05 AM")
+        && Util.formatClock(12, 0, false, "AM", "PM").equals("12:00 PM")
+        && Util.formatClock(9, 3, false, "AM", "PM").equals("9:03 AM")
+        && Util.formatClock(13, 30, false, "a", "p").equals("1:30 p");
+}

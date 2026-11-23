@@ -2,6 +2,7 @@ import Toybox.Application;
 import Toybox.Time;
 import Toybox.Time.Gregorian;
 import Toybox.Lang;
+import Toybox.System;
 
 (:glance)
 module Util {
@@ -40,13 +41,22 @@ module Util {
         return Lang.format(template, [monthStr, day.toString(), year.toString()]);
     }
 
-    // Format epoch to "HH:MM" local time
-    function formatTime(epochSeconds) {
-        var moment = new Time.Moment(epochSeconds);
-        var info = Gregorian.info(moment, Time.FORMAT_SHORT);
-        var h = info.hour.format("%02d");
-        var m = info.min.format("%02d");
-        return h + ":" + m;
+    // Local time of day, in the watch's 12h/24h setting: "22:07" or "10:07 PM".
+    // am/pm are the TimeAM/TimePM strings, loaded by the caller.
+    function formatTime(epochSeconds, am, pm) {
+        var info = Gregorian.info(new Time.Moment(epochSeconds), Time.FORMAT_SHORT);
+        return formatClock(info.hour, info.min, System.getDeviceSettings().is24Hour, am, pm);
+    }
+
+    // "22:07" (24h) or "10:07 PM" (12h: no leading zero, 12 for midnight and noon).
+    function formatClock(hour, min, is24, am, pm) {
+        var m = min.format("%02d");
+        if (is24) {
+            return hour.format("%02d") + ":" + m;
+        }
+        var h = hour % 12;
+        if (h == 0) { h = 12; }
+        return h.toString() + ":" + m + " " + (hour < 12 ? am : pm);
     }
 
     // Format a caffeine level to a display string (e.g. 142.7 → "143")

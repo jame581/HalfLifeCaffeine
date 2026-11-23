@@ -22,6 +22,8 @@ class LogView extends WatchUi.View {
 
     private var _sTitle;
     private var _sEmpty;
+    private var _sAm;
+    private var _sPm;
 
     function initialize() {
         View.initialize();
@@ -30,6 +32,8 @@ class LogView extends WatchUi.View {
         dayDoses = [];
         _sTitle = WatchUi.loadResource(Rez.Strings.TitleLog);
         _sEmpty = WatchUi.loadResource(Rez.Strings.NoDrinksToday);
+        _sAm = WatchUi.loadResource(Rez.Strings.TimeAM);
+        _sPm = WatchUi.loadResource(Rez.Strings.TimePM);
     }
 
     function onUpdate(dc) {
@@ -90,7 +94,7 @@ class LogView extends WatchUi.View {
                 dc.fillRectangle(rowInsetLeft, y - lineHeight / 2, rowWidth, lineHeight);
             }
 
-            var timeStr = Util.formatTime(dose[:time]);
+            var timeStr = Util.formatTime(dose[:time], _sAm, _sPm);
             var mgStr = Util.formatMg(dose[:mg]) + "mg";
             var name = dose.hasKey(:name) && !dose[:name].equals("") ? dose[:name] : Util.formatMg(dose[:mg]) + "mg";
             var line = RowFit.line(dc, Graphics.FONT_XTINY, timeStr, name, mgStr, y);

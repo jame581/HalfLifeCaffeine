@@ -2,6 +2,8 @@
 AppName,watch,"App name in the watch app list and in Garmin Connect. A short, plain name for what the app does is fine; otherwise keep HalfLife Caffeine.",20,,HalfLife Caffeine
 Clear,glance,"Glance and main screen, when caffeine is low enough to sleep. Means 'all clear'.",12,,Clear
 GlanceSafeIn,glance,Glance status line. $1$ is a duration such as 3h 20m.,19,{duration},Safe in $1$
+TimeAM,glance,"Suffix after a 12-hour clock time before noon, as in 9:03 AM. Shown only on watches set to 12-hour time.",4,,AM
+TimePM,glance,"Suffix after a 12-hour clock time from noon, as in 10:07 PM. Shown only on watches set to 12-hour time.",4,,PM
 UnitHour,glance,"Hour abbreviation in durations and on the graph axis (3h, +4h).",3,,h
 UnitMinute,glance,Minute abbreviation in durations (20m).,4,,m
 SummaryUnit,watch,Under the big number on the main screen.,16,,mg caffeine

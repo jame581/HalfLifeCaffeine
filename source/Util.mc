@@ -107,6 +107,16 @@ module Util {
         return sanitizeSleepSafeMg(Application.Properties.getValue("sleepSafeMg"));
     }
 
+    // Which safe-to-sleep line to show: 0 = all clear (no caffeine to speak of,
+    // or already under the level), 1 = a time or countdown, 2 = still above the
+    // level at the end of the 24 h getMinutesToSafe searches (a clock time there
+    // would mislead, so the views show "24h+").
+    function safeSleepKind(level, minutesToSafe) {
+        if (level < 1.0 || minutesToSafe <= 0) { return 0; }
+        if (minutesToSafe >= 1440) { return 2; }
+        return 1;
+    }
+
     // How the safe-to-sleep line reads: 0 = clock time (default), 1 = countdown.
     function getSleepTimeFormat() {
         var v = Application.Properties.getValue("sleepTimeFormat");

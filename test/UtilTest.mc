@@ -182,3 +182,13 @@ function testFormatClock12h(logger) {
         && Util.formatClock(9, 3, false, "AM", "PM").equals("9:03 AM")
         && Util.formatClock(13, 30, false, "a", "p").equals("1:30 p");
 }
+
+// Which safe-to-sleep line to show: 0 clear, 1 a time, 2 not within the 24 h searched.
+(:test)
+function testSafeSleepKind(logger) {
+    return Util.safeSleepKind(0.5, 300) == 0
+        && Util.safeSleepKind(40.0, 0) == 0
+        && Util.safeSleepKind(120.0, 200) == 1
+        && Util.safeSleepKind(120.0, 1439) == 1
+        && Util.safeSleepKind(900.0, 1440) == 2;
+}

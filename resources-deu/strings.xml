@@ -3,12 +3,14 @@
   <string id="AppName">HalfLife Caffeine</string>
   <string id="Clear" scope="glance">Alles klar</string>
   <string id="GlanceSafeIn" scope="glance">Bereit in $1$</string>
+  <string id="GlanceSafeAt" scope="glance">Safe at $1$</string>
   <string id="TimeAM" scope="glance">AM</string>
   <string id="TimePM" scope="glance">PM</string>
   <string id="UnitHour" scope="glance">h</string>
   <string id="UnitMinute" scope="glance">min</string>
   <string id="SummaryUnit">mg Koffein</string>
   <string id="SummarySleepSafeIn">Bereit in $1$</string>
+  <string id="SummarySleepSafeAt">Sleep safe at $1$</string>
   <string id="SummaryIntake">$1$ / $2$ mg heute</string>
   <string id="SummaryHint">Getränk hinzufügen</string>
   <string id="TitleTimeline">Koffeinverlauf</string>

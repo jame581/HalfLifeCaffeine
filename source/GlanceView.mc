@@ -9,6 +9,9 @@ class GlanceView extends WatchUi.GlanceView {
     // Loaded once; every string here is scope="glance" in the resources.
     private var _sClear;
     private var _tplSafeIn;
+    private var _tplSafeAt;
+    private var _sAm;
+    private var _sPm;
     private var _unitHour;
     private var _unitMinute;
 
@@ -16,6 +19,9 @@ class GlanceView extends WatchUi.GlanceView {
         GlanceView.initialize();
         _sClear = WatchUi.loadResource(Rez.Strings.Clear);
         _tplSafeIn = WatchUi.loadResource(Rez.Strings.GlanceSafeIn);
+        _tplSafeAt = WatchUi.loadResource(Rez.Strings.GlanceSafeAt);
+        _sAm = WatchUi.loadResource(Rez.Strings.TimeAM);
+        _sPm = WatchUi.loadResource(Rez.Strings.TimePM);
         _unitHour = WatchUi.loadResource(Rez.Strings.UnitHour);
         _unitMinute = WatchUi.loadResource(Rez.Strings.UnitMinute);
     }
@@ -39,7 +45,14 @@ class GlanceView extends WatchUi.GlanceView {
         var statusText = _sClear;
         if (level >= 1.0) {
             var minutesToSafe = model.getMinutesToSafe(now, Util.getSleepSafeMg());
-            if (minutesToSafe > 0) {
+            var kind = Util.safeSleepKind(level, minutesToSafe);
+            if (kind == 2) {
+                statusText = Lang.format(_tplSafeIn,
+                    [Util.formatDuration(minutesToSafe, _unitHour, _unitMinute) + "+"]);
+            } else if (kind == 1 && Util.getSleepTimeFormat() == 0) {
+                statusText = Lang.format(_tplSafeAt,
+                    [Util.formatTime(now + minutesToSafe * 60, _sAm, _sPm)]);
+            } else if (kind == 1) {
                 statusText = Lang.format(_tplSafeIn,
                     [Util.formatDuration(minutesToSafe, _unitHour, _unitMinute)]);
             }

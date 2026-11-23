@@ -9,6 +9,9 @@ class SummaryView extends WatchUi.View {
     private var _sUnit;
     private var _sClear;
     private var _tplSleepSafe;
+    private var _tplSleepSafeAt;
+    private var _sAm;
+    private var _sPm;
     private var _tplIntake;
     private var _sHint;
     private var _unitHour;
@@ -19,6 +22,9 @@ class SummaryView extends WatchUi.View {
         _sUnit = WatchUi.loadResource(Rez.Strings.SummaryUnit);
         _sClear = WatchUi.loadResource(Rez.Strings.Clear);
         _tplSleepSafe = WatchUi.loadResource(Rez.Strings.SummarySleepSafeIn);
+        _tplSleepSafeAt = WatchUi.loadResource(Rez.Strings.SummarySleepSafeAt);
+        _sAm = WatchUi.loadResource(Rez.Strings.TimeAM);
+        _sPm = WatchUi.loadResource(Rez.Strings.TimePM);
         _tplIntake = WatchUi.loadResource(Rez.Strings.SummaryIntake);
         _sHint = WatchUi.loadResource(Rez.Strings.SummaryHint);
         _unitHour = WatchUi.loadResource(Rez.Strings.UnitHour);
@@ -80,7 +86,14 @@ class SummaryView extends WatchUi.View {
 
         // Time until sleep-safe
         var sleepText = _sClear;
-        if (level >= 1.0 && minutesToSafe > 0) {
+        var kind = Util.safeSleepKind(level, minutesToSafe);
+        if (kind == 2) {
+            sleepText = Lang.format(_tplSleepSafe,
+                [Util.formatDuration(minutesToSafe, _unitHour, _unitMinute) + "+"]);
+        } else if (kind == 1 && Util.getSleepTimeFormat() == 0) {
+            sleepText = Lang.format(_tplSleepSafeAt,
+                [Util.formatTime(now + minutesToSafe * 60, _sAm, _sPm)]);
+        } else if (kind == 1) {
             sleepText = Lang.format(_tplSleepSafe,
                 [Util.formatDuration(minutesToSafe, _unitHour, _unitMinute)]);
         }

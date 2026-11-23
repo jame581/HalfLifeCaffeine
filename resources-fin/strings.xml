@@ -3,12 +3,14 @@
   <string id="AppName">Kofeiinilaskuri</string>
   <string id="Clear" scope="glance">Uni OK</string>
   <string id="GlanceSafeIn" scope="glance">Uni OK: $1$</string>
+  <string id="GlanceSafeAt" scope="glance">Safe at $1$</string>
   <string id="TimeAM" scope="glance">AM</string>
   <string id="TimePM" scope="glance">PM</string>
   <string id="UnitHour" scope="glance">t</string>
   <string id="UnitMinute" scope="glance">min</string>
   <string id="SummaryUnit">mg kofeiinia</string>
   <string id="SummarySleepSafeIn">Uni OK: $1$</string>
+  <string id="SummarySleepSafeAt">Sleep safe at $1$</string>
   <string id="SummaryIntake">Tänään: $1$ / $2$ mg</string>
   <string id="SummaryHint">Paina lisätäksesi</string>
   <string id="TitleTimeline">Kofeiiniaikajana</string>

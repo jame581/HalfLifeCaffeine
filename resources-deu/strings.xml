@@ -66,6 +66,10 @@
   <string id="SettingThemeTitle" scope="settings">Hintergrund</string>
   <string id="ThemeNavy" scope="settings">Marineblau (Standard)</string>
   <string id="ThemeBlack" scope="settings">Schwarz</string>
+  <string id="SettingSleepFormat" scope="settings">Sleep time shown as</string>
+  <string id="SleepFormatClock" scope="settings">Clock time</string>
+  <string id="SleepFormatCountdown" scope="settings">Countdown</string>
+  <string id="SettingSleepSafeMg" scope="settings">Safe to sleep below (mg)</string>
   <string id="SettingPresetsTitle" scope="settings">Getränkevorlagen</string>
   <string id="SettingPresetName" scope="settings">Name</string>
   <string id="SettingPresetMg" scope="settings">Koffein (mg)</string>

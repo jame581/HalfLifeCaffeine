@@ -7,5 +7,7 @@
   <property id="alertSafeToSleep" type="boolean">true</property>
   <property id="halfLifeHours" type="float">5.7</property>
   <property id="theme" type="number">0</property>
+  <property id="sleepTimeFormat" type="number">0</property>
+  <property id="sleepSafeMg" type="number">50</property>
   <property id="presets" type="array"></property>
 </properties>

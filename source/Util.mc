@@ -79,6 +79,31 @@ module Util {
         return sanitizeDailyLimit(Application.Properties.getValue("dailyLimit"));
     }
 
+    // Safe-to-sleep level in mg. Missing or not a number means the default 50;
+    // otherwise rounded to a whole number and kept in 25-100. Checked on every
+    // read: the companion page saves through ciq://settings, not through
+    // SyncManager, so a stored value may never have been checked.
+    function sanitizeSleepSafeMg(value) {
+        if (value instanceof Lang.Number || value instanceof Lang.Float) {
+            var n = (value + 0.5).toNumber();
+            if (n < 25) { return 25; }
+            if (n > 100) { return 100; }
+            return n;
+        }
+        return 50;
+    }
+
+    function getSleepSafeMg() {
+        return sanitizeSleepSafeMg(Application.Properties.getValue("sleepSafeMg"));
+    }
+
+    // How the safe-to-sleep line reads: 0 = clock time (default), 1 = countdown.
+    function getSleepTimeFormat() {
+        var v = Application.Properties.getValue("sleepTimeFormat");
+        if (v instanceof Lang.Number && v == 1) { return 1; }
+        return 0;
+    }
+
     // Colour for a day's intake against the limit; same thresholds as AlertManager.
     // Used by every screen that colours an intake, so they agree at the limit.
     function intakeColor(intake, limit) {

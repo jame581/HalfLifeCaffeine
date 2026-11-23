@@ -65,6 +65,10 @@ SettingHalfLife,settings,Phone settings title.,,,Caffeine half-life (hours)
 SettingThemeTitle,settings,Phone settings title.,,,Background theme
 ThemeNavy,settings,Theme option.,,,Navy (default)
 ThemeBlack,settings,Theme option.,,,Black
+SettingSleepFormat,settings,Phone settings title: how the main screen and glance show when caffeine is low enough to sleep.,,,Sleep time shown as
+SleepFormatClock,settings,"Option for SettingSleepFormat: a clock time, such as Sleep safe at 22:07.",,,Clock time
+SleepFormatCountdown,settings,"Option for SettingSleepFormat: a duration, such as Sleep safe in 3h 20m.",,,Countdown
+SettingSleepSafeMg,settings,Phone settings title. Caffeine level (mg) below which the watch says it is safe to sleep.,,,Safe to sleep below (mg)
 SettingPresetsTitle,settings,Phone settings title of the drink list.,,,Drink Presets
 SettingPresetName,settings,Field label.,,,Name
 SettingPresetMg,settings,Field label.,,,Caffeine (mg)

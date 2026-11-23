@@ -136,3 +136,31 @@ function testIntakeColorThresholds(logger) {
         && Util.intakeColor(400, 400) == Colors.DANGER
         && Util.intakeColor(900, 400) == Colors.DANGER;
 }
+
+// A sleep-safe level from the phone or the settings screen that is missing or
+// not a number means the default 50; anything else is rounded and kept in 25-100.
+(:test)
+function testSanitizeSleepSafeMg(logger) {
+    return Util.sanitizeSleepSafeMg(null) == 50
+        && Util.sanitizeSleepSafeMg("40") == 50
+        && Util.sanitizeSleepSafeMg(10) == 25
+        && Util.sanitizeSleepSafeMg(200) == 100
+        && Util.sanitizeSleepSafeMg(37.6) == 38
+        && Util.sanitizeSleepSafeMg(50) == 50
+        && Util.sanitizeSleepSafeMg(25) == 25
+        && Util.sanitizeSleepSafeMg(100) == 100;
+}
+
+// Countdown only when the setting is exactly 1; clock time otherwise.
+(:test)
+function testSleepTimeFormatDefault(logger) {
+    var old = Application.Properties.getValue("sleepTimeFormat");
+    Application.Properties.setValue("sleepTimeFormat", 1);
+    var ok = Util.getSleepTimeFormat() == 1;
+    Application.Properties.setValue("sleepTimeFormat", 7);
+    ok = ok && Util.getSleepTimeFormat() == 0;
+    Application.Properties.setValue("sleepTimeFormat", 0);
+    ok = ok && Util.getSleepTimeFormat() == 0;
+    Application.Properties.setValue("sleepTimeFormat", old);
+    return ok;
+}

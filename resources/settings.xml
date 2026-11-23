@@ -35,6 +35,21 @@
     <settingConfig type="boolean"/>
   </setting>
 
+  <setting propertyKey="@Properties.sleepTimeFormat"
+           title="@Strings.SettingSleepFormat">
+    <settingConfig type="list">
+      <listEntry value="0">@Strings.SleepFormatClock</listEntry>
+      <listEntry value="1">@Strings.SleepFormatCountdown</listEntry>
+    </settingConfig>
+  </setting>
+
+  <setting propertyKey="@Properties.sleepSafeMg"
+           title="@Strings.SettingSleepSafeMg">
+    <settingConfig type="numeric"
+                   min="25"
+                   max="100"/>
+  </setting>
+
   <setting propertyKey="@Properties.theme"
            title="@Strings.SettingThemeTitle">
     <settingConfig type="list">

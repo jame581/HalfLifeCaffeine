@@ -4,6 +4,7 @@
   <string id="Clear" scope="glance">Clear</string>
   <string id="GlanceSafeIn" scope="glance">Safe in $1$</string>
   <string id="GlanceSafeAt" scope="glance">Safe at $1$</string>
+  <string id="GlanceSafeTomorrow" scope="glance">Tomorrow $1$</string>
   <string id="TimeAM" scope="glance">AM</string>
   <string id="TimePM" scope="glance">PM</string>
   <string id="UnitHour" scope="glance">h</string>
@@ -11,6 +12,7 @@
   <string id="SummaryUnit">mg caffeine</string>
   <string id="SummarySleepSafeIn">Sleep safe in $1$</string>
   <string id="SummarySleepSafeAt">Sleep safe at $1$</string>
+  <string id="SummarySleepSafeTomorrow">Safe tomorrow $1$</string>
   <string id="SummaryIntake">$1$ / $2$ mg today</string>
   <string id="SummaryHint">Press to add drink</string>
   <string id="TitleTimeline">Caffeine Timeline</string>

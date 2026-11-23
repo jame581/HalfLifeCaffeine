@@ -9,7 +9,7 @@ Paste as-is; newest release first.
 ```
 v1.6.0
 
-- The main screen and the glance show when it is safe to sleep as a clock time ("Sleep safe at 22:07"). Prefer the countdown? Switch it back in the app settings.
+- The main screen and the glance show when it is safe to sleep as a clock time ("Sleep safe at 22:07"). After a late coffee it says "Safe tomorrow 16:37". Prefer the countdown? Switch it back in the app settings.
 - New setting: the caffeine level below which it is safe to sleep (25–100 mg, default 50). The main screen, glance, timeline line and safe-to-sleep notification all follow it.
 - Watches set to 12-hour time now show times as 10:07 PM, also in today's drinks and day detail.
 

@@ -123,6 +123,13 @@ module Util {
         return 1;
     }
 
+    // True when thenEpoch falls on a later local calendar day than nowEpoch:
+    // the safe-to-sleep clock time then reads "tomorrow" (getMinutesToSafe
+    // looks at most 24 h ahead, so it is never later than tomorrow).
+    function isNextLocalDay(nowEpoch, thenEpoch) {
+        return ymdFromEpoch(thenEpoch) > ymdFromEpoch(nowEpoch);
+    }
+
     // How the safe-to-sleep line reads: 0 = clock time (default), 1 = countdown.
     function getSleepTimeFormat() {
         var v = Application.Properties.getValue("sleepTimeFormat");

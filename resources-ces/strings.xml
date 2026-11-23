@@ -4,6 +4,7 @@
   <string id="Clear" scope="glance">Lze spát</string>
   <string id="GlanceSafeIn" scope="glance">Spát za $1$</string>
   <string id="GlanceSafeAt" scope="glance">Spát v $1$</string>
+  <string id="GlanceSafeTomorrow" scope="glance">Zítra v $1$</string>
   <string id="TimeAM" scope="glance">dop.</string>
   <string id="TimePM" scope="glance">odp.</string>
   <string id="UnitHour" scope="glance">h</string>
@@ -11,6 +12,7 @@
   <string id="SummaryUnit">mg kofeinu</string>
   <string id="SummarySleepSafeIn">Spát lze za $1$</string>
   <string id="SummarySleepSafeAt">Spát lze v $1$</string>
+  <string id="SummarySleepSafeTomorrow">Spát zítra v $1$</string>
   <string id="SummaryIntake">$1$ / $2$ mg dnes</string>
   <string id="SummaryHint">Přidat nápoj</string>
   <string id="TitleTimeline">Průběh kofeinu</string>

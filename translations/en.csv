@@ -3,6 +3,7 @@ AppName,watch,"App name in the watch app list and in Garmin Connect. A short, pl
 Clear,glance,"Glance and main screen, when caffeine is low enough to sleep. Means 'all clear'.",12,,Clear
 GlanceSafeIn,glance,Glance status line. $1$ is a duration such as 3h 20m.,19,{duration},Safe in $1$
 GlanceSafeAt,glance,"Glance status line. $1$ is a clock time such as 22:07 or 10:07 PM: when caffeine drops low enough to sleep.",19,10:07 PM,Safe at $1$
+GlanceSafeTomorrow,glance,"Glance status line, when the safe-to-sleep time is on the next day (caffeine late in the evening). $1$ is a clock time such as 16:37 or 4:37 PM.",19,10:07 PM,Tomorrow $1$
 TimeAM,glance,"Suffix after a 12-hour clock time before noon, as in 9:03 AM. Shown only on watches set to 12-hour time.",4,,AM
 TimePM,glance,"Suffix after a 12-hour clock time from noon, as in 10:07 PM. Shown only on watches set to 12-hour time.",4,,PM
 UnitHour,glance,"Hour abbreviation in durations and on the graph axis (3h, +4h).",3,,h
@@ -10,6 +11,7 @@ UnitMinute,glance,Minute abbreviation in durations (20m).,4,,m
 SummaryUnit,watch,Under the big number on the main screen.,16,,mg caffeine
 SummarySleepSafeIn,watch,Main screen. $1$ is a duration such as 3h 20m.,23,{duration},Sleep safe in $1$
 SummarySleepSafeAt,watch,"Main screen. $1$ is a clock time such as 22:07 or 10:07 PM: when caffeine drops low enough to sleep.",24,10:07 PM,Sleep safe at $1$
+SummarySleepSafeTomorrow,watch,"Main screen, when the safe-to-sleep time is on the next day (caffeine late in the evening). $1$ is a clock time such as 16:37 or 4:37 PM.",24,10:07 PM,Safe tomorrow $1$
 SummaryIntake,watch,"Main screen. $1$ = caffeine taken today, $2$ = daily limit.",22,1000|1000,$1$ / $2$ mg today
 SummaryHint,watch,Hint at the bottom of the main screen. Very narrow on round watches.,20,,Press to add drink
 TitleTimeline,watch,Title of the graph screen.,20,,Caffeine Timeline

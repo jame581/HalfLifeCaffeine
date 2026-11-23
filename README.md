@@ -14,7 +14,7 @@ A free Garmin Connect IQ widget that tracks caffeine intake and models its decay
 ## Features
 
 - **Glance view** — current caffeine level, when it's safe to sleep, and today's intake against your daily limit as a bar
-- **Summary screen** — large mg display, progress bar toward daily limit, intake vs. limit, and the clock time when it's safe to sleep ("Sleep safe at 22:07"; a countdown if you prefer, in the app settings)
+- **Summary screen** — large mg display, progress bar toward daily limit, intake vs. limit, and the clock time when it's safe to sleep ("Sleep safe at 22:07", "Safe tomorrow 16:37" after a late coffee; a countdown if you prefer, in the app settings)
 - **Bedtime preview** — the Add Drink menu shows, under each drink, how much caffeine you'd still have at bedtime if you drank it now
 - **Timeline graph** — press START (or tap) to look 4, 8 or 12 hours ahead (with 2–6 hours of history), with dose markers, area fill, bedtime marker, and a prominent NOW indicator
 - **Today's drinks** — interactive log with cursor selection. SELECT to open an action menu: **edit time** by preset offset (−15 min through −3 hours, or +15/+30 min for fine-tuning) or **delete** a mis-tapped entry instantly

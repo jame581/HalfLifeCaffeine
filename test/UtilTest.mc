@@ -192,3 +192,17 @@ function testSafeSleepKind(logger) {
         && Util.safeSleepKind(120.0, 1439) == 1
         && Util.safeSleepKind(900.0, 1440) == 2;
 }
+
+(:test)
+function testIsNextLocalDay(logger) {
+    var base = Time.now().value();
+    var at10 = Util.localTimeOnDay(base, 10 * 3600);
+    var at22 = Util.localTimeOnDay(base, 22 * 3600);
+    var at23 = Util.localTimeOnDay(base, 23 * 3600);
+    return !Util.isNextLocalDay(at10, at10 + 3 * 3600)     // 13:00 same day
+        && !Util.isNextLocalDay(at22, at22 + 90 * 60)     // 23:30 same day
+        && Util.isNextLocalDay(at22, at22 + 3 * 3600)     // 01:00 next day
+        && !Util.isNextLocalDay(at23, at23 + 30 * 60)     // 23:30 same day
+        && Util.isNextLocalDay(at23, at23 + 90 * 60)      // 00:30 next day
+        && Util.isNextLocalDay(at22, at22 + 18 * 3600);   // 16:00 next day
+}

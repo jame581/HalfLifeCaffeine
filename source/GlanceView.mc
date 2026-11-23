@@ -10,6 +10,7 @@ class GlanceView extends WatchUi.GlanceView {
     private var _sClear;
     private var _tplSafeIn;
     private var _tplSafeAt;
+    private var _tplSafeTomorrow;
     private var _sAm;
     private var _sPm;
     private var _unitHour;
@@ -20,6 +21,7 @@ class GlanceView extends WatchUi.GlanceView {
         _sClear = WatchUi.loadResource(Rez.Strings.Clear);
         _tplSafeIn = WatchUi.loadResource(Rez.Strings.GlanceSafeIn);
         _tplSafeAt = WatchUi.loadResource(Rez.Strings.GlanceSafeAt);
+        _tplSafeTomorrow = WatchUi.loadResource(Rez.Strings.GlanceSafeTomorrow);
         _sAm = WatchUi.loadResource(Rez.Strings.TimeAM);
         _sPm = WatchUi.loadResource(Rez.Strings.TimePM);
         _unitHour = WatchUi.loadResource(Rez.Strings.UnitHour);
@@ -50,8 +52,9 @@ class GlanceView extends WatchUi.GlanceView {
                 statusText = Lang.format(_tplSafeIn,
                     [Util.formatDuration(minutesToSafe, _unitHour, _unitMinute) + "+"]);
             } else if (kind == 1 && Util.getSleepTimeFormat() == 0) {
-                statusText = Lang.format(_tplSafeAt,
-                    [Util.formatTime(now + minutesToSafe * 60, _sAm, _sPm)]);
+                var safeAt = now + minutesToSafe * 60;
+                statusText = Lang.format(Util.isNextLocalDay(now, safeAt) ? _tplSafeTomorrow : _tplSafeAt,
+                    [Util.formatTime(safeAt, _sAm, _sPm)]);
             } else if (kind == 1) {
                 statusText = Lang.format(_tplSafeIn,
                     [Util.formatDuration(minutesToSafe, _unitHour, _unitMinute)]);

@@ -118,8 +118,10 @@ class TimelineView extends WatchUi.View {
         var curve = buildCurve(app.caffeineModel, now, _pastHours, _futureHours, _stepMin);
         var totalMinutes = (_pastHours + _futureHours) * 60;
 
-        // Y-axis scale (headroom above max)
-        _maxMg = 50.0;
+        // Y-axis scale (headroom above max). The floor is the sleep-safe level,
+        // so its dashed line always fits, even with no caffeine.
+        var safeMg = Util.getSleepSafeMg().toFloat();
+        _maxMg = safeMg;
         for (var i = 0; i < curve.size(); i++) {
             if (curve[i] > _maxMg) { _maxMg = curve[i]; }
         }
@@ -127,7 +129,7 @@ class TimelineView extends WatchUi.View {
 
         drawAxes(dc);
         drawAreaFill(dc, curve, totalMinutes);
-        drawThresholdLine(dc);
+        drawThresholdLine(dc, safeMg);
         drawBedtimeMarker(dc, now);
         drawCurve(dc, curve, totalMinutes);
         drawNowMarker(dc);
@@ -142,8 +144,8 @@ class TimelineView extends WatchUi.View {
         dc.drawLine(_graphLeft, _graphBottom, _graphRight, _graphBottom);
     }
 
-    private function drawThresholdLine(dc) {
-        var safeY = _graphBottom - ((50.0 / _maxMg) * _graphHeight).toNumber();
+    private function drawThresholdLine(dc, safeMg) {
+        var safeY = _graphBottom - ((safeMg / _maxMg) * _graphHeight).toNumber();
         if (safeY < _graphTop || safeY > _graphBottom) { return; }
         dc.setColor(Colors.WARNING, Graphics.COLOR_TRANSPARENT);
         for (var x = _graphLeft; x < _graphRight; x += 6) {

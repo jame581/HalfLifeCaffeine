@@ -99,7 +99,7 @@ Linear swipe chain of four views, plus one modal drilldown:
 
 ### Domain invariants
 
-- Half-life default: 20520s (5.7h), user-configurable via the `halfLifeHours` property (3–10h). `CaffeineModel` holds it in a mutable `_halfLifeSeconds`, injected via `setHalfLifeSeconds(...)` from `Util.getHalfLifeSeconds()` — the model stays free of `Application.Properties`. Sleep-safe threshold: 50mg (`AlertManager.SLEEP_SAFE_MG`, `GlanceView`, `SummaryView`).
+- Half-life default: 20520s (5.7h), user-configurable via the `halfLifeHours` property (3–10h). `CaffeineModel` holds it in a mutable `_halfLifeSeconds`, injected via `setHalfLifeSeconds(...)` from `Util.getHalfLifeSeconds()` — the model stays free of `Application.Properties`. Sleep-safe threshold: the `sleepSafeMg` property (25–100 mg, default 50), read through `Util.getSleepSafeMg()`, which clamps on every read; used by `AlertManager` (safe-to-sleep vibration), `GlanceView`, `SummaryView` and `TimelineView` (dashed line, and the graph's lowest scale).
 - Decay never removes a dose. `CaffeineModel.getCurrentLevel` skips doses older than 10 half-lives (`SKIP_HALF_LIVES`, under 0.1 % left); `getOldestCountedTime` exposes that cutoff for the glance's `loadDosesSince` and the archive boundary. Before v1.4.0 a decay prune dropped doses below 1 mg, so per-drink history vanished after about two days.
 - `getMinutesToSafe` binary-searches over the next 24h in 1-minute steps; returns 0 if already below threshold.
 - Bedtime logic in `Util.getBedtimeEpoch` rolls forward a day if today's bedtime has passed.

@@ -38,7 +38,7 @@ class GlanceView extends WatchUi.GlanceView {
 
         var statusText = _sClear;
         if (level >= 1.0) {
-            var minutesToSafe = model.getMinutesToSafe(now, 50);
+            var minutesToSafe = model.getMinutesToSafe(now, Util.getSleepSafeMg());
             if (minutesToSafe > 0) {
                 statusText = Lang.format(_tplSafeIn,
                     [Util.formatDuration(minutesToSafe, _unitHour, _unitMinute)]);

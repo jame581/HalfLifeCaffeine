@@ -43,7 +43,7 @@ class SummaryView extends WatchUi.View {
         if (app.caffeineModel != null) {
             level = app.caffeineModel.getCurrentLevel(now);
             dailyIntake = app.caffeineModel.getDailyIntake(now);
-            minutesToSafe = app.caffeineModel.getMinutesToSafe(now, 50);
+            minutesToSafe = app.caffeineModel.getMinutesToSafe(now, Util.getSleepSafeMg());
         }
 
 

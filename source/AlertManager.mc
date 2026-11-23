@@ -6,7 +6,6 @@ import Toybox.Time.Gregorian;
 class AlertManager {
 
     private const WARNING_THRESHOLD = 0.8;  // 80% of daily limit
-    private const SLEEP_SAFE_MG = 50;
     private const SLEEP_WINDOW_SECONDS = 7200; // 2 hours before bedtime
 
     // Tracks which alerts have fired today (reset at midnight)
@@ -67,7 +66,7 @@ class AlertManager {
         if (_sleepFiredDate == today) {
             return;
         }
-        if (currentLevel >= SLEEP_SAFE_MG) {
+        if (currentLevel >= Util.getSleepSafeMg()) {
             return;
         }
         // Check if within 2 hours of bedtime

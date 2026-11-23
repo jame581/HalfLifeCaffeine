@@ -94,13 +94,19 @@ module Util {
     // read: the companion page saves through ciq://settings, not through
     // SyncManager, so a stored value may never have been checked.
     function sanitizeSleepSafeMg(value) {
-        if (value instanceof Lang.Number || value instanceof Lang.Float) {
+        if (isNumeric(value)) {
             var n = (value + 0.5).toNumber();
             if (n < 25) { return 25; }
             if (n > 100) { return 100; }
             return n;
         }
         return 50;
+    }
+
+    // A number of any kind the phone's JSON may decode to.
+    function isNumeric(value) {
+        return value instanceof Lang.Number || value instanceof Lang.Float
+            || value instanceof Lang.Long || value instanceof Lang.Double;
     }
 
     function getSleepSafeMg() {

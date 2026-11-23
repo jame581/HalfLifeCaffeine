@@ -70,7 +70,8 @@ class SyncManager {
             if (data.hasKey("halfLifeHours")) {
                 Application.Properties.setValue("halfLifeHours", data["halfLifeHours"]);
             }
-            if (data.hasKey("sleepSafeMg")) {
+            // Something that is not a number keeps the stored level (like dailyLimit).
+            if (data.hasKey("sleepSafeMg") && Util.isNumeric(data["sleepSafeMg"])) {
                 Application.Properties.setValue("sleepSafeMg", Util.sanitizeSleepSafeMg(data["sleepSafeMg"]));
             }
         }

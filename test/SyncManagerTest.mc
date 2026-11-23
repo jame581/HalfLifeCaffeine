@@ -35,7 +35,8 @@ function testPhoneDailyLimitFloat(logger) {
 }
 
 // A sleep-safe level from the phone is stored rounded and kept in 25-100;
-// a settings message without it leaves the stored level alone.
+// a settings message without it, or with something that is not a number,
+// leaves the stored level alone.
 (:test)
 function testPhoneSleepSafeMg(logger) {
     var old = Application.Properties.getValue("sleepSafeMg");
@@ -49,6 +50,11 @@ function testPhoneSleepSafeMg(logger) {
     ok = ok && Application.Properties.getValue("sleepSafeMg") == 100;
     sync.handlePhoneMessage({"type" => "settings", "sleepSafeMg" => 42.6});
     ok = ok && Application.Properties.getValue("sleepSafeMg") == 43;
+    Application.Properties.setValue("sleepSafeMg", 30);
+    sync.handlePhoneMessage({"type" => "settings", "sleepSafeMg" => "40"});
+    ok = ok && Application.Properties.getValue("sleepSafeMg") == 30;
+    sync.handlePhoneMessage({"type" => "settings", "sleepSafeMg" => null});
+    ok = ok && Application.Properties.getValue("sleepSafeMg") == 30;
     Application.Properties.setValue("sleepSafeMg", old);
     return ok;
 }

@@ -124,6 +124,12 @@
             <input type="number" id="bedtimeMinute" value="30" min="0" max="59">
         </div>
     </div>
+    <div class="setting-row">
+        <span class="setting-label" data-i18n="CSleepSafeMg">Safe to sleep below (mg)</span>
+        <div class="setting-value">
+            <input type="number" id="sleepSafeMg" value="50" min="25" max="100" step="5">
+        </div>
+    </div>
 
     <h2 data-i18n="CHNotifications">Notifications</h2>
     <div class="setting-row">
@@ -203,6 +209,7 @@ var I18N = {
     "CHBedtime": "Bedtime",
     "CBedtimeHour": "Bedtime Hour",
     "CBedtimeMinute": "Bedtime Minute",
+    "CSleepSafeMg": "Safe to sleep below (mg)",
     "CHNotifications": "Notifications",
     "CWarn80": "Warn at 80%",
     "CAlert100": "Alert at 100%",
@@ -246,6 +253,7 @@ var I18N = {
     "CHBedtime": "Nukkumaanmenoaika",
     "CBedtimeHour": "Tunti",
     "CBedtimeMinute": "Minuutti",
+    "CSleepSafeMg": "Safe to sleep below (mg)",
     "CHNotifications": "Ilmoitukset",
     "CWarn80": "Varoita 80% kohdalla",
     "CAlert100": "Hälytä 100% kohdalla",
@@ -289,6 +297,7 @@ var I18N = {
     "CHBedtime": "Čas spánku",
     "CBedtimeHour": "Čas spánku – hodina",
     "CBedtimeMinute": "Čas spánku – minuta",
+    "CSleepSafeMg": "Safe to sleep below (mg)",
     "CHNotifications": "Oznámení",
     "CWarn80": "Varovat při 80 %",
     "CAlert100": "Upozornit při 100 %",
@@ -332,6 +341,7 @@ var I18N = {
     "CHBedtime": "Schlafenszeit",
     "CBedtimeHour": "Schlafenszeit – Stunde",
     "CBedtimeMinute": "Schlafenszeit – Minute",
+    "CSleepSafeMg": "Safe to sleep below (mg)",
     "CHNotifications": "Benachrichtigungen",
     "CWarn80": "Warnung bei 80 %",
     "CAlert100": "Alarm bei 100 %",
@@ -375,6 +385,7 @@ var I18N = {
     "CHBedtime": "Coucher",
     "CBedtimeHour": "Heure du coucher",
     "CBedtimeMinute": "Minute du coucher",
+    "CSleepSafeMg": "Safe to sleep below (mg)",
     "CHNotifications": "Notifications",
     "CWarn80": "Avertir à 80 %",
     "CAlert100": "Alerter à 100 %",
@@ -470,6 +481,7 @@ function applyIncomingSettings(s) {
     setNum('halfLifeHours', s.halfLifeHours);
     setNum('bedtimeHour', s.bedtimeHour);
     setNum('bedtimeMinute', s.bedtimeMinute);
+    setNum('sleepSafeMg', s.sleepSafeMg);
     setToggle('alertLimitWarning', s.alertLimitWarning);
     setToggle('alertLimitReached', s.alertLimitReached);
     setToggle('alertSafeToSleep', s.alertSafeToSleep);
@@ -557,6 +569,13 @@ function removePreset(index) {
     renderPresets();
 }
 
+// Same rule as the watch's Util.sanitizeSleepSafeMg: whole mg in 25-100, 50 if not a number.
+function clampSleepSafeMg(raw) {
+    var n = Math.round(parseFloat(raw));
+    if (isNaN(n)) { return 50; }
+    return Math.min(100, Math.max(25, n));
+}
+
 function saveSettings() {
     localStorage.setItem('presets', JSON.stringify(presets));
     var settings = {
@@ -566,6 +585,7 @@ function saveSettings() {
         halfLifeHours: parseFloat(document.getElementById('halfLifeHours').value),
         bedtimeHour: parseInt(document.getElementById('bedtimeHour').value),
         bedtimeMinute: parseInt(document.getElementById('bedtimeMinute').value),
+        sleepSafeMg: clampSleepSafeMg(document.getElementById('sleepSafeMg').value),
         alertLimitWarning: document.getElementById('alertLimitWarning').classList.contains('on'),
         alertLimitReached: document.getElementById('alertLimitReached').classList.contains('on'),
         alertSafeToSleep: document.getElementById('alertSafeToSleep').classList.contains('on'),

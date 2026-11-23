@@ -86,6 +86,7 @@ CHalfLife,companion,Field label.,,,Caffeine half-life (h)
 CHBedtime,companion,Section heading.,,,Bedtime
 CBedtimeHour,companion,Field label.,,,Bedtime Hour
 CBedtimeMinute,companion,Field label.,,,Bedtime Minute
+CSleepSafeMg,companion,Field label. Caffeine level (mg) below which the watch says it is safe to sleep.,,,Safe to sleep below (mg)
 CHNotifications,companion,Section heading.,,,Notifications
 CWarn80,companion,Switch label.,,,Warn at 80%
 CAlert100,companion,Switch label.,,,Alert at 100%

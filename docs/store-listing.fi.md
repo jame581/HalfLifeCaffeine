@@ -6,11 +6,11 @@ HalfLife Caffeine – Kofeiinilaskuri
 ## What's New
 
 ```
-v1.6.0 (TODO: translator — English placeholder)
+v1.6.0
 
-- The main screen and the glance show when it is safe to sleep as a clock time ("Sleep safe at 22:07"). After a late coffee it says "Safe tomorrow 16:37". Prefer the countdown? Switch it back in the app settings.
-- New setting: the caffeine level below which it is safe to sleep (25–100 mg, default 50). The main screen, glance, timeline line and safe-to-sleep notification all follow it.
-- Watches set to 12-hour time now show times as 10:07 PM, also in today's drinks and day detail.
+- Päänäkymä ja pikanäkymä näyttävät nyt kellonajan, jolloin voit mennä nukkumaan ("Uni OK: 22:07"). Myöhäisen kahvin jälkeen näkyy "Huomenna 16:37". Haluatko mieluummin ajastimen? Vaihda se takaisin sovelluksen asetuksista (Uniajan muoto).
+- Uusi asetus: kofeiinitaso, jonka alapuolella on turvallista nukkua (25–100 mg, oletus 50). Päänäkymä, pikanäkymä, aikajanan viiva ja uni-ilmoitus noudattavat sitä.
+- Kellot, joissa on 12 tunnin aika, näyttävät ajat muodossa 10:07 PM, myös tämän päivän juomissa ja päivän tiedoissa.
 
 v1.5.0
 

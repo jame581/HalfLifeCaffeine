@@ -3,16 +3,16 @@
   <string id="AppName">Kofeiinilaskuri</string>
   <string id="Clear" scope="glance">Uni OK</string>
   <string id="GlanceSafeIn" scope="glance">Uni OK: $1$</string>
-  <string id="GlanceSafeAt" scope="glance">Safe at $1$</string>
-  <string id="GlanceSafeTomorrow" scope="glance">Tomorrow $1$</string>
+  <string id="GlanceSafeAt" scope="glance">Uni OK: $1$</string>
+  <string id="GlanceSafeTomorrow" scope="glance">Huomenna $1$</string>
   <string id="TimeAM" scope="glance">AM</string>
   <string id="TimePM" scope="glance">PM</string>
   <string id="UnitHour" scope="glance">t</string>
   <string id="UnitMinute" scope="glance">min</string>
   <string id="SummaryUnit">mg kofeiinia</string>
   <string id="SummarySleepSafeIn">Uni OK: $1$</string>
-  <string id="SummarySleepSafeAt">Sleep safe at $1$</string>
-  <string id="SummarySleepSafeTomorrow">Safe tomorrow $1$</string>
+  <string id="SummarySleepSafeAt">Uni OK: $1$</string>
+  <string id="SummarySleepSafeTomorrow">Huomenna $1$</string>
   <string id="SummaryIntake">Tänään: $1$ / $2$ mg</string>
   <string id="SummaryHint">Paina lisätäksesi</string>
   <string id="TitleTimeline">Kofeiiniaikajana</string>
@@ -72,10 +72,10 @@
   <string id="SettingThemeTitle" scope="settings">Taustateema</string>
   <string id="ThemeNavy" scope="settings">Laivastonsininen (oletus)</string>
   <string id="ThemeBlack" scope="settings">Musta</string>
-  <string id="SettingSleepFormat" scope="settings">Sleep time shown as</string>
-  <string id="SleepFormatClock" scope="settings">Clock time</string>
-  <string id="SleepFormatCountdown" scope="settings">Countdown</string>
-  <string id="SettingSleepSafeMg" scope="settings">Safe to sleep below (mg)</string>
+  <string id="SettingSleepFormat" scope="settings">Uniajan muoto</string>
+  <string id="SleepFormatClock" scope="settings">Kellonaika</string>
+  <string id="SleepFormatCountdown" scope="settings">Ajastin</string>
+  <string id="SettingSleepSafeMg" scope="settings">Uniraja kofeiinille (mg)</string>
   <string id="SettingPresetsTitle" scope="settings">Oletusjuomat</string>
   <string id="SettingPresetName" scope="settings">Nimi</string>
   <string id="SettingPresetMg" scope="settings">Kofeiini (mg)</string>

@@ -19,7 +19,8 @@ widest value; resources/properties.xml is restored afterwards.
 -Demo builds with store.jungle instead (demo/DemoData.mc: two weeks of
 believable drinks, the 400 mg default limit), clears the app data before each
 language so the drinks are named in that language, and also saves every screen
-cropped to the display, round screens with transparent corners, under
+cropped to the display as an opaque square (a round screen's rows are
+extended to the corners in their own colour, as the store shows them), under
 <OutDir>\store\<device>-<lang>\ for the store listing. On fenix6 the demo build
 takes the simulator down when it seeds (the release build runs fine there);
 use vivoactive5.
@@ -86,18 +87,68 @@ if (-not $NoBuild) {
     } finally { Set-Content $props $orig -NoNewline }
 }
 
-# The display alone, as the store wants it; outside a round display is transparent.
+# The display alone, square and opaque, as the store shows it.
 function Save-DisplayCrop([string]$From, [string]$File, $Disp, [bool]$Round) {
     $src = [System.Drawing.Image]::FromFile($From)
     $out = New-Object System.Drawing.Bitmap $Disp.width, $Disp.height, ([System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
-    $g = [System.Drawing.Graphics]::FromImage($out); $g.Clear([System.Drawing.Color]::Transparent)
-    if ($Round) {
-        $clip = New-Object System.Drawing.Drawing2D.GraphicsPath
-        $clip.AddEllipse(0, 0, $Disp.width, $Disp.height); $g.SetClip($clip)
-    }
+    $g = [System.Drawing.Graphics]::FromImage($out)
     $g.DrawImage($src, (New-Object System.Drawing.Rectangle 0, 0, $Disp.width, $Disp.height),
                  (New-Object System.Drawing.Rectangle $Disp.x, $Disp.y, $Disp.width, $Disp.height), 'Pixel')
-    $g.Dispose(); $src.Dispose(); $out.Save($File, [System.Drawing.Imaging.ImageFormat]::Png); $out.Dispose()
+    $g.Dispose(); $src.Dispose()
+    if ($Round) { Square-RoundDisplay $out }
+    $out.Save($File, [System.Drawing.Imaging.ImageFormat]::Png); $out.Dispose()
+}
+
+# Outside the circle the simulator shows the bezel; paint each row out to the
+# square's edges with that row's most common colour just inside the rim (navy
+# background, black menu title, white menu body). The most common colour, not
+# the pixel at the rim, so text or a line that touches the rim is not smeared.
+function Square-RoundDisplay([System.Drawing.Bitmap]$Bmp) {
+    $w = $Bmp.Width; $h = $Bmp.Height; $r = $w / 2.0; $inset = 4
+    # Rows whose span is narrower than this are painted whole: the simulator's
+    # circle is a little smaller than the display, so the bezel shows through there.
+    $minChord = [int]($w / 5)
+    # The circle's inner span on each row, $inset pixels in from its anti-aliased rim.
+    $span = foreach ($y in 0..($h - 1)) {
+        $dy = $y + 0.5 - $h / 2.0
+        $half = [Math]::Sqrt([Math]::Max(0, $r * $r - $dy * $dy))
+        , @(([int][Math]::Ceiling($r - $half) + $inset), ([int][Math]::Floor($r + $half) - 1 - $inset))
+    }
+    # 1. Each row's colour: the most common one in a band along the rim, so a chart
+    #    filling the middle of the row does not leak out and text at the rim is not smeared.
+    $color = New-Object 'int[]' $h; $wide = New-Object 'bool[]' $h
+    for ($y = 0; $y -lt $h; $y++) {
+        $left, $right = $span[$y]
+        if ($right - $left -lt $minChord) { continue }
+        $wide[$y] = $true; $count = @{}
+        for ($x = $left; $x -lt $left + 16; $x++) { $count[$Bmp.GetPixel($x, $y).ToArgb()]++ }
+        for ($x = $right - 15; $x -le $right; $x++) { $count[$Bmp.GetPixel($x, $y).ToArgb()]++ }
+        $color[$y] = ($count.GetEnumerator() | Sort-Object Value -Descending | Select-Object -First 1).Key
+    }
+    # 2. Majority vote over 13 rows: a stray of a few rows (the edge of a highlight bar,
+    #    letters at the rim in several anti-aliased shades) loses; a straight edge such
+    #    as the menu title's stays where it is.
+    $first = [Array]::IndexOf($wide, $true); $last = [Array]::LastIndexOf($wide, $true)
+    $voted = $color.Clone()
+    for ($y = $first; $y -le $last; $y++) {
+        $count = @{}
+        for ($k = [Math]::Max($first, $y - 6); $k -le [Math]::Min($last, $y + 6); $k++) { $count[$color[$k]]++ }
+        $best = ($count.GetEnumerator() | Sort-Object Value -Descending | Select-Object -First 1)
+        # A tie keeps the row's own colour, so an edge does not move.
+        if ($count[$color[$y]] -lt $best.Value) { $voted[$y] = $best.Key }
+    }
+    $color = $voted
+    # 3. Paint: outside the span on wide rows, the whole row near the top and bottom.
+    for ($y = 0; $y -lt $h; $y++) {
+        if ($wide[$y]) {
+            $c = [System.Drawing.Color]::FromArgb($color[$y]); $left, $right = $span[$y]
+            for ($x = 0; $x -lt $left; $x++) { $Bmp.SetPixel($x, $y, $c) }
+            for ($x = $right + 1; $x -lt $w; $x++) { $Bmp.SetPixel($x, $y, $c) }
+        } else {
+            $c = [System.Drawing.Color]::FromArgb($color[($y -lt $first) ? $first : $last])
+            for ($x = 0; $x -lt $w; $x++) { $Bmp.SetPixel($x, $y, $c) }
+        }
+    }
 }
 
 function Save-Sheet([string]$File, [string]$Dir, [string[]]$Names, $Disp) {
